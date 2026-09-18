@@ -1,6 +1,10 @@
 # Embee Nexus — Mobile UX Architecture
 
-**Status:** PROPOSED — engineering recommendation, founder review required.
+**Status:** PROPOSED — engineering recommendation; **direction confirmed by founder
+docs** (Reconciled Engineering Handoff V2: React Native + Expo for Customer/Rider,
+web for admin; Founder Technology Decision: mobile-first Customer/Rider). Framework
+ratification still required before any mobile milestone — see
+CANONICAL_SOURCE_OF_TRUTH.md §6 and FOUNDER_DECISIONS.md §D.
 **Date:** 2026-09-18 · **Phase:** Design foundation (pre-M4)
 
 > Mobile is the primary product experience. Hierarchy: BrandKit → Design

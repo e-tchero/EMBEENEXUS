@@ -1,9 +1,11 @@
 # Embee Nexus — API & Credential Inventory
 
-**Date:** 2026-09-18 · **Phase:** Design foundation (pre-M4)
+**Date:** 2026-09-18 · **Phase:** Design foundation (pre-M4); reconciled post-M3
+ against external founder docs — see `CANONICAL_SOURCE_OF_TRUTH.md` §6.
 **Sources:** full codebase audit (`lib/env/*`, `.env.example`, providers, services),
-docs, ADRs. No secret values were read, requested, or committed — variable
-names and classification only.
+docs, ADRs, founder specs (Payment System.docx, Nexus Seller spec, Stadia decision,
+Developer Brand Kit workspace). No secret values were read, requested, or committed —
+variable names and classification only.
 
 ## 1. Integration matrix
 
@@ -16,8 +18,8 @@ names and classification only.
 | Stadia Maps (client tiles) | Browser/mobile map tile display | (none yet — separate **public** token if/when vector tiles are rendered client-side) | Client-safe token | M5/M7 (first mobile map screens) | `REQUIRED LATER` — provision when map UX is built |
 | Flutterwave | Payments | `FLUTTERWAVE_SECRET_KEY`, `FLUTTERWAVE_WEBHOOK_HASH` | **Server-only** | M4 | `REQUIRED` — prepare now, do not commit |
 | Flutterwave (public key) | Client-side checkout initialization (inline/redirect) | `NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY` (not yet in `.env.example`; add when M4 starts) | Client-safe by design | M4 | `REQUIRED` |
-| Resend | Email delivery | (none present) | n/a | — | **NOT PART OF CURRENT V2 ARCHITECTURE** — no code/doc reference anywhere. MVP notifications are SMS + in-app. Do not add without founder authorization |
-| SMS / OTP provider | Confirmation SMS, OTP delivery (D26 cost ownership pending) | *(provider not selected — do not invent)* | n/a | M5/M6+ | **FOUNDER DECISION REQUIRED** |
+| Resend | Email delivery | (none present) | n/a | — | **NOT PART OF CURRENT V2 ARCHITECTURE** — V1-era only (CLAUDE_PREP/08, V1 baseline). MVP notifications are SMS + in-app per founder docs. Do not add without founder authorization |
+| SMS / OTP provider | Confirmation SMS, OTP delivery, seller tracking-link SMS (D26 cost ownership pending) | *(provider not selected — do not invent)* — Seller spec §12 lists candidate Nigerian gateways for CTO assessment | n/a | M5/M6+ (seller tracking SMS) | **FOUNDER DECISION REQUIRED** (provider + D26) |
 | Push notifications | Tracking/status push | Android: FCM server key + device tokens; iOS: APNs key + certificates (via future mobile framework's credential flow) | Server holds sender credentials; device tokens are data, not env secrets | M7 (post mobile build) | `REQUIRED LATER` — nothing to provision yet |
 | Vercel | Web/operator deployment | `NEXT_PUBLIC_APP_URL` (+ none beyond provider-integration vars) | Integration via dashboard/GitHub; **no deploy token needed locally or in CI** unless CLI deploys are authorized | M10 / first deploy | `OPTIONAL` |
 | Sentry | Error tracking | `SENTRY_DSN` (optional in server env schema) | DSN is server-side config; browser DSN would be client-safe by design | Not scheduled | `OPTIONAL` — off by default |
@@ -106,3 +108,20 @@ Client/server: CLIENT-SAFE
 Required phase: first map-display screens (M5/M7)
 Status: WAIT — provision when map UX build is authorized
 ```
+
+## 5. Reconciliation addendum (post-M3)
+
+Cross-checked against the external founder material (see CANONICAL_SOURCE_OF_TRUTH.md):
+
+- **Stadia usage guidance from the founder Stadia decision (Sep 11)** now attaches to the
+  `STADIA_MAPS_API_KEY` row: commercial production belongs on the **Starter plan ($20/mo)**;
+  harden map endpoints (rate limiting, input validation, autocomplete-v2-first search,
+  route/geocode caching, usage monitoring) — these are engineering requirements for the
+  next maps-touching milestone, not new provider decisions.
+- **Seller tracking-link SMS** (Seller spec §12) is added to the SMS row's purpose — the
+  provider decision covers both OTP/status SMS and recipient tracking-link SMS.
+- **Resend** stays classified NOT PART OF V2 (V1-era email provider per CLAUDE_PREP/08 +
+  V1 baseline; superseded by the founder MVP notification model: SMS + in-app).
+- **Flutterwave webhook hash** confirmed by Payment System.docx §2/§22 (webhook-driven
+  backend verification, provider abstraction mandated for future providers/currencies).
+- No other credential states changed. No secret values exist in this repository.

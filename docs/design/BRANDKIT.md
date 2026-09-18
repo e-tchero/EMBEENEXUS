@@ -1,127 +1,105 @@
 # Embee Nexus — BrandKit
 
-**Status:** PROPOSED — founder review required before any consumer-facing build.
-**Date:** 2026-09-18 · **Phase:** Design foundation (pre-M4)
+**Status:** RECONCILED to canonical founder brand material — see
+`CANONICAL_SOURCE_OF_TRUTH.md` §2 and `CLAUDE_PREP/brand/`.
+**Date:** 2026-09-18 · **Phase:** Design foundation (pre-M4); reconciled post-M3.
 
-> The repository contains **no pre-existing brand assets**: no logos, no
-> wordmark, no favicon, no design tokens beyond neutral Next.js scaffolding
-> (`globals.css` defines only background/foreground). Everything below is a
-> coherent proposed system, not an established identity. Items marked
-> **FOUNDER** require confirmation before implementation consumes them.
+> **Reconciliation note (overrides the earlier version of this document).**
+> The previous version stated the repository contained "no pre-existing brand
+> assets" and proposed a new identity (Inter, blue `#1D4ED8`, orange `#EA580C`).
+> That was **incorrect**: the repository tracks six founder-supplied logo assets
+> under `CLAUDE_PREP/brand/assets/` plus the founder brand system in
+> `CLAUDE_PREP/brand/` (mirrored from the external Developer Brand Kit). Under
+> the authority model, founder brand material (L3) outranks this design-phase
+> proposal (L5). The proposed Inter/blue/orange system is **RETRACTED**. What
+> survives from the earlier proposal: token *architecture* (semantic naming,
+> status/map tokens, spacing, radius), voice conventions, and accessibility
+> rules — re-based on the founder values below.
 
-## 1. Identity
+## 1. Identity (canonical — founder material)
 
-| Item | Decision | Status |
+| Item | Canonical position | Source |
 |---|---|---|
-| Product name | **Embee Nexus** | Frozen (founder-authored) |
-| Written form | "Embee Nexus" — two words, both capitalized; never "EmbeeNexus", "embee nexus", or "MBEENEXUS" (legacy repo name) | PROPOSED — FOUNDER |
-| Wordmark | Set in Inter SemiBold, lowercase "embee" + semibold "nexus"? — **no**: two capitalized words, tight tracking (−1%), no icon inside the wordmark | PROPOSED — FOUNDER |
-| Logo mark | "N" node motif: two points (pickup → destination) connected by a curved route line inside a rounded square. Motorcycle-specific marks are avoided (future-proofing) | PROPOSED — FOUNDER |
-| Clear space | Minimum padding around wordmark/mark = cap-height of the wordmark ("x" on all sides) | PROPOSED |
-| Minimum sizing | Wordmark ≥ 96 px wide (screen), ≥ 24 px (print-equivalent); mark ≥ 24 × 24 px; favicon renders mark only | PROPOSED |
-| App icon | Rounded-square brand-color field, white route-node mark, no text | PROPOSED — FOUNDER |
-| Favicon | Mark-only SVG, monochrome-compatible (`app/icon.svg` when implemented) | PROPOSED |
-| Asset naming | `embee-{asset}-{variant}.{ext}` e.g. `embee-mark-primary.svg`, `embee-wordmark-mono.svg`, `embee-icon-1024.png` | PROPOSED |
+| Product name | **Embee Nexus** | Founder authorizations; Developer Brand Kit |
+| Logo mark | **Interlocking E/N monogram** — compact, square, sharp/geometric; no literal delivery imagery (motorcycles, boxes, pins, arrows) | Developer Brand Kit §2 |
+| Logo assets | 6 founder files in `CLAUDE_PREP/brand/assets/`: `FULL_COLOR.jpeg` (1024², light bg), `DARK.jpeg` (1024², dark bg), `WHITE.jpeg` (1024², dark bg), `FULL_COLOR _02.jpeg` (750², secondary), `FULL_COLOR-removebg-preview.png` (500², transparent), `LOGO_CONSTRUCTION.jpeg` (612², reference) | LOGO-INVENTORY.md; verified dimensions in CANONICAL_SOURCE_OF_TRUTH.md §3 |
+| Usage rules | Do not distort, stretch, rotate or add effects; compact E/N mark for icon/small contexts; wordmark where the name must be explicit | Developer Brand Kit §2/§7 |
+| Clear space / min size | **FOUNDER-PENDING** — brand kit itself lists exact construction measurements, clear-space and minimum-size rules as still-to-finalize | Developer Brand Kit §8 |
+| App icon / favicon / SVG | **MISSING — FOUNDER MUST SUPPLY** vector logo, favicon, app icon, wordmark asset | LOGO-INVENTORY.md "Missing Assets" |
+| Interim code mark | Text-based "EN" fallback component is explicitly interim until the official mark is available | LOGO-INVENTORY.md |
+| Asset classification | `Embeenexus brandkit.png` (external) = identity board **REFERENCE**, not a production asset | CANONICAL_SOURCE_OF_TRUTH.md §3 |
 
-No logo files exist in the repository yet. Nothing here authorizes creating
-final artwork — that is founder-owned.
+## 2. Color system (canonical — founder palette)
 
-## 2. Color system
+Founder palette (Developer Brand Kit §3, mirrored in `CLAUDE_PREP/brand/COLOR-SYSTEM.md`):
 
-Semantic tokens only; screens never use raw hex. Derived from the
-design-research baseline (tracking blue + delivery orange; see
-DESIGN_RESEARCH.md §2). Dark mode: same semantic names, remapped values.
-
-### Core
-
-| Token | Light | Dark | Usage |
-|---|---|---|---|
-| `color.primary` | `#1D4ED8` (blue-700) | `#60A5FA` (blue-400) | Brand actions, active states, links |
-| `color.on-primary` | `#FFFFFF` | `#0B1220` | Text/icons on primary |
-| `color.secondary` | `#0F172A` (slate-900) | `#E2E8F0` | Secondary buttons, chrome |
-| `color.accent` | `#EA580C` (orange-600) | `#FB923C` | Highlights, rider-markers, promos — sparingly |
-| `color.background` | `#F8FAFC` (slate-50) | `#0B1220` | Screen background |
-| `color.surface` | `#FFFFFF` | `#111A2C` | Cards, sheets |
-| `color.surface-elevated` | `#FFFFFF` + shadow | `#1B2740` | Modals, expanded sheets |
-| `color.text` | `#0F172A` | `#F1F5F9` | Primary text (≥ 4.5:1 on surfaces) |
-| `color.text-muted` | `#475569` | `#94A3B8` | Metadata, captions (≥ 4.5:1) |
-| `color.border` | `#E2E8F0` | `#27334B` | Dividers, card outlines |
-| `color.disabled` | `#94A3B8` on `#F1F5F9` | `#64748B` on `#111A2C` | Disabled controls (never rely on color alone) |
-
-### Status
-
-| Token | Light | Dark | Usage |
-|---|---|---|---|
-| `color.success` | `#15803D` | `#4ADE80` | Payment verified, delivered, approved |
-| `color.warning` | `#B45309` | `#FBBF24` | Under review, expiring quote, retries |
-| `color.error` | `#DC2626` | `#F87171` | Failures, rejections, destructive |
-| `color.info` | `#1D4ED8` | `#60A5FA` | Neutral progress, tips |
-
-### Map states
-
-| Token | Usage |
-|---|---|
-| `map.route.active` | Primary blue — current leg |
-| `map.route.completed` | Muted text color — finished leg |
-| `map.marker.pickup` | Accent orange |
-| `map.marker.destination` | Primary blue |
-| `map.marker.rider` | Success green (live position, in-transit only) |
-| `map.coverage.ok` | Subtle primary tint on covered area |
-| `map.coverage.rejected` | Error tint + inline message (zone/35 km rejection) |
-
-Rules: color never carries meaning alone (pair with icon/text); status tokens
-are the *only* allowed red/green/amber; brand blue is never reused as error.
-
-## 3. Typography
-
-| Item | Decision | Status |
+| Name | Hex | Role |
 |---|---|---|
-| Primary font | **Inter** (variable) | PROPOSED — FOUNDER |
-| Fallback | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | Frozen |
-| Numeric/financial | **Inter tabular numbers** (`font-variant-numeric: tabular-nums`) for all money, distances, ETAs | Frozen |
-| Rationale | High x-height, excellent naira/numeral legibility at small sizes, self-hostable, variable-weight (cheap on slow networks) | — |
+| **Midnight Navy / Embee Navy** | `#0B1220` | Dark navigation, hero areas, strong brand surfaces; dark-mode background |
+| **Embee Blue** | `#147BFF` | Primary brand: logo, CTAs, active states, links, key highlights |
+| **Digital Cyan** | `#38BDF8` | Secondary highlights and selected accents |
+| **Cool White / Embee White** | `#F5F7FA` | Light page backgrounds and UI surfaces |
+| **Deep Charcoal / Embee Charcoal** | `#111827` | Primary text on light surfaces |
+| **Embee Slate** | `#64748B` | Supporting text and metadata |
 
-### Scale (mobile-first, 4 pt rhythm)
+Semantic mapping (light) per `CLAUDE_PREP/brand/COLOR-SYSTEM.md`: `--primary` `#147BFF`
+(fg `#FFFFFF`) · `--background` `#F5F7FA` · `--foreground`/`--card-foreground` `#111827` ·
+`--card` `#FFFFFF` · `--secondary`/`--muted` `#F1F5F9` · `--muted-foreground` `#94A3B8` ·
+`--accent` `#38BDF8` · `--destructive` `#EF4444` · `--success` `#22C55E` ·
+`--warning` `#F59E0B` · `--border`/`--input` `#E2E8F0` · `--ring` `#147BFF`.
+Dark mode table exists in the same document (navy base `#0B1220`, charcoal cards `#111827`).
 
-| Token | Size/line | Weight | Usage |
-|---|---|---|---|
-| `type.display` | 28/34 | 700 | Welcome, major confirmations |
-| `type.heading` | 22/28 | 600 | Screen titles |
-| `type.subheading` | 17/24 | 600 | Card/section titles |
-| `type.body` | 15/22 | 400 | Default content |
-| `type.body-strong` | 15/22 | 600 | Emphasised content |
-| `type.caption` | 13/18 | 400 | Metadata, timestamps |
-| `type.financial` | 17/24 | 600, tabular | Prices, earnings |
+**Status tokens map cleanly onto V2 needs** (success = payment verified/delivered/approved;
+warning = under review/expiring quote; destructive = failures/rejections). Rules kept from
+the earlier proposal: semantic tokens only (no raw hex in components), color never carries
+meaning alone, status tokens are the only red/green/amber. Map-state tokens (`map.route.*`,
+`map.marker.*`, `map.coverage.*`) remain a **PROPOSED** extension to be derived from the
+founder palette (e.g. route/marker accents from Blue/Cyan) — founder review at map-UX build.
 
-Weight rules: 400/600/700 only (no 300 on small text — fails on low-end LCDs);
-never all-caps body text; line-height never below 1.4 for body.
+## 3. Typography (canonical — Manrope)
 
-## 4. Shape & elevation
-
-| Token | Value | Usage |
+| Item | Canonical position | Status |
 |---|---|---|
-| `radius.sm` | 8 px | Inputs, chips, small buttons |
-| `radius.md` | 12 px | Buttons, cards |
-| `radius.lg` | 16 px | Cards, map callouts |
-| `radius.sheet` | 20 px (top corners only) | Bottom sheets, modals |
-| `radius.full` | 999 px | Pill buttons, avatars, status dots |
+| Primary font | **Manrope** (Google Fonts, weights 200–800), single family | FOUNDER (Developer Brand Kit §4; Nexus Seller spec §3; V1 code precedent) |
+| Weight roles | 800 hero/"EMBEE" · 700 headings · 600 buttons/nav · 400 body · 400–500 metadata; logo: ExtraBold "EMBEE" + Light wide-tracked "NEXUS" | FOUNDER |
+| Fallback | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | Frozen (engineering) |
+| Numeric/financial | **Tabular numerals** (`font-variant-numeric: tabular-nums`) for all money, distances, ETAs | Frozen (engineering; V1 gap noted in TYPOGRAPHY.md) |
 
-Elevation (3 levels, defined in DESIGN_SYSTEM.md §3): flat surfaces use
-borders, not shadows; `elevation.1` for cards; `elevation.2` for sheets/modals.
-Dark mode elevates by lightening `surface`, never by shadow.
+Scale: keep the earlier mobile-first scale (display 28 · heading 22 · subheading 17 ·
+body 15 · caption 13 · financial 17/600 tabular) as **PROPOSED** sizing on the Manrope
+family; V1 used Tailwind's 12–30 px utilities without a formal scale (gap to formalize).
+Note: the current V2 `layout.tsx` ships no webfont — adopting Manrope is an implementation
+task for a future authorized milestone, not this one.
 
-### Spacing scale
+## 4. Shape, elevation & spacing
 
-`space.1` 4 · `space.2` 8 · `space.3` 12 · `space.4` 16 · `space.5` 20 ·
-`space.6` 24 · `space.8` 32 · `space.10` 40 · `space.12` 48 px.
-Screen gutters: 16 px (mobile); section gaps: 24 px; card padding: 16 px.
+Unchanged from the earlier proposal (these were structural, not brand-identity, decisions):
+`radius.sm` 8 / `md` 12 / `lg` 16 / `sheet` 20 (top corners) / `full` 999; elevation via
+borders-first, `elevation.1` cards, `elevation.2` sheets; spacing scale 4→48. The V1
+direction doc's "rounded corners (0.5rem default), card-based layouts, subtle borders"
+is consistent with this. Status: **PROPOSED — FOUNDER** (ratify with design system).
 
 ## 5. Voice & copy conventions
 
-- Plain, short sentences; verb-first CTAs ("Confirm pickup", not "Pickup can now be confirmed").
-- Money always `₦2,200` (naira sign, no decimals — prices are whole naira by pricing model); distances `5.2 km`; ETAs "12 min".
-- Status names in copy **exactly match** order-state names (customer-visible subset) — no synonyms.
-- Errors state what happened + the next action; never blame the user; never expose internals ("Payment could not be verified. You won't be charged twice. Try again.").
-- No jargon ("dispatch", "RPC", "quote id") in customer-facing copy; "quote" is presented as "Price".
+Canonical core promise (Developer Brand Kit §1/§6):
+> **"You want it delivered. Embee Nexus is the right platform for the job."**
 
-**Voice status: PROPOSED — FOUNDER.**
+Voice: confident, clear, professional, reassuring; short direct customer-facing actions;
+reliability/clarity/convenience emphasized; premium without being corporate; avoid
+unprovable claims. Seller product label follows the Nexus Seller spec ("EmbeeNexus /
+Nexus Seller" style product labeling is founder material — follow spec at build time).
+
+Kept from the earlier proposal (PROPOSED — FOUNDER): money `₦2,200` (no decimals — prices
+are whole naira by the pricing model), distances `5.2 km`, ETAs "12 min", status names in
+copy exactly match server state vocabulary, errors state what happened + next action, no
+internal jargon in customer copy ("quote" presented as "Price").
+
+## 6. Founder-pending brand decisions
+
+1. Ratification of written-form/capitalization rules for product surfaces (spec files
+   themselves use both "Embee Nexus" and "EMBEEENEXUS"/"EmbeeNexus" inconsistently).
+2. Final vector artwork + construction measurements for the E/N mark.
+3. Wordmark spacing/kerning, clear-space and minimum-size rules.
+4. Favicon, app icon, wordmark-only asset.
+5. Map-state color assignments (derived tokens).
+6. Light/dark mode priority for the mobile apps (both token sets exist; no default chosen).
