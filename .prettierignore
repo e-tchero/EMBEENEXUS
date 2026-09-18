@@ -4,3 +4,4 @@ node_modules/
 coverage/
 pnpm-lock.yaml
 supabase/
+next-env.d.ts

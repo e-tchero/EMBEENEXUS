@@ -103,10 +103,10 @@ export interface OrderTransition {
   guards: readonly TransitionGuard[];
 }
 
-const guard = (
-  condition: (facts: OrderTransitionFacts) => boolean,
-  reason: string,
-): TransitionGuard => (facts) => (condition(facts) ? { allowed: true } : { allowed: false, reason });
+const guard =
+  (condition: (facts: OrderTransitionFacts) => boolean, reason: string): TransitionGuard =>
+  (facts) =>
+    condition(facts) ? { allowed: true } : { allowed: false, reason };
 
 export const ORDER_TRANSITIONS: readonly OrderTransition[] = [
   {
@@ -223,15 +223,13 @@ const OPERATOR_CANCELABLE: readonly OrderStatus[] = [
 ];
 
 const CANCEL_TRANSITIONS: readonly OrderTransition[] = [
-  ...CUSTOMER_CANCELABLE.map(
-    (from): OrderTransition => ({
-      from,
-      to: 'cancelled',
-      trigger: 'cancel',
-      actors: ['customer', 'seller', 'operator'],
-      guards: [],
-    }),
-  ),
+  ...CUSTOMER_CANCELABLE.map((from): OrderTransition => ({
+    from,
+    to: 'cancelled',
+    trigger: 'cancel',
+    actors: ['customer', 'seller', 'operator'],
+    guards: [],
+  })),
   ...OPERATOR_CANCELABLE.filter((s) => !CUSTOMER_CANCELABLE.includes(s)).map(
     (from): OrderTransition => ({
       from,

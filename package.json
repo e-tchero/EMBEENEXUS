@@ -11,8 +11,8 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
-    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,css,md,json}\"",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,css,md,json}\" \"packages/**/*.{ts,tsx,css,md,json}\"",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,css,md,json}\" \"packages/**/*.{ts,tsx,css,md,json}\"",
     "test": "pnpm -r test",
     "supabase:types": "supabase gen types typescript --local > apps/web/src/lib/db/database.types.ts"
   },

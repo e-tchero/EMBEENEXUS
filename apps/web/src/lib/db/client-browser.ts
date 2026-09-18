@@ -8,5 +8,8 @@ import { publicEnv } from '@/lib/env/public';
  * the cookie-bound server client.
  */
 export function createBrowserClientInstance() {
-  return createBrowserClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL, publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return createBrowserClient(
+    publicEnv.NEXT_PUBLIC_SUPABASE_URL,
+    publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
 }

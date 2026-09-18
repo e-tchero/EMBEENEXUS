@@ -21,11 +21,15 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * to the browser.
  */
 export function createAdminClient(): SupabaseClient {
-  return createSupabaseClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL, serverEnv.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: {
-      // The service role is not a user session; disable session persistence.
-      persistSession: false,
-      autoRefreshToken: false,
+  return createSupabaseClient(
+    publicEnv.NEXT_PUBLIC_SUPABASE_URL,
+    serverEnv.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        // The service role is not a user session; disable session persistence.
+        persistSession: false,
+        autoRefreshToken: false,
+      },
     },
-  });
+  );
 }

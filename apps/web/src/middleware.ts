@@ -20,7 +20,13 @@ export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   // Cheap unauthenticated check for protected pages.
-  const hasSessionCookie = request.cookies.has('sb-access-token');
+  // @supabase/ssr stores the session as `sb-<project-ref>-auth-token`
+  // (chunked as `...-auth-token.0`, `.1`, … when large), so detect any
+  // `sb-*-auth-token*` cookie. Presence-only: this is never a security
+  // decision — server components re-verify the session against Supabase.
+  const hasSessionCookie = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith('sb-') && cookie.name.includes('auth-token'));
   const isProtected = PROTECTED_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p));
   const isAuthPage = AUTH_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p));
 

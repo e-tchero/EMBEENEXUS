@@ -27,8 +27,7 @@ export default async function DashboardPage() {
       <section className="rounded-xl border border-neutral-200 p-4">
         <p className="text-sm font-medium">Signed in</p>
         <p className="mt-1 text-sm text-neutral-500">
-          Role:{' '}
-          <span className="font-mono text-xs">{session.role ?? 'unassigned'}</span>
+          Role: <span className="font-mono text-xs">{session.role ?? 'unassigned'}</span>
         </p>
         <p className="mt-1 text-xs text-neutral-400">
           Role is resolved server-side from the database on every request. Role-scoped dashboards

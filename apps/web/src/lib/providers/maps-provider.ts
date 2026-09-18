@@ -43,5 +43,8 @@ export interface MapsProvider {
   /** Road route with distance/duration/geometry. */
   getRoute(origin: LatLng, destination: LatLng): Promise<RouteResult>;
   /** Road distance + duration without geometry (pricing input). */
-  getRoadDistance(origin: LatLng, destination: LatLng): Promise<{ distanceKm: number; durationMinutes: number }>;
+  getRoadDistance(
+    origin: LatLng,
+    destination: LatLng,
+  ): Promise<{ distanceKm: number; durationMinutes: number }>;
 }

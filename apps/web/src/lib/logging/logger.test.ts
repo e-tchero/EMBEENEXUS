@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  getOrCreateCorrelationId,
-  logger,
-} from '@/lib/logging/logger';
+import { getOrCreateCorrelationId, logger } from '@/lib/logging/logger';
 
 describe('getOrCreateCorrelationId', () => {
   it('accepts a well-formed incoming correlation id', () => {

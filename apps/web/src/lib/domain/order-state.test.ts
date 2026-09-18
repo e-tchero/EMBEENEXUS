@@ -90,8 +90,12 @@ describe('order state machine — happy path', () => {
 describe('order state machine — structural invariants', () => {
   it('rejects transitions that are not defined', () => {
     expect(canTransition('draft', 'payment_verified', factsFor('draft')).allowed).toBe(false);
-    expect(canTransition('awaiting_payment', 'searching_rider', factsFor('awaiting_payment')).allowed).toBe(false);
-    expect(canTransition('delivered', 'awaiting_payment', factsFor('delivered')).allowed).toBe(false);
+    expect(
+      canTransition('awaiting_payment', 'searching_rider', factsFor('awaiting_payment')).allowed,
+    ).toBe(false);
+    expect(canTransition('delivered', 'awaiting_payment', factsFor('delivered')).allowed).toBe(
+      false,
+    );
   });
 
   it('terminal statuses have no outgoing transitions', () => {
@@ -191,39 +195,99 @@ describe('order state machine — guards', () => {
 
 describe('order state machine — actor permissions', () => {
   it('only the system may verify payment', () => {
-    expect(actorCanTransition('awaiting_payment', 'payment_verified', 'customer', { ...NO_FACTS, paymentVerified: true })).toBe(false);
-    expect(actorCanTransition('awaiting_payment', 'payment_verified', 'rider', { ...NO_FACTS, paymentVerified: true })).toBe(false);
-    expect(actorCanTransition('awaiting_payment', 'payment_verified', 'system', { ...NO_FACTS, paymentVerified: true })).toBe(true);
+    expect(
+      actorCanTransition('awaiting_payment', 'payment_verified', 'customer', {
+        ...NO_FACTS,
+        paymentVerified: true,
+      }),
+    ).toBe(false);
+    expect(
+      actorCanTransition('awaiting_payment', 'payment_verified', 'rider', {
+        ...NO_FACTS,
+        paymentVerified: true,
+      }),
+    ).toBe(false);
+    expect(
+      actorCanTransition('awaiting_payment', 'payment_verified', 'system', {
+        ...NO_FACTS,
+        paymentVerified: true,
+      }),
+    ).toBe(true);
   });
 
   it('rider-only progression rejects customer and operator actors', () => {
     for (const actor of ['customer', 'operator', 'seller', 'system'] as const) {
       expect(
-        actorCanTransition('rider_assigned', 'en_route_to_pickup', actor, factsFor('rider_assigned')),
+        actorCanTransition(
+          'rider_assigned',
+          'en_route_to_pickup',
+          actor,
+          factsFor('rider_assigned'),
+        ),
       ).toBe(false);
     }
-    expect(actorCanTransition('rider_assigned', 'en_route_to_pickup', 'rider', factsFor('rider_assigned'))).toBe(true);
+    expect(
+      actorCanTransition(
+        'rider_assigned',
+        'en_route_to_pickup',
+        'rider',
+        factsFor('rider_assigned'),
+      ),
+    ).toBe(true);
   });
 
   it('customers may cancel early-stage orders', () => {
-    expect(actorCanTransition('searching_rider', 'cancelled', 'customer', factsFor('searching_rider'))).toBe(true);
-    expect(actorCanTransition('en_route_to_pickup', 'cancelled', 'customer', factsFor('en_route_to_pickup'))).toBe(true);
+    expect(
+      actorCanTransition('searching_rider', 'cancelled', 'customer', factsFor('searching_rider')),
+    ).toBe(true);
+    expect(
+      actorCanTransition(
+        'en_route_to_pickup',
+        'cancelled',
+        'customer',
+        factsFor('en_route_to_pickup'),
+      ),
+    ).toBe(true);
   });
 
   it('customers may not cancel after the rider arrives at pickup; operators may', () => {
-    expect(actorCanTransition('picked_up', 'cancelled', 'customer', factsFor('picked_up'))).toBe(false);
-    expect(actorCanTransition('picked_up', 'cancelled', 'operator', factsFor('picked_up'))).toBe(true);
-    expect(actorCanTransition('in_transit', 'cancelled', 'customer', factsFor('in_transit'))).toBe(false);
-    expect(actorCanTransition('in_transit', 'cancelled', 'operator', factsFor('in_transit'))).toBe(true);
+    expect(actorCanTransition('picked_up', 'cancelled', 'customer', factsFor('picked_up'))).toBe(
+      false,
+    );
+    expect(actorCanTransition('picked_up', 'cancelled', 'operator', factsFor('picked_up'))).toBe(
+      true,
+    );
+    expect(actorCanTransition('in_transit', 'cancelled', 'customer', factsFor('in_transit'))).toBe(
+      false,
+    );
+    expect(actorCanTransition('in_transit', 'cancelled', 'operator', factsFor('in_transit'))).toBe(
+      true,
+    );
   });
 
   it('riders cannot cancel orders', () => {
-    expect(actorCanTransition('searching_rider', 'cancelled', 'rider', factsFor('searching_rider'))).toBe(false);
+    expect(
+      actorCanTransition('searching_rider', 'cancelled', 'rider', factsFor('searching_rider')),
+    ).toBe(false);
   });
 
   it('nothing can be cancelled after arrival at destination except by policy decision', () => {
-    expect(actorCanTransition('arrived_at_destination', 'cancelled', 'customer', factsFor('arrived_at_destination'))).toBe(false);
-    expect(actorCanTransition('arrived_at_destination', 'cancelled', 'operator', factsFor('arrived_at_destination'))).toBe(false);
+    expect(
+      actorCanTransition(
+        'arrived_at_destination',
+        'cancelled',
+        'customer',
+        factsFor('arrived_at_destination'),
+      ),
+    ).toBe(false);
+    expect(
+      actorCanTransition(
+        'arrived_at_destination',
+        'cancelled',
+        'operator',
+        factsFor('arrived_at_destination'),
+      ),
+    ).toBe(false);
     expect(findTransition('arrived_at_destination', 'cancelled')).toBeUndefined();
   });
 });

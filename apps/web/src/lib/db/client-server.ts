@@ -17,21 +17,27 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export async function createClient(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
 
-  return createServerClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL, publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
-        try {
-          for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, options);
+  return createServerClient(
+    publicEnv.NEXT_PUBLIC_SUPABASE_URL,
+    publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(
+          cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>,
+        ) {
+          try {
+            for (const { name, value, options } of cookiesToSet) {
+              cookieStore.set(name, value, options);
+            }
+          } catch {
+            // Called from a Server Component render pass — cookies cannot be
+            // mutated during render. Session refresh is handled by middleware.
           }
-        } catch {
-          // Called from a Server Component render pass — cookies cannot be
-          // mutated during render. Session refresh is handled by middleware.
-        }
+        },
       },
     },
-  });
+  );
 }
