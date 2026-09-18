@@ -115,13 +115,16 @@ describe('stadia adapter — reliability', () => {
 });
 
 describe('stadia adapter — route and matrix', () => {
-  it('decodes the route shape and converts time to minutes', async () => {
+  it('decodes the concatenated leg shapes and converts time to minutes', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       jsonResponse({
         trip: {
           summary: { length: 12.345, time: 741 },
-          // precision-6 polyline for (9.0765, 7.4788) → (9.0123, 7.4321)
-          shape: 'omzklAzyor~Csc~EgozE',
+          // Real Stadia/Valhalla responses carry geometry per leg (verified live);
+          // there is no `trip.shape` field. precision-6 polylines for the two legs
+          // (9.0765,7.4788)→midpoint and midpoint→(9.0123,7.4321) are produced by
+          // the reference encoder in polyline.test.ts conventions.
+          legs: [{ shape: 'omzklAzyor~Csc~EgozE' }],
         },
       }),
     );
@@ -130,9 +133,24 @@ describe('stadia adapter — route and matrix', () => {
     expect(route.distanceKm).toBeCloseTo(12.345, 3);
     expect(route.durationMinutes).toBe(12); // round(741/60)
     expect(route.geometry).toHaveLength(2);
-    // Request must use the motorcycle costing (V2 model).
-    const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body)) as { costing?: string };
+    // Request must use the motorcycle costing (V2 model) and Valhalla's `lon` field.
+    const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body)) as {
+      costing?: string;
+      locations?: Array<{ lat: number; lon: number }>;
+    };
     expect(body.costing).toBe('motorcycle');
+    expect(body.locations?.[0]).toEqual({ lat: 9.0765, lon: 7.4788 });
+    expect(body.locations?.[1]).toEqual({ lat: 9.0123, lon: 7.4321 });
+  });
+
+  it('rejects a trip with no legs as an invalid response', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({ trip: { summary: { length: 5, time: 300 }, legs: [] } }),
+    );
+    const provider = makeProvider(fetchImpl);
+    await expect(
+      provider.getRoute({ lat: 9.05, lng: 7.49 }, { lat: 9.01, lng: 7.43 }),
+    ).rejects.toMatchObject({ code: 'invalid_response' });
   });
 
   it('returns matrix distance and time for road-distance lookups', async () => {
@@ -146,6 +164,15 @@ describe('stadia adapter — route and matrix', () => {
     );
     expect(result.distanceKm).toBeCloseTo(8.4, 3);
     expect(result.durationMinutes).toBe(15);
+    // Verified live: matrix endpoint is POST /matrix/v1 and takes `lon`.
+    const url = String(fetchImpl.mock.calls[0]?.[0]);
+    expect(url).toContain('/matrix/v1');
+    const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body)) as {
+      sources?: Array<{ lat: number; lon: number }>;
+      targets?: Array<{ lat: number; lon: number }>;
+    };
+    expect(body.sources?.[0]).toEqual({ lat: 9.05, lon: 7.49 });
+    expect(body.targets?.[0]).toEqual({ lat: 9.01, lon: 7.43 });
   });
 
   it('throws no_results when the matrix cell has no route', async () => {

@@ -21,6 +21,7 @@ const serverEnvSchema = z.object({
 
   // Flutterwave (payment provider — abstraction behind lib/providers in M4)
   FLUTTERWAVE_SECRET_KEY: z.string().min(1),
+  FLUTTERWAVE_ENCRYPTION_KEY: z.string().min(1),
   FLUTTERWAVE_WEBHOOK_HASH: z.string().min(1),
 
   // Stadia Maps (map provider — abstraction behind lib/providers)
@@ -45,6 +46,7 @@ function loadServerEnv(): ServerEnv {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_JWT_SECRET: process.env.SUPABASE_JWT_SECRET,
     FLUTTERWAVE_SECRET_KEY: process.env.FLUTTERWAVE_SECRET_KEY,
+    FLUTTERWAVE_ENCRYPTION_KEY: process.env.FLUTTERWAVE_ENCRYPTION_KEY,
     FLUTTERWAVE_WEBHOOK_HASH: process.env.FLUTTERWAVE_WEBHOOK_HASH,
     STADIA_MAPS_API_KEY: process.env.STADIA_MAPS_API_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
@@ -88,6 +90,9 @@ export const serverEnv = {
   },
   get FLUTTERWAVE_SECRET_KEY(): string {
     return loadServerEnv().FLUTTERWAVE_SECRET_KEY;
+  },
+  get FLUTTERWAVE_ENCRYPTION_KEY(): string {
+    return loadServerEnv().FLUTTERWAVE_ENCRYPTION_KEY;
   },
   get FLUTTERWAVE_WEBHOOK_HASH(): string {
     return loadServerEnv().FLUTTERWAVE_WEBHOOK_HASH;

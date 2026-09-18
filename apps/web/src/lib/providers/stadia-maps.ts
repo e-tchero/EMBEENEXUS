@@ -90,11 +90,19 @@ const routeSummarySchema = z.object({
   time: z.number().finite().min(0),
 });
 
+const routeLegSchema = z.object({
+  /** Google-encoded polyline, precision 1e-6 (polyline6).
+   *
+   * Verified live (2026-09-18): Stadia's route response does NOT carry
+   * `trip.shape`; the encoded geometry is returned per-leg in
+   * `trip.legs[*].shape`. Concatenate legs for the full geometry. */
+  shape: z.string().min(1),
+});
+
 const routeResponseSchema = z.object({
   trip: z.object({
     summary: routeSummarySchema,
-    /** Google-encoded polyline, precision 1e-6. */
-    shape: z.string().min(1),
+    legs: z.array(routeLegSchema).min(1),
   }),
 });
 
@@ -202,11 +210,11 @@ export function createStadiaMapsProvider(config: StadiaMapsConfig): MapsProvider
     return parsed;
   }
 
-  function assertProviderSchema(
+  function assertProviderSchema<T extends z.ZodTypeAny>(
     parsed: unknown,
-    schema: z.ZodTypeAny,
+    schema: T,
     what: string,
-  ): z.infer<typeof schema> {
+  ): z.infer<T> {
     const result = schema.safeParse(parsed);
     if (!result.success) {
       log.warn('maps.response.invalid', { what, issues: result.error.issues.length });
@@ -299,9 +307,11 @@ export function createStadiaMapsProvider(config: StadiaMapsConfig): MapsProvider
 
       const parsed = assertProviderSchema(
         await requestJson('POST', `/route/v1${withApiKey({})}`, {
+          // Valhalla wire format requires `lon` (verified live 2026-09-18 —
+          // `lng` is rejected with 400 "missing field `lon`").
           locations: [
-            { lat: origin.lat, lng: origin.lng },
-            { lat: destination.lat, lng: destination.lng },
+            { lat: origin.lat, lon: origin.lng },
+            { lat: destination.lat, lon: destination.lng },
           ],
           costing: 'motorcycle',
           units: 'kilometers',
@@ -310,9 +320,10 @@ export function createStadiaMapsProvider(config: StadiaMapsConfig): MapsProvider
         'route response',
       );
 
+      const encoded = parsed.trip.legs.map((leg) => leg.shape).join('');
       let geometry: LatLng[];
       try {
-        geometry = decodePolyline6(parsed.trip.shape);
+        geometry = decodePolyline6(encoded);
       } catch (error) {
         throw new MapsProviderError(
           'invalid_response',
@@ -335,9 +346,11 @@ export function createStadiaMapsProvider(config: StadiaMapsConfig): MapsProvider
       requirePoint(destination.lat, destination.lng);
 
       const parsed = assertProviderSchema(
-        await requestJson('POST', `/time_distance_matrix/v1${withApiKey({})}`, {
-          sources: [{ lat: origin.lat, lng: origin.lng }],
-          targets: [{ lat: destination.lat, lng: destination.lng }],
+        // Matrix endpoint is POST /matrix/v1 (verified live 2026-09-18 —
+        // /time_distance_matrix/v1 returns 404).
+        await requestJson('POST', `/matrix/v1${withApiKey({})}`, {
+          sources: [{ lat: origin.lat, lon: origin.lng }],
+          targets: [{ lat: destination.lat, lon: destination.lng }],
           costing: 'motorcycle',
           units: 'kilometers',
         }),
