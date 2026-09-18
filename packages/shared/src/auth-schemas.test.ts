@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  signInSchema,
-  signUpSchema,
-} from '@embee/shared';
+import { signInSchema, signUpSchema } from '@embee/shared';
 
 describe('signUpSchema', () => {
   it('accepts valid signup input and normalizes email', () => {
