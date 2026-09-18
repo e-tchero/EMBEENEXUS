@@ -71,7 +71,30 @@ supabase/migrations       authoritative schema + RLS + functions
 - All tables have forced RLS. Policies use non-recursive SECURITY DEFINER
   helpers (`get_user_role`, `has_role`) with locked `search_path`.
 - Authorization boundary = RLS + server-side role checks
-  (`lib/auth/guards.ts`). Middleware is never a security boundary.
+  (`lib/auth/guards.ts`, `lib/auth/rbac.ts`). Middleware is never a
+  security boundary.
+- Server actions follow the flow: `requireRole(...)` → zod re-validation →
+  pure domain pre-check → SECURITY DEFINER RPC / RLS-scoped write. RPC
+  error codes map to safe, non-leaking messages (`rpcErrorToActionFailure`).
+
+### M1 — Rider verification & vehicles
+
+- `rider_profiles` (verification lifecycle) and `vehicles` (motorcycle-only
+  MVP, rider-owned). Clients hold **no write grants** on `rider_profiles`;
+  all verification changes flow through operator/rider SECURITY DEFINER RPCs
+  (`rider_request_verification`, `rider_review_decision`,
+  `rider_withdraw_verification`, `operator_create_rider_profile`) which
+  resolve the caller via `auth.uid()` and log to
+  `rider_verification_events` (append-only).
+- Lifecycle (mirrored in `lib/domain/rider-verification.ts`):
+  `pending → under_review → approved | rejected`,
+  `rejected/withdrawn → pending (resubmit)`,
+  `pending/under_review → withdrawn`. `approved` is terminal in M1.
+- Verification is separate from availability: operational eligibility
+  requires approved verification AND an explicit rider-controlled
+  availability record (an active motorcycle is the M1-era stand-in;
+  the availability record arrives with dispatch in M5). An account existing
+  is never sufficient.
 
 ## 4. State Machines
 
@@ -82,6 +105,7 @@ verification); the two must not be conflated. Database transition RPCs
 (later milestone) must mirror the domain table exactly.
 
 ## 5. Platform Infrastructure
+
 
 - **audit_logs** — append-only; operator read-only; no client mutations.
 - **background_jobs** — durable queue; `FOR UPDATE SKIP LOCKED` claim via
@@ -98,8 +122,9 @@ verification); the two must not be conflated. Database transition RPCs
 
 ## 7. Milestones
 
-M0 (this) — skeleton, identity/RLS baseline, observability, CI, tests.
-M1 RBAC/verification · M2 zones/pricing/maps · M3 quotes/orders ·
+M0 — skeleton, identity/RLS baseline, observability, CI, tests.
+M1 — RBAC hardening, rider verification lifecycle, motorcycle records (done).
+M2 zones/pricing/maps · M3 quotes/orders ·
 M4 Flutterwave payments · M5 dispatch · M6 chain of custody · M7 tracking ·
 M8 ledger/payouts · M9 seller platform · M10 admin/hardening.
 Refund/waiting/seller-edit flows gated on P0 decisions (D05–D08, D17, D20, D21).

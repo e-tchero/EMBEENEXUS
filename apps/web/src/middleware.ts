@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_PREFIXES = ['/dashboard', '/orders'];
+const PROTECTED_PREFIXES = ['/dashboard', '/orders', '/rider', '/operator'];
 const AUTH_PREFIXES = ['/login', '/signup'];
 
 /**
