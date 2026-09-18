@@ -48,3 +48,40 @@ export interface MapsProvider {
     destination: LatLng,
   ): Promise<{ distanceKm: number; durationMinutes: number }>;
 }
+
+// ---------------------------------------------------------------------------
+// Typed provider errors (M2)
+// ---------------------------------------------------------------------------
+
+export type MapsProviderErrorCode =
+  /** Invalid input handed to the provider (bounded-input violation). */
+  | 'invalid_input'
+  /** Network failure after the retry budget was exhausted. */
+  | 'network'
+  /** The provider did not respond within the timeout. */
+  | 'timeout'
+  /** Provider answered 429 after the retry budget was exhausted. */
+  | 'rate_limited'
+  /** Provider answered with a non-retryable client error (4xx). */
+  | 'provider_error'
+  /** Provider answered 2xx but the body failed response validation. */
+  | 'invalid_response'
+  /** Provider answered 2xx but returned no usable result. */
+  | 'no_results';
+
+/**
+ * The only error type providers may throw. Domain services catch this and
+ * translate it; raw provider/network internals never leak past this type.
+ */
+export class MapsProviderError extends Error {
+  readonly code: MapsProviderErrorCode;
+  /** Provider HTTP status when applicable (undefined for network/timeout). */
+  readonly status?: number;
+
+  constructor(code: MapsProviderErrorCode, message: string, status?: number) {
+    super(message);
+    this.name = 'MapsProviderError';
+    this.code = code;
+    this.status = status;
+  }
+}
