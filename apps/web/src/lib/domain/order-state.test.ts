@@ -28,11 +28,11 @@ function factsFor(status: OrderStatus): OrderTransitionFacts {
     [
       'searching_rider',
       'rider_assigned',
-      'en_route_to_pickup',
-      'arrived_at_pickup',
+      'en_route_pickup',
+      'arrived_pickup',
       'picked_up',
       'in_transit',
-      'arrived_at_destination',
+      'arrived_destination',
       'delivered',
       'completed',
     ].includes(status)
@@ -41,17 +41,17 @@ function factsFor(status: OrderStatus): OrderTransitionFacts {
   }
   if (
     [
-      'arrived_at_pickup',
+      'arrived_pickup',
       'picked_up',
       'in_transit',
-      'arrived_at_destination',
+      'arrived_destination',
       'delivered',
       'completed',
     ].includes(status)
   ) {
     facts.pickupOtpVerified = true;
   }
-  if (['arrived_at_destination', 'delivered', 'completed'].includes(status)) {
+  if (['arrived_destination', 'delivered', 'completed'].includes(status)) {
     facts.deliveryOtpVerified = true;
   }
   if (['delivered', 'completed'].includes(status)) {
@@ -66,11 +66,11 @@ const HAPPY_PATH: readonly OrderStatus[] = [
   'payment_verified',
   'searching_rider',
   'rider_assigned',
-  'en_route_to_pickup',
-  'arrived_at_pickup',
+  'en_route_pickup',
+  'arrived_pickup',
   'picked_up',
   'in_transit',
-  'arrived_at_destination',
+  'arrived_destination',
   'delivered',
   'completed',
 ];
@@ -154,16 +154,16 @@ describe('order state machine — guards', () => {
   });
 
   it('blocks pickup without a verified pickup OTP', () => {
-    const result = canTransition('arrived_at_pickup', 'picked_up', {
-      ...factsFor('arrived_at_pickup'),
+    const result = canTransition('arrived_pickup', 'picked_up', {
+      ...factsFor('arrived_pickup'),
       pickupOtpVerified: false,
     });
     expect(result.allowed).toBe(false);
   });
 
   it('blocks delivery without a verified delivery OTP', () => {
-    const result = canTransition('arrived_at_destination', 'delivered', {
-      ...factsFor('arrived_at_destination'),
+    const result = canTransition('arrived_destination', 'delivered', {
+      ...factsFor('arrived_destination'),
       deliveryOtpVerified: false,
     });
     expect(result.allowed).toBe(false);
@@ -220,7 +220,7 @@ describe('order state machine — actor permissions', () => {
       expect(
         actorCanTransition(
           'rider_assigned',
-          'en_route_to_pickup',
+          'en_route_pickup',
           actor,
           factsFor('rider_assigned'),
         ),
@@ -229,7 +229,7 @@ describe('order state machine — actor permissions', () => {
     expect(
       actorCanTransition(
         'rider_assigned',
-        'en_route_to_pickup',
+        'en_route_pickup',
         'rider',
         factsFor('rider_assigned'),
       ),
@@ -242,10 +242,10 @@ describe('order state machine — actor permissions', () => {
     ).toBe(true);
     expect(
       actorCanTransition(
-        'en_route_to_pickup',
+        'en_route_pickup',
         'cancelled',
         'customer',
-        factsFor('en_route_to_pickup'),
+        factsFor('en_route_pickup'),
       ),
     ).toBe(true);
   });
@@ -274,21 +274,21 @@ describe('order state machine — actor permissions', () => {
   it('nothing can be cancelled after arrival at destination except by policy decision', () => {
     expect(
       actorCanTransition(
-        'arrived_at_destination',
+        'arrived_destination',
         'cancelled',
         'customer',
-        factsFor('arrived_at_destination'),
+        factsFor('arrived_destination'),
       ),
     ).toBe(false);
     expect(
       actorCanTransition(
-        'arrived_at_destination',
+        'arrived_destination',
         'cancelled',
         'operator',
-        factsFor('arrived_at_destination'),
+        factsFor('arrived_destination'),
       ),
     ).toBe(false);
-    expect(findTransition('arrived_at_destination', 'cancelled')).toBeUndefined();
+    expect(findTransition('arrived_destination', 'cancelled')).toBeUndefined();
   });
 });
 
@@ -306,8 +306,8 @@ describe('order state machine — determinism', () => {
   it('does not mutate the facts passed in', () => {
     const facts: OrderTransitionFacts = { ...NO_FACTS };
     const snapshot = { ...facts };
-    canTransition('arrived_at_pickup', 'picked_up', facts);
-    actorCanTransition('arrived_at_pickup', 'picked_up', 'rider', facts);
+    canTransition('arrived_pickup', 'picked_up', facts);
+    actorCanTransition('arrived_pickup', 'picked_up', 'rider', facts);
     expect(facts).toEqual(snapshot);
   });
 });

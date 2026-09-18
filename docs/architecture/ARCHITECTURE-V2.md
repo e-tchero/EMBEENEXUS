@@ -102,7 +102,24 @@ The order lifecycle is defined once in
 `apps/web/src/lib/domain/order-state.ts` — pure, typed, unit-tested.
 Payment state is a separate axis with its own machine (Flutterwave
 verification); the two must not be conflated. Database transition RPCs
-(later milestone) must mirror the domain table exactly.
+(migration 0005) mirror the domain table exactly and are the only write path.
+
+## 5a. Quotes & Orders (M3)
+
+- **quotes** — immutable server-generated snapshots (endpoints, road distance,
+  pricing config version, kobo amounts, coverage result). Consumed at most once
+  (`status = 'consumed'` set inside the same transaction as order creation);
+  expiry is enforced inside `create_order_from_quote`, never trusted from a
+  client. Validity default 45 min is founder-pending (D09/D10).
+- **orders** — owner, endpoints, denormalized immutable financial snapshot
+  (kobo bigint amounts + pricing version), lifecycle state, `rider_id`.
+- **order_events** — append-only transition history (from/to state, actor,
+  actor role, trigger, metadata); no mutation paths exist for any role.
+- RPCs `create_quote`, `create_order_from_quote`, `order_transition` are
+  SECURITY DEFINER, `search_path=''`, execute revoked from public/anon;
+  transitions serialize on `FOR UPDATE` row locks. Guards whose fact sources
+  do not exist yet (payment verification M4, OTP/recipient M6) are unreachable
+  in M3 by design.
 
 ## 5. Platform Infrastructure
 
@@ -124,7 +141,8 @@ verification); the two must not be conflated. Database transition RPCs
 
 M0 — skeleton, identity/RLS baseline, observability, CI, tests.
 M1 — RBAC hardening, rider verification lifecycle, motorcycle records (done).
-M2 zones/pricing/maps · M3 quotes/orders ·
+M2 — coverage zones, fixed-band pricing, maps provider abstraction (done).
+M3 — quotes, order persistence, server-authoritative lifecycle (done).
 M4 Flutterwave payments · M5 dispatch · M6 chain of custody · M7 tracking ·
 M8 ledger/payouts · M9 seller platform · M10 admin/hardening.
 Refund/waiting/seller-edit flows gated on P0 decisions (D05–D08, D17, D20, D21).

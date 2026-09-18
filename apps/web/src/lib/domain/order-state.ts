@@ -26,16 +26,18 @@ export type OrderStatus =
   | 'payment_verified'
   | 'searching_rider'
   | 'rider_assigned'
-  | 'en_route_to_pickup'
-  | 'arrived_at_pickup'
+  | 'en_route_pickup'
+  | 'arrived_pickup'
   | 'picked_up'
   | 'in_transit'
-  | 'arrived_at_destination'
+  | 'arrived_destination'
   | 'delivered'
   | 'completed'
   // terminal outcomes
   | 'cancelled'
-  | 'failed';
+  | 'failed'
+  // operator hold (exceptional state; returns to pre-hold status on release)
+  | 'under_review';
 
 export const ALL_STATUSES: readonly OrderStatus[] = [
   'draft',
@@ -43,15 +45,16 @@ export const ALL_STATUSES: readonly OrderStatus[] = [
   'payment_verified',
   'searching_rider',
   'rider_assigned',
-  'en_route_to_pickup',
-  'arrived_at_pickup',
+  'en_route_pickup',
+  'arrived_pickup',
   'picked_up',
   'in_transit',
-  'arrived_at_destination',
+  'arrived_destination',
   'delivered',
   'completed',
   'cancelled',
   'failed',
+  'under_review',
 ];
 
 export const TERMINAL_ORDER_STATUSES: readonly OrderStatus[] = ['cancelled', 'failed'];
@@ -139,20 +142,20 @@ export const ORDER_TRANSITIONS: readonly OrderTransition[] = [
   },
   {
     from: 'rider_assigned',
-    to: 'en_route_to_pickup',
+    to: 'en_route_pickup',
     trigger: 'rider_departed',
     actors: ['rider'],
     guards: [],
   },
   {
-    from: 'en_route_to_pickup',
-    to: 'arrived_at_pickup',
+    from: 'en_route_pickup',
+    to: 'arrived_pickup',
     trigger: 'rider_arrived_pickup',
     actors: ['rider'],
     guards: [],
   },
   {
-    from: 'arrived_at_pickup',
+    from: 'arrived_pickup',
     to: 'picked_up',
     trigger: 'pickup_otp_verified',
     actors: ['rider'],
@@ -167,13 +170,13 @@ export const ORDER_TRANSITIONS: readonly OrderTransition[] = [
   },
   {
     from: 'in_transit',
-    to: 'arrived_at_destination',
+    to: 'arrived_destination',
     trigger: 'rider_arrived_destination',
     actors: ['rider'],
     guards: [],
   },
   {
-    from: 'arrived_at_destination',
+    from: 'arrived_destination',
     to: 'delivered',
     trigger: 'delivery_otp_verified',
     actors: ['rider'],
@@ -182,7 +185,7 @@ export const ORDER_TRANSITIONS: readonly OrderTransition[] = [
   {
     from: 'delivered',
     to: 'completed',
-    trigger: 'recipient_inspection_confirmed',
+    trigger: 'recipient_confirmed',
     actors: ['customer', 'recipient', 'system'],
     guards: [guard((f) => f.recipientConfirmed, 'Recipient inspection must be confirmed first')],
   },
@@ -194,13 +197,45 @@ export const ORDER_TRANSITIONS: readonly OrderTransition[] = [
     guards: [],
   },
   {
-    from: 'arrived_at_destination',
+    from: 'arrived_destination',
     to: 'failed',
     trigger: 'delivery_failed',
     actors: ['rider', 'operator'],
     guards: [],
   },
 ];
+
+/**
+ * Operator review hold (exceptional state).
+ *
+ * Mirrors order_transition('hold_for_review') in migration 0005: an operator
+ * may hold any non-terminal, non-held order; release returns it to the
+ * pre-hold status. Modeled as explicit helpers rather than static transitions
+ * because the release target is dynamic (the pre-hold status).
+ */
+export function canHoldForReview(status: OrderStatus): boolean {
+  return status !== 'under_review' && !isTerminalOrderStatus(status) && status !== 'completed';
+}
+
+export function canReleaseFromReview(
+  status: OrderStatus,
+  preHoldStatus: OrderStatus | null,
+): boolean {
+  return (
+    status === 'under_review' &&
+    preHoldStatus !== null &&
+    preHoldStatus !== 'under_review' &&
+    !isTerminalOrderStatus(preHoldStatus) &&
+    preHoldStatus !== 'completed'
+  );
+}
+
+export function releaseFromReviewStatus(preHoldStatus: OrderStatus): OrderStatus {
+  if (!canReleaseFromReview('under_review', preHoldStatus)) {
+    throw new Error(`Cannot release an order from review to ${preHoldStatus}`);
+  }
+  return preHoldStatus;
+}
 
 /**
  * Customer cancellation is permitted up to the point the rider arrives at
@@ -212,12 +247,12 @@ const CUSTOMER_CANCELABLE: readonly OrderStatus[] = [
   'payment_verified',
   'searching_rider',
   'rider_assigned',
-  'en_route_to_pickup',
+  'en_route_pickup',
 ];
 
 const OPERATOR_CANCELABLE: readonly OrderStatus[] = [
   ...CUSTOMER_CANCELABLE,
-  'arrived_at_pickup',
+  'arrived_pickup',
   'picked_up',
   'in_transit',
 ];

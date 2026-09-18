@@ -62,4 +62,41 @@ function loadServerEnv(): ServerEnv {
   return cached;
 }
 
-export const serverEnv = loadServerEnv();
+/**
+ * Lazy server-env accessor.
+ *
+ * Environment is validated on first access, NOT at module import. This keeps
+ * `next build` working when secrets exist only at runtime (build-time page
+ * data collection imports route module graphs; secrets are a runtime concern).
+ * Misconfiguration still fails fast — at the first server call that needs it.
+ */
+export function getServerEnv(): ServerEnv {
+  return loadServerEnv();
+}
+
+/**
+ * @deprecated M0-era eager export. Retained for one milestone so existing
+ * call sites keep working; use {@link getServerEnv} instead. Property access
+ * now invokes the lazy loader, so it no longer throws at import time.
+ */
+export const serverEnv = {
+  get SUPABASE_SERVICE_ROLE_KEY(): string {
+    return loadServerEnv().SUPABASE_SERVICE_ROLE_KEY;
+  },
+  get SUPABASE_JWT_SECRET(): string {
+    return loadServerEnv().SUPABASE_JWT_SECRET;
+  },
+  get FLUTTERWAVE_SECRET_KEY(): string {
+    return loadServerEnv().FLUTTERWAVE_SECRET_KEY;
+  },
+  get FLUTTERWAVE_WEBHOOK_HASH(): string {
+    return loadServerEnv().FLUTTERWAVE_WEBHOOK_HASH;
+  },
+  get STADIA_MAPS_API_KEY(): string {
+    return loadServerEnv().STADIA_MAPS_API_KEY;
+  },
+  get SENTRY_DSN(): string | undefined {
+    return loadServerEnv().SENTRY_DSN;
+  },
+} as const;
+
