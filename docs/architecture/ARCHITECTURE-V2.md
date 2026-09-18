@@ -158,6 +158,15 @@ the normalized result is accepted only if reference, amount, currency, and
 status all match the payment's expected snapshot. Flutterwave's numeric
 transaction ID (`data.id`) is captured server-side for audit and is never
 client-supplied. Embee payment reference ≠ Flutterwave transaction ID.
-M5 dispatch · M6 chain of custody · M7 tracking ·
+M5 — rider dispatch: `rider_availability` (explicit rider-declared queue
+record) + `dispatch_offers` (one active offer per order and per rider via
+partial unique indexes; 20-second TTL). Longest-available-rider ordering
+(`available_since` asc) — no distance/rating/priority ranking. Eligibility
+= approved verification + active motorcycle + availability + active profile
++ not busy + not declined/expired this order. All mutations through SECURITY
+DEFINER RPCs (`dispatch_start/offer_next/accept/decline/expire_due`);
+`order_transition` extended for system `dispatch_started`/
+`rider_accepted_offer` behind internal fact checks. Expiry/continuation runs
+on the jobs-gated tick route (done). M6 chain of custody · M7 tracking ·
 M8 ledger/payouts · M9 seller platform · M10 admin/hardening.
 Refund/waiting/seller-edit flows gated on P0 decisions (D05–D08, D17, D20, D21).
