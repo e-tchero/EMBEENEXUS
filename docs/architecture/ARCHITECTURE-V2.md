@@ -149,6 +149,15 @@ verification, naira major units on the wire / kobo internally), webhook with
 constant-time `verif-hash` auth + idempotent `webhook_events` processing,
 reference-keyed reconciliation job, callback page. `awaiting_payment →
 payment_verified` grants via the canonical `order_transition` RPC only
-(done). M5 dispatch · M6 chain of custody · M7 tracking ·
+(done).
+Provider identity model: the Embee transaction reference (`ENX-…`, stored on
+the payment row BEFORE checkout) is the binding key — verification calls
+`GET /v3/transactions/verify_by_reference?tx_ref=<ENX-ref>` (live-verified:
+a miss is an error envelope with `data: null`, classified `not_found`), and
+the normalized result is accepted only if reference, amount, currency, and
+status all match the payment's expected snapshot. Flutterwave's numeric
+transaction ID (`data.id`) is captured server-side for audit and is never
+client-supplied. Embee payment reference ≠ Flutterwave transaction ID.
+M5 dispatch · M6 chain of custody · M7 tracking ·
 M8 ledger/payouts · M9 seller platform · M10 admin/hardening.
 Refund/waiting/seller-edit flows gated on P0 decisions (D05–D08, D17, D20, D21).

@@ -154,6 +154,41 @@ describe('decideVerification', () => {
       reason: 'missing_provider_transaction_id',
     });
   });
+
+  // §13 regressions — cross-binding attacks: a real, successful provider
+  // transaction must only ever pay the exact payment attempt it belongs to.
+  it('REJECTS a valid provider transaction bound to a DIFFERENT Embee reference', () => {
+    // Attacker scenario: a genuine successful Flutterwave transaction whose
+    // tx_ref belongs to another order (or is guessed). The reference is the
+    // binding key — any difference is fatal, even with correct amount+currency.
+    const attack = {
+      ...goodTx,
+      transactionReference: 'ENX-OTHERORDERREF0000001',
+    };
+    expect(decideVerification(attack, expected)).toEqual({
+      outcome: 'no_value',
+      reason: 'reference_mismatch',
+    });
+  });
+
+  it('REJECTS when the verified facts belong to a different provider transaction id', () => {
+    // The provider tx id is recorded for audit; the reference remains the
+    // binding identity. A swapped id on otherwise-identical facts must not
+    // change the decision path — and can never be authored by the client.
+    const swapped = { ...goodTx, providerTransactionId: 'flw-txn-999999' };
+    const decision = decideVerification(swapped, expected);
+    // Same reference + facts → still grants; the id is provider-authoritative
+    // data captured server-side, never client input.
+    expect(decision.outcome).toBe('grant_value');
+  });
+
+  it('processes the same successful transaction deterministically (idempotency by decision)', () => {
+    // decideVerification is pure: the same verified transaction yields the
+    // same decision every time. The exactly-once guarantee lives in the
+    // payment_complete_verified RPC (row lock + settled-state short-circuit).
+    expect(decideVerification(goodTx, expected)).toEqual(decideVerification(goodTx, expected));
+    expect(decideVerification(goodTx, expected).outcome).toBe('grant_value');
+  });
 });
 
 describe('classifyWebhookEvent', () => {

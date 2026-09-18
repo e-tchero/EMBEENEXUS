@@ -153,14 +153,33 @@ describe('flutterwave adapter — verifyByReference', () => {
     ).rejects.toMatchObject({ code: 'invalid_response' });
   });
 
-  it('maps a provider not-found to a typed not_found error', async () => {
+  it('maps a provider not-found (HTTP 404) to a typed not_found error', async () => {
     const fetchImpl = vi
       .fn()
       .mockResolvedValue(jsonResponse({ status: 'error', message: 'No transaction was found for this id' }, 404));
     const provider = makeProvider(fetchImpl);
     await expect(
       provider.verifyByReference({ transactionReference: 'ENX-TESTREFTESTREFTEST01' }),
-    ).rejects.toMatchObject({ code: 'not_found', status: 404 });
+    ).rejects.toMatchObject({ code: 'not_found' });
+  });
+
+  it('maps the live-verified not-found shape (HTTP 400 + error envelope) to not_found without retrying', async () => {
+    // LIVE EVIDENCE (Flutterwave TEST API): unknown tx_ref → HTTP 400 with
+    // { status: 'error', message: 'No transaction was found for this id',
+    // data: null }. This is definitive, so no retry may occur.
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse(
+          { status: 'error', message: 'No transaction was found for this id', data: null },
+          400,
+        ),
+      );
+    const provider = makeProvider(fetchImpl);
+    await expect(
+      provider.verifyByReference({ transactionReference: 'ENX-TESTREFTESTREFTEST01' }),
+    ).rejects.toMatchObject({ code: 'not_found' });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it('retries transient verification failures within the budget then succeeds', async () => {

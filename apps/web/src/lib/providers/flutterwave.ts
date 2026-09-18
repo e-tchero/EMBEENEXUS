@@ -140,7 +140,10 @@ export function createFlutterwaveProvider(config: FlutterwaveConfig): PaymentPro
     path: string,
     init: RequestInit,
     options: { retryable: boolean },
-  ): Promise<{ ok: true; body: unknown } | { ok: false; error: PaymentProviderErrorError }> {
+  ): Promise<
+    | { ok: true; body: unknown }
+    | { ok: false; status: number; body: unknown; error: PaymentProviderErrorError }
+  > {
     for (let i = 1; i <= maxAttempts; i++) {
       let result: { ok: boolean; status: number; body: unknown };
       try {
@@ -152,6 +155,8 @@ export function createFlutterwaveProvider(config: FlutterwaveConfig): PaymentPro
           log.warn('payments.provider.network', { path, attempts: i });
           return {
             ok: false,
+            status: 0,
+            body: null,
             error: new PaymentProviderErrorError(
               aborted ? 'timeout' : 'network',
               'Provider request did not complete.',
@@ -169,13 +174,15 @@ export function createFlutterwaveProvider(config: FlutterwaveConfig): PaymentPro
       const retryable = options.retryable && isRetryableStatus(result.status);
       if (!retryable || i === maxAttempts) {
         log.warn('payments.provider.http', { path, status: result.status, attempts: i });
-        return { ok: false, error: classify(result) };
+        return { ok: false, status: result.status, body: result.body, error: classify(result) };
       }
       await sleep(backoffMs);
     }
     // Unreachable.
     return {
       ok: false,
+      status: 0,
+      body: null,
       error: new PaymentProviderErrorError('provider_error', 'Provider request failed.'),
     };
   }
@@ -275,12 +282,30 @@ export function createFlutterwaveProvider(config: FlutterwaveConfig): PaymentPro
       // GET verification is idempotent — bounded retries on transient failures.
       const outcome = await run(path, { method: 'GET' }, { retryable: true });
       if (!outcome.ok) {
+        // LIVE-VERIFIED CONTRACT (Flutterwave TEST API): "no transaction found"
+        // is signalled as an ERROR ENVELOPE with null data over non-2xx HTTP
+        // (observed: HTTP 400; older integrations also see 404). It is a
+        // definitive negative, NOT a transient failure — never retry it, and
+        // never classify it as a generic provider error.
+        const envelope = apiEnvelopeSchema.safeParse(outcome.body);
+        if (
+          envelope.success &&
+          envelope.data.status === 'error' &&
+          /no transaction was found/i.test(envelope.data.message ?? '')
+        ) {
+          throw new PaymentProviderErrorError('not_found', 'No transaction found for reference.');
+        }
         throw outcome.error;
       }
 
       const envelope = verifyEnvelopeSchema.safeParse(outcome.body);
       if (!envelope.success) {
         throw new PaymentProviderErrorError('invalid_response', 'Verification response failed validation.');
+      }
+
+      // Defense in depth: even a 2xx body must carry a success envelope.
+      if (envelope.data.status !== 'success') {
+        throw new PaymentProviderErrorError('invalid_response', 'Verification envelope was not successful.');
       }
 
       const txn = envelope.data.data;
