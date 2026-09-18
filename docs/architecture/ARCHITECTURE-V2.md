@@ -143,6 +143,12 @@ M0 — skeleton, identity/RLS baseline, observability, CI, tests.
 M1 — RBAC hardening, rider verification lifecycle, motorcycle records (done).
 M2 — coverage zones, fixed-band pricing, maps provider abstraction (done).
 M3 — quotes, order persistence, server-authoritative lifecycle (done).
-M4 Flutterwave payments · M5 dispatch · M6 chain of custody · M7 tracking ·
+M4 — Flutterwave sandbox payments: `payments` table, `PaymentProvider`
+abstraction + Flutterwave V3 adapter (hosted checkout, server-side
+verification, naira major units on the wire / kobo internally), webhook with
+constant-time `verif-hash` auth + idempotent `webhook_events` processing,
+reference-keyed reconciliation job, callback page. `awaiting_payment →
+payment_verified` grants via the canonical `order_transition` RPC only
+(done). M5 dispatch · M6 chain of custody · M7 tracking ·
 M8 ledger/payouts · M9 seller platform · M10 admin/hardening.
 Refund/waiting/seller-edit flows gated on P0 decisions (D05–D08, D17, D20, D21).

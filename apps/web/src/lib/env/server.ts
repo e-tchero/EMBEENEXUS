@@ -22,7 +22,14 @@ const serverEnvSchema = z.object({
   // Flutterwave (payment provider — abstraction behind lib/providers in M4)
   FLUTTERWAVE_SECRET_KEY: z.string().min(1),
   FLUTTERWAVE_ENCRYPTION_KEY: z.string().min(1),
-  FLUTTERWAVE_WEBHOOK_HASH: z.string().min(1),
+  // Webhook secret hash is a SEPARATE credential from the API keys. Optional
+  // until configured in the Flutterwave dashboard: while absent, the webhook
+  // route FAILS CLOSED (rejects every delivery) rather than accepting
+  // unauthenticated events.
+  FLUTTERWAVE_WEBHOOK_HASH: z.string().min(1).optional(),
+  // Background-job trigger token (operator scheduler). Optional: when absent,
+  // job routes accept only authenticated operator sessions.
+  JOBS_TRIGGER_TOKEN: z.string().min(1).optional(),
 
   // Stadia Maps (map provider — abstraction behind lib/providers)
   STADIA_MAPS_API_KEY: z.string().min(1),
@@ -48,6 +55,7 @@ function loadServerEnv(): ServerEnv {
     FLUTTERWAVE_SECRET_KEY: process.env.FLUTTERWAVE_SECRET_KEY,
     FLUTTERWAVE_ENCRYPTION_KEY: process.env.FLUTTERWAVE_ENCRYPTION_KEY,
     FLUTTERWAVE_WEBHOOK_HASH: process.env.FLUTTERWAVE_WEBHOOK_HASH,
+    JOBS_TRIGGER_TOKEN: process.env.JOBS_TRIGGER_TOKEN,
     STADIA_MAPS_API_KEY: process.env.STADIA_MAPS_API_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
     LOG_LEVEL: process.env.LOG_LEVEL,
@@ -94,8 +102,11 @@ export const serverEnv = {
   get FLUTTERWAVE_ENCRYPTION_KEY(): string {
     return loadServerEnv().FLUTTERWAVE_ENCRYPTION_KEY;
   },
-  get FLUTTERWAVE_WEBHOOK_HASH(): string {
+  get FLUTTERWAVE_WEBHOOK_HASH(): string | undefined {
     return loadServerEnv().FLUTTERWAVE_WEBHOOK_HASH;
+  },
+  get JOBS_TRIGGER_TOKEN(): string | undefined {
+    return loadServerEnv().JOBS_TRIGGER_TOKEN;
   },
   get STADIA_MAPS_API_KEY(): string {
     return loadServerEnv().STADIA_MAPS_API_KEY;
