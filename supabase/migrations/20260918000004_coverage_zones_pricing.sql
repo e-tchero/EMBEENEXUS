@@ -154,7 +154,7 @@ with zones(name, wkt) as (
 insert into public.coverage_zones (name, boundary, is_active, activated_at)
 select
   name,
-  st_geogfromtext(wkt, 4326),
+  st_geogfromtext(wkt),
   true,
   now()
 from zones;
