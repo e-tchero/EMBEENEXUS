@@ -89,6 +89,26 @@ $$;
 revoke all on function public.has_role(text) from public;
 grant execute on function public.has_role(text) to authenticated;
 
+-- Two-argument overload for SECURITY DEFINER RPCs, which capture the caller
+-- explicitly (auth.uid() at body top) and branch on per-caller roles. Mirrors
+-- the 1-arg function's posture: same profile check, same grants, locked
+-- search_path. Both signatures coexist; overload resolution is exact.
+create or replace function public.has_role(p_user uuid, required_role text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = p_user and role = required_role and is_active
+  );
+$$;
+
+revoke all on function public.has_role(uuid, text) from public;
+grant execute on function public.has_role(uuid, text) to authenticated;
+
 -- -----------------------------------------------------------------------------
 -- Signup trigger: create a profile for every new auth user.
 -- Role is forced to 'customer' regardless of client-supplied metadata so a
