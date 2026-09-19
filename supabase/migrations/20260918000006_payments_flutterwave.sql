@@ -68,13 +68,16 @@ create table public.payments (
   -- Correlation with webhook_events for auditability.
   first_webhook_event_id uuid,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-
-  -- One active payment session per order at a time; settled rows
-  -- (successful/failed/cancelled/verification_failed) allow a new attempt.
-  constraint payments_one_active_per_order unique (order_id)
-    where (status in ('initiated', 'redirected', 'pending'))
+  updated_at timestamptz not null default now()
 );
+
+-- One active payment session per order at a time; settled rows
+-- (successful/failed/cancelled/verification_failed) allow a new attempt.
+-- Partial uniqueness is expressed as a partial unique index — PostgreSQL
+-- table constraints cannot carry a WHERE clause.
+create unique index payments_one_active_per_order
+  on public.payments (order_id)
+  where status in ('initiated', 'redirected', 'pending');
 
 comment on table public.payments is
   'Flutterwave payment attempts. Expected amount is copied from the order immutable snapshot; success requires exact server-side verification. Clients hold SELECT on their own rows only.';
