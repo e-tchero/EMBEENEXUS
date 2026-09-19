@@ -203,9 +203,9 @@ as $$
     select 1
     from public.coverage_zones cz
     where cz.is_active
-      and st_covers(
+      and public.st_covers(
         cz.boundary,
-        st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography
+        public.st_setsrid(public.st_makepoint(p_lng, p_lat), 4326)::public.geography
       )
   );
 $$;
