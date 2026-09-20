@@ -30,7 +30,7 @@ implementation continues.
 | `17-09-26/Delivery and order workflow.docx` | Delivery workflow | **CANONICAL** | Sep 17, 52 sections. State names here are product labels (§50–51); M3 states are the technical mapping. OTP fallback, waiting, return, no-unauthorised-handover all confirmed. |
 | `17-09-26/Payment System.docx` | Payments | **CANONICAL** | Sep 17. Flutterwave locked; payment statuses (Pending/Failed/Under Review/Confirmed/Expired); backend verification; daily payouts; gateway fees = Embee. |
 | `17-09-26/EN_NexusSeller_Spec.docx` | Nexus Seller | **CANONICAL** | Sep 17. 3-delivery session cap, batch offers ≤3, permanent public tracking link, Pro credits (5 + 10%), **SMS gateway = founder/CTO selection pending**. |
-| `EMBEE_NEXUS_Founder_Business_Decision_Register_FINAL.pdf` | Founder decisions | **CANONICAL** | Sep 17, 17pp, D01–D30 with priorities. All listed decisions remain unanswered (template fields blank) → still unresolved. |
+| `EMBEE_NEXUS_Founder_Business_Decision_Register_260917_133156.pdf` (approved; supersedes the FINAL blank template) | Founder decisions | **CANONICAL (L1)** | Sep 17, 17pp, D01–D30 **answered** (founder-confirmed 2026-09). Waiting (D05) = first 10 min free, then ₦700 per additional minute (NOT per 10-min block), 30-min max, return to pickup customer, Embee pays return. D07+D08 answered jointly. D23 = no suspension during an active delivery. See `EMBEE_NEXUS_M6_FOUNDER_DECISION_RECONCILIATION.md`. |
 | `EmbeeNexus_Founder_Business_Decisions_Week1.docx` / `.pdf` | Founder decisions | DUPLICATE (same register, pre-FINAL) | Covered by FINAL. |
 | `EMBEE_NEXUS_Founder_Technology_Decision_Official_Branded .pdf` | Technology direction | CANONICAL (direction) | Sep 9. Mobile-first product direction; decisions-locked principle. Lists *questions*; the answered decisions live in later docs + V2 authorizations. |
 | `EMBEE_NEXUS_Mapping_Provider_Strategy_Stadia_Decision.pdf` | Maps | **CANONICAL** | Sep 11. **KEEP STADIA** for MVP; Starter $20/mo at production; harden endpoints; autocomplete v2; route caching; usage monitoring. |
@@ -75,7 +75,7 @@ authoritative for V2 engineering decisions (L2/L5). `docs/runbooks/*` — operat
 | **Security** | V2 founder prompts + ADR-0001 + M0–M3 migrations | L1/L2 | Implemented (RLS, RPCs, grants) | None | Maintain |
 | **Authentication** | V2 founder prompts (Supabase Auth) | L1/L2 | Implemented (M0) | Handoff adds biometrics/passkeys for mobile (future) | Mobile auth method decided with mobile milestone |
 | **API contracts** | `docs/architecture/ARCHITECTURE-V2.md` + V2 routes | L2 | Implemented M3 | CLAUDE_PREP/05 endpoints are V1 | Keep V2 contract docs canonical |
-| **Founder decisions** | `Founder_Business_Decision_Register_FINAL.pdf` + `docs/design/FOUNDER_DECISIONS.md` | L3 | n/a | None | Register maintained in FOUNDER_DECISIONS.md |
+| **Founder decisions** | `Founder_Business_Decision_Register_260917_133156.pdf` (approved/answered, L1) + `docs/design/FOUNDER_DECISIONS.md` | L1/L3 | n/a | None | Register maintained in FOUNDER_DECISIONS.md |
 | **Technology decisions** | V2 authorizations (L1) + Technology Decision PDF (L3) | L1/L3 | M0–M3 stack | Mapbox/Paystack remnants → void | Locked per Technology Decision §6 |
 
 ---
@@ -134,8 +134,7 @@ Confirmed/Expired) maps to the V2 payment axis to be built in M4.
 pickup → one destination · 35 km max road distance · Zone A list (17 areas) · fixed-band
 pricing table (exact match with M2, kobo integer math, (min,max] semantics) · 70/30 split
 (independent-rider model; fleet economics future) · Flutterwave · cashless · pay-before-
-confirm · backend verification authority · Under Review hold · daily payouts · waiting
-10-min included / 10-min blocks / 30-min max / return to customer / Embee pays return ·
+confirm · backend verification authority · Under Review hold · daily payouts ·waiting 10 min free / ₦700 per additional minute (not per block) / 30-min max / return to pickup customer / Embee pays return ·
 OTP chain + 3 photos + recipient inspection + sender OTP fallback · no unauthorised
 handover · seller caps (3/session, batch ≤3, instant signup, permanent public tracking link,
 Pro = 5 credits + 10%, price unset) · Stadia kept for MVP.
@@ -148,11 +147,14 @@ BrandKit vs founder brand material → **founder material wins**; V2 proposal re
 **Superseded:** Paystack · Mapbox · web-based Rider Portal as primary rider experience ·
 V1 order state names · Resend email in MVP · V1 UI inventory as design target.
 
-**Unresolved (register FINAL, fields blank):** D01–D30 as listed in
-`docs/design/FOUNDER_DECISIONS.md` — notably D05 waiting charge, D06 refund matrix, D07/D08,
-D17–D21, D09 quote validity (V2 uses 45-min default, flagged), D26 SMS cost, D28 contact
-exposure, D29/D30. Plus: Pro monthly price, SMS gateway selection, auto-completion policy,
-VAT stance.
+**Answered (approved register, 2026-09):** D01–D30 per
+`EMBEE_NEXUS_Founder_Business_Decision_Register_260917_133156.pdf` — notably D05 waiting
+charge (first 10 min free, then ₦700 per additional minute, 30-min max, return to pickup
+customer, Embee pays return), D06 refund matrix, D07/D08 (answered jointly), D17–D21, D09/D10
+quote validity (V2 uses a 45-min default — reconcile to the register value), D26 SMS cost,
+D28 contact exposure, D29/D30. Plus: Pro monthly price, SMS gateway, auto-completion policy.
+Register-sourced values are to be **transcribed from the register**, not re-asked. See
+`EMBEE_NEXUS_M6_FOUNDER_DECISION_RECONCILIATION.md`.
 
 ---
 

@@ -169,4 +169,9 @@ DEFINER RPCs (`dispatch_start/offer_next/accept/decline/expire_due`);
 `rider_accepted_offer` behind internal fact checks. Expiry/continuation runs
 on the jobs-gated tick route (done). M6 chain of custody · M7 tracking ·
 M8 ledger/payouts · M9 seller platform · M10 admin/hardening.
-Refund/waiting/seller-edit flows gated on P0 decisions (D05–D08, D17, D20, D21).
+Refund/waiting/seller-edit decisions (D05–D08, D17, D20, D21) are now **answered** in the
+approved founder register (2026-09): D05 = first 10 minutes free, then ₦700 per additional
+minute, 30-minute maximum, then return to the pickup customer with Embee covering the return
+cost; D07+D08 answered jointly; see `EMBEE_NEXUS_M6_FOUNDER_DECISION_RECONCILIATION.md`.
+The flows are unblocked and remain to be built in their scheduled milestones:
+waiting → M6; refunds/operational costs → M8; seller-edit → M9.
