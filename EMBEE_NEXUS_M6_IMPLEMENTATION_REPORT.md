@@ -106,7 +106,14 @@ Implemented exactly as stated: per-minute (NOT per-10-minute-block), per-minute-
 
 ## 9. Known Limitations
 
-1. **Hosted-engine application pending authorized push.** Migrations 0013–0014 are committed but not yet applied to the hosted PostgreSQL 17.6 engine (that operation requires the same authorization as M5's remote apply; no unauthorized remote changes were made). Until applied, the new RPCs/routes are not live there. The verification matrix above is ready to run immediately after the push: `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f docs/milestones/M6-DATABASE-VERIFICATION.sql`.
+> **ADDENDUM 2026-09-20 (hosted gate):** migrations 0013–0014 (plus fix-migrations
+> 0015–0016) have since been applied to the hosted engine and the full verification
+> matrix PASSED — see `EMBEE_NEXUS_M6_HOSTED_VERIFICATION_REPORT.md`. During that
+> gate, verification exposed that the 0014 OTP attempt counter could never persist
+> (raise-aborts-transaction); 0015/0016 fix it with an outcome-as-data contract.
+> Limitation 1 below is resolved; the others stand.
+
+1. ~~**Hosted-engine application pending authorized push.**~~ **RESOLVED** — applied and verified on the hosted engine (see the hosted verification report).
 2. **Waiting-fee collection is not implemented** — the charge is computed and recorded on the order (authoritative), but collection/split/settlement are M8 ledger concerns; the waiting-fee rider/platform split is not specified in the M6 authorization and was **not invented**.
 3. **No auto-completion timer** — explicit recipient confirmation is the only `delivered → completed` path (safe default pending the register value's transcription; nothing invented).
 4. **D26 SMS provider** not transcribed into configuration (register access required) — no M6 dependency exists.
