@@ -202,8 +202,35 @@ export async function verifyOrderOtp(input: unknown): Promise<CustodyRefResult> 
     return { ok: false, error: mapRpcError(code) };
   }
 
-  const row = (Array.isArray(data) ? data[0] : data) as { order_id: string; status: string } | null;
+  // Migration 0015 contract: OTP-verification OUTCOMES are returned as data
+  // (so the attempt counter persists server-side); only 'verified' grants the
+  // transitioned order ref.
+  const row = (Array.isArray(data) ? data[0] : data) as
+    | { order_id: string; status: string; otp_status: string; attempts: number | null }
+    | null;
   if (!row) return { ok: false, error: 'unknown_error' };
+
+  if (row.otp_status !== 'verified') {
+    logger.warn('custody.otp.verify_rejected', {
+      orderId: row.order_id,
+      kind: parsed.data.kind,
+      outcome: row.otp_status,
+    });
+    switch (row.otp_status) {
+      case 'invalid':
+        return { ok: false, error: 'otp_invalid' };
+      case 'expired':
+        return { ok: false, error: 'otp_expired' };
+      case 'locked':
+        return { ok: false, error: 'otp_locked' };
+      case 'already_used':
+        return { ok: false, error: 'otp_already_used' };
+      case 'not_issued':
+        return { ok: false, error: 'otp_not_issued' };
+      default:
+        return { ok: false, error: 'unknown_error' };
+    }
+  }
 
   logger.info('custody.otp.verified', {
     orderId: row.order_id,

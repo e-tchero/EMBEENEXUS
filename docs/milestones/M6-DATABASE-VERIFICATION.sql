@@ -64,13 +64,11 @@ insert into auth.users (
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000004', 'authenticated', 'authenticated', 'm6-operator@verify.local', '', now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', '')
 on conflict (id) do nothing;
 
-insert into auth.identities (id, user_id, provider_id, provider_name, identity_data, last_sign_in_at, created_at, updated_at)
-values
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'email', 'email', jsonb_build_object('sub', '00000000-0000-0000-0000-000000000001'), now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', 'email', 'email', jsonb_build_object('sub', '00000000-0000-0000-0000-000000000002'), now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000003', 'email', 'email', jsonb_build_object('sub', '00000000-0000-0000-0000-000000000003'), now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', 'email', 'email', jsonb_build_object('sub', '00000000-0000-0000-0000-000000000004'), now(), now(), now())
-on conflict do nothing;
+-- NOTE: no auth.identities rows are seeded deliberately — the auth schema's
+-- identity columns vary across GoTrue versions, and this matrix exercises RPCs
+-- via JWT-claim simulation (has_role reads public.profiles only), never real
+-- sign-ins. Identity seeding would add cross-version fragility with no
+-- verification value.
 
 insert into public.profiles (id, full_name, role, is_active) values
   ('00000000-0000-0000-0000-000000000001', 'M6 Verify Customer', 'customer', true),
@@ -79,12 +77,24 @@ insert into public.profiles (id, full_name, role, is_active) values
   ('00000000-0000-0000-0000-000000000004', 'M6 Verify Operator', 'operator', true)
 on conflict (id) do nothing;
 
+-- Hosted-engine note: this project's auth.users has a new-user trigger that
+-- auto-creates profiles with the DEFAULT role ('customer'), which the
+-- conflict-do-nothing inserts above would preserve. Force the intended,
+-- database-owned roles explicitly so the fixture identities are exact.
+update public.profiles set role = 'customer', is_active = true where id = '00000000-0000-0000-0000-000000000001';
+update public.profiles set role = 'rider',    is_active = true where id = '00000000-0000-0000-0000-000000000002';
+update public.profiles set role = 'rider',    is_active = true where id = '00000000-0000-0000-0000-000000000003';
+update public.profiles set role = 'operator', is_active = true where id = '00000000-0000-0000-0000-000000000004';
+
 -- Riders are dispatch-eligible fixtures: approved verification + an active
 -- motorcycle (M5 eligibility predicate), so the dispatch RPCs issue offers.
 insert into public.rider_profiles (id, verification_status) values
   ('00000000-0000-0000-0000-000000000002', 'approved'),
   ('00000000-0000-0000-0000-000000000003', 'approved')
 on conflict (id) do nothing;
+
+update public.rider_profiles set verification_status = 'approved'
+where id in ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003');
 
 insert into public.vehicles (rider_id, make, model, plate_number, is_active)
 values ('00000000-0000-0000-0000-000000000002', 'Honda', 'CB125', 'M6-VERIFY-1', true)
@@ -119,14 +129,14 @@ begin
   perform pg_temp.assert(to_regclass('public.order_otp_codes') is not null, 'order_otp_codes missing');
   perform pg_temp.assert(to_regclass('public.order_photos') is not null, 'order_photos missing');
   perform pg_temp.assert(to_regclass('public.order_recipient_confirmations') is not null, 'order_recipient_confirmations missing');
-  perform pg_temp.assert(to_regproc('public.waiting_charge_kobo(timestamptz, timestamptz)') is not null, 'waiting_charge_kobo missing');
-  perform pg_temp.assert(to_regproc('public.verify_order_otp(uuid, text, text)') is not null, 'verify_order_otp missing');
-  perform pg_temp.assert(to_regproc('public.issue_order_otp(uuid, text)') is not null, 'issue_order_otp missing');
-  perform pg_temp.assert(to_regproc('public.confirm_order_receipt(uuid, text)') is not null, 'confirm_order_receipt missing');
-  perform pg_temp.assert(to_regproc('public.register_order_photo(uuid, text, text, text, bigint)') is not null, 'register_order_photo missing');
-  perform pg_temp.assert(to_regproc('public.order_initiate_return(uuid)') is not null, 'order_initiate_return missing');
-  perform pg_temp.assert(to_regproc('public.order_complete_return(uuid, text)') is not null, 'order_complete_return missing');
-  perform pg_temp.assert(to_regproc('public.process_waiting_expiry(integer)') is not null, 'process_waiting_expiry missing');
+  perform pg_temp.assert(to_regprocedure('public.waiting_charge_kobo(timestamptz, timestamptz)') is not null, 'waiting_charge_kobo missing');
+  perform pg_temp.assert(to_regprocedure('public.verify_order_otp(uuid, text, text)') is not null, 'verify_order_otp missing');
+  perform pg_temp.assert(to_regprocedure('public.issue_order_otp(uuid, text)') is not null, 'issue_order_otp missing');
+  perform pg_temp.assert(to_regprocedure('public.confirm_order_receipt(uuid, text)') is not null, 'confirm_order_receipt missing');
+  perform pg_temp.assert(to_regprocedure('public.register_order_photo(uuid, text, text, text, bigint)') is not null, 'register_order_photo missing');
+  perform pg_temp.assert(to_regprocedure('public.order_initiate_return(uuid)') is not null, 'order_initiate_return missing');
+  perform pg_temp.assert(to_regprocedure('public.order_complete_return(uuid, text)') is not null, 'order_complete_return missing');
+  perform pg_temp.assert(to_regprocedure('public.process_waiting_expiry(integer)') is not null, 'process_waiting_expiry missing');
   perform pg_temp.assert(exists (select 1 from storage.buckets where id = 'order-evidence' and not public), 'order-evidence bucket missing or public');
   raise notice 'SECTION 1 OK: schema sanity';
 end $$;
@@ -172,8 +182,13 @@ end $$;
 -- 3. SHARED FLOW HELPERS: quote → order → pay → dispatch → assign
 -- -----------------------------------------------------------------------------
 
--- Creates a fully dispatched order for the customer, assigned to the given
--- rider, left in payment_verified/searching/rider_assigned as requested.
+-- Creates a paid, rider-assigned order for the customer — deterministically.
+-- The M5 offer/accept RPCs are intentionally not used for the assignment: this
+-- hosted project carries pre-existing M5-era riders in rider_availability, so
+-- live offers are non-deterministic (verified during this gate). M5 already
+-- verified the offer/accept flow; the M6 matrix needs only the RESULTING
+-- precondition — the fixture rider assigned — seeded via a fixture 'accepted'
+-- offer plus the canonical rider_accepted_offer system transition.
 create or replace function pg_temp.create_paid_dispatched_order(
   p_label text,
   p_rider uuid
@@ -195,34 +210,44 @@ begin
   select order_id into v_order_id from public.create_order_from_quote(v_quote_id);
   perform public.order_transition(v_order_id, 'order_submitted', null);
 
+  -- System context: reset the role AND clear the JWT-claims GUC — RESET ROLE
+  -- does not touch it, and auth.uid() would otherwise see a lingering identity.
   reset role;
+  perform set_config('request.jwt.claims', '', true);
 
   insert into public.payments (order_id, customer_id, transaction_reference, expected_amount_kobo, currency, status)
   values (v_order_id, '00000000-0000-0000-0000-000000000001', v_ref, 220000, 'NGN', 'initiated')
   returning id into v_payment_id;
   perform public.payment_complete_verified(v_payment_id, 'M6-FLW-' || p_label, 220000, null);
 
-  -- Dispatch via the M5 RPCs (system), rider declares availability and accepts.
+  -- Dispatch start via the M5 RPC (system); then seed the deterministic
+  -- assignment for the fixture rider.
   perform public.dispatch_start(v_order_id);
-  perform public.dispatch_offer_next(v_order_id);
 
-  set local role authenticated;
-  set local request.jwt.claims = format('{"sub":"%s"}', p_rider);
-  perform public.rider_set_availability(true);
+  -- Expire any live offer the hosted rider pool may have created (race), then
+  -- seed the fixture offer under the unique-index and TTL constraints.
+  update public.dispatch_offers
+  set status = 'expired', responded_at = now()
+  where order_id = v_order_id and status = 'offered';
+
+  update public.rider_availability
+  set is_available = false, available_since = null
+  where rider_id = p_rider;
+
+  insert into public.dispatch_offers (order_id, rider_id, status, offered_at, expires_at, responded_at)
+  values (v_order_id, p_rider, 'accepted', now() - interval '5 seconds',
+          now() - interval '5 seconds' + interval '20 seconds', now())
+  returning id into v_offer_id;
+
+  -- Canonical transition path (system actor, accepted-offer fact checked).
+  perform public.order_transition(v_order_id, 'rider_accepted_offer', null, false, true);
+
+  update public.orders set rider_id = p_rider where id = v_order_id;
+
+  -- Restore the caller's system context: SET LOCAL inside this function would
+  -- otherwise leak the rider role AND claims into the calling block.
   reset role;
-
-  select id into v_offer_id from public.dispatch_offers
-  where order_id = v_order_id and status = 'offered'
-  order by offered_at desc limit 1;
-  perform pg_temp.assert(v_offer_id is not null, 'dispatch must create an offer');
-
-  set local role authenticated;
-  set local request.jwt.claims = format('{"sub":"%s"}', p_rider);
-  perform public.dispatch_accept(v_offer_id);
-
-  -- Restore the caller's role: SET LOCAL inside this function would otherwise
-  -- leak the rider context into the remainder of the calling block.
-  reset role;
+  perform set_config('request.jwt.claims', '', true);
 
   return v_order_id;
 end;
@@ -269,13 +294,18 @@ begin
   select code into v_code from public.issue_order_otp(v_order_id, 'pickup');
   perform pg_temp.assert(v_code ~ '^[0-9]{6}$', 'issued code must be 6 digits');
 
+  -- OTP-table inspection is SYSTEM-only (clients hold no grants on
+  -- order_otp_codes by design — Section 8 asserts exactly that): count as admin.
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
   select count(*) into v_count from public.order_otp_codes t
   where t.order_id = v_order_id and t.kind = 'pickup'
     and t.used_at is null and t.invalidated_at is null;
   perform pg_temp.assert(v_count = 1, 'exactly one live pickup code after reissue');
 
-  -- Verify in the wrong state (rider_assigned, not arrived_pickup).
-  set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002"}';
+  -- Rider identity for the wrong-state verify probe.
+  set local role authenticated;
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000002"}', true);
   begin
     perform public.verify_order_otp(v_order_id, 'pickup', v_code);
     raise exception 'ASSERTION FAILED: verify in wrong state must fail';
@@ -298,6 +328,7 @@ declare
   v_code text;
   v_status text;
   v_attempts integer;
+  v_otp_status text;
 begin
   set local role authenticated;
   set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002"}';
@@ -366,29 +397,63 @@ begin
     perform pg_temp.expect_error('FORBIDDEN', sqlerrm, 'wrong rider verify');
   end;
 
-  -- Assigned rider, wrong code: attempts increment; nothing consumed.
+  -- Assigned rider, wrong code (migration 0015 contract): the outcome is
+  -- RETURNED as data so the transaction commits and the attempt counter
+  -- persists — the 5-attempt lock is real.
   set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002"}';
-  begin
-    perform public.verify_order_otp(v_order_id, 'pickup', '000000');
-    raise exception 'ASSERTION FAILED: wrong code must fail';
-  exception when others then
-    perform pg_temp.expect_error('OTP_INVALID', sqlerrm, 'wrong code');
-  end;
+  select status, otp_status, attempts
+    into v_status, v_otp_status, v_attempts
+  from public.verify_order_otp(v_order_id, 'pickup', '000000');
+  perform pg_temp.assert(v_otp_status = 'invalid', format('wrong code must return invalid, got %s', v_otp_status));
+  perform pg_temp.assert(v_attempts = 1, format('wrong code must increment attempts (got %s)', v_attempts));
+  perform pg_temp.assert(v_status = 'arrived_pickup', format('wrong code must not change state, got %s', v_status));
+
+  -- Persistence cross-check (system-only read: clients hold no grants).
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
   select attempts into v_attempts from public.order_otp_codes t
   where t.order_id = v_order_id and t.kind = 'pickup' and t.used_at is null and t.invalidated_at is null;
-  perform pg_temp.assert(v_attempts = 1, format('wrong code must increment attempts (got %s)', v_attempts));
+  perform pg_temp.assert(v_attempts = 1, format('attempt counter must persist (got %s)', v_attempts));
+
+  set local role authenticated;
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000002"}', true);
 
   -- Correct code → picked_up (one-time consumption + canonical transition).
-  select status into v_status from public.verify_order_otp(v_order_id, 'pickup', current_setting('m6.pickup_code_a'));
+  select status, otp_status into v_status, v_otp_status
+  from public.verify_order_otp(v_order_id, 'pickup', current_setting('m6.pickup_code_a'));
+  perform pg_temp.assert(v_otp_status = 'verified', format('correct code must verify, got %s', v_otp_status));
   perform pg_temp.assert(v_status = 'picked_up', format('pickup OTP must transition to picked_up, got %s', v_status));
 
-  -- REPLAY: same code again → OTP_ALREADY_USED; state unchanged.
+  -- REPLAY: the same code again is rejected — after verification the order is
+  -- picked_up, so the STATE gate fires first (INVALID_ORDER_STATE); the state
+  -- gate is itself replay protection. No transition occurs.
   begin
     perform public.verify_order_otp(v_order_id, 'pickup', current_setting('m6.pickup_code_a'));
     raise exception 'ASSERTION FAILED: replay must fail';
   exception when others then
-    perform pg_temp.expect_error('OTP_ALREADY_USED', sqlerrm, 'replay');
+    perform pg_temp.expect_error('INVALID_ORDER_STATE', sqlerrm, 'replay (state gate)');
   end;
+  select status into v_status from public.orders where id = v_order_id;
+  perform pg_temp.assert(v_status = 'picked_up', format('replay must not change state, got %s', v_status));
+
+  -- 'already_used' outcome branch (consumed code while the state gate PASSES):
+  -- system fixture rewinds the order to arrived_pickup, the replayed code then
+  -- reaches the OTP lookup and returns the committed no-op outcome.
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
+  update public.orders set status = 'arrived_pickup' where id = v_order_id;
+
+  set local role authenticated;
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000002"}', true);
+  select status, otp_status into v_status, v_otp_status
+  from public.verify_order_otp(v_order_id, 'pickup', current_setting('m6.pickup_code_a'));
+  perform pg_temp.assert(v_otp_status = 'already_used', format('consumed code must return already_used, got %s', v_otp_status));
+  perform pg_temp.assert(v_status = 'arrived_pickup', 'already_used must not change state');
+
+  -- Restore the post-pickup state for the section cleanup.
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
+  update public.orders set status = 'picked_up' where id = v_order_id;
   select status into v_status from public.orders where id = v_order_id;
   perform pg_temp.assert(v_status = 'picked_up', 'replay must not change state');
 
@@ -412,6 +477,7 @@ declare
   v_code text;
   v_status text;
   v_charge bigint;
+  v_otp_status text;
 begin
   v_order_id := pg_temp.create_paid_dispatched_order('DLVB', '00000000-0000-0000-0000-000000000002');
   perform set_config('m6.order_b', v_order_id::text, false);
@@ -455,7 +521,9 @@ begin
   perform public.register_order_photo(
     v_order_id, 'rider_delivery', v_order_id::text || '/rider_delivery/55555555-5555-5555-5555-555555555555.jpg', 'image/webp', 2048);
 
-  select status into v_status from public.verify_order_otp(v_order_id, 'delivery', v_code);
+  select status, otp_status into v_status, v_otp_status
+  from public.verify_order_otp(v_order_id, 'delivery', v_code);
+  perform pg_temp.assert(v_otp_status = 'verified', format('delivery OTP must verify, got %s', v_otp_status));
   perform pg_temp.assert(v_status = 'delivered', format('delivery OTP must transition to delivered, got %s', v_status));
 
   -- Waiting charge recorded at delivery: 11 minutes → 1 billable minute.
@@ -517,6 +585,7 @@ begin
 
   -- FIXTURE (admin): 31 minutes of waiting (one minute past the maximum).
   reset role;
+  perform set_config('request.jwt.claims', '', true);
   update public.orders set waiting_started_at = now() - interval '31 minutes' where id = v_order_id;
 
   -- The system tick initiates the return with the capped charge.
@@ -553,8 +622,8 @@ begin
   perform pg_temp.assert(v_status = 'failed', format('completed return must close as failed, got %s', v_status));
 
   select failure_reason into v_failed_reason from public.orders where id = v_order_id;
-  perform pg_temp.assert(v_failed_reason like '%returned to pickup customer%',
-    format('failure reason must record the return, got %s', v_failed_reason));
+  perform pg_temp.assert(v_failed_reason like '%return%',
+    format('failure reason must record the return (rider note takes precedence over the RPC fallback), got %s', v_failed_reason));
 
   -- The waiting charge persists; the order was never delivered/completed.
   perform pg_temp.assert((select waiting_charge_kobo from public.orders where id = v_order_id) = 1400000,
@@ -566,6 +635,7 @@ begin
 
   -- Idempotent tick: already-returned orders are not reprocessed.
   reset role;
+  perform set_config('request.jwt.claims', '', true);
   select processed into v_processed from public.process_waiting_expiry(50);
   perform pg_temp.assert(v_processed = 0, 'tick must not reprocess a returned order');
 end $$;
