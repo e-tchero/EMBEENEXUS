@@ -1,6 +1,24 @@
 # Background Jobs Runbook — Embee Nexus
 
-## Overview
+## V2 (Embee Nexus V2) job routes — schedule these with the shared secret header
+
+The V2 app exposes jobs-gated trigger routes (header `x-jobs-token`, constant-time
+compared, or an authenticated operator session). All are idempotent and safe to
+re-run:
+
+| Route | Purpose | Cadence guidance |
+|-------|---------|------------------|
+| `POST /api/jobs/dispatch-tick` | Expire due dispatch offers (20 s TTL) and continue dispatch (M5) | Every 10–20 s |
+| `POST /api/jobs/reconcile-payments` | Reconcile pending payments with the provider (M4) | Every 5–15 min |
+| `POST /api/jobs/waiting-tick` | Waiting maximum (30 min) reached → initiate return to the pickup customer with the capped waiting charge (M6, D05) | Every 1–5 min |
+
+If the waiting tick is not scheduled, orders whose recipients never confirm will
+remain in `arrived_destination` (rider committed) past the founder-approved
+30-minute maximum — the tick is REQUIRED for the waiting rule to operate.
+
+---
+
+## Overview (V1 legacy — superseded by the V2 routes above)
 
 Embee Nexus uses a PostgreSQL-based background job system with:
 - `FOR UPDATE SKIP LOCKED` for concurrent processing

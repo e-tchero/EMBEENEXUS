@@ -117,9 +117,12 @@ verification); the two must not be conflated. Database transition RPCs
   actor role, trigger, metadata); no mutation paths exist for any role.
 - RPCs `create_quote`, `create_order_from_quote`, `order_transition` are
   SECURITY DEFINER, `search_path=''`, execute revoked from public/anon;
-  transitions serialize on `FOR UPDATE` row locks. Guards whose fact sources
-  do not exist yet (payment verification M4, OTP/recipient M6) are unreachable
-  in M3 by design.
+  transitions serialize on `FOR UPDATE` row locks. Payment verification became
+  a real guard in M4; the custody guards (pickup/delivery OTP + evidence,
+  recipient confirmation) became real in M6 (migration 0014) — the OTP
+  consumption, evidence presence and confirmation row are checked inside the
+  same transaction as the transition, so the client path can never assert the
+  facts directly.
 
 ## 5. Platform Infrastructure
 
@@ -175,3 +178,16 @@ minute, 30-minute maximum, then return to the pickup customer with Embee coverin
 cost; D07+D08 answered jointly; see `EMBEE_NEXUS_M6_FOUNDER_DECISION_RECONCILIATION.md`.
 The flows are unblocked and remain to be built in their scheduled milestones:
 waiting → M6; refunds/operational costs → M8; seller-edit → M9.
+
+**M6 status (implemented 2026-09-20, migrations 0013–0014):** D09 quote validity = 10
+minutes; chain of custody implemented — `order_otp_codes` (hashed, one-time, 5-attempt
+lock, reissue-capped), `order_photos` (three-photo chain in the PRIVATE `order-evidence`
+bucket; server-mediated upload + short-lived signed URLs only),
+`order_recipient_confirmations` (delivered → completed guard fact); waiting/return ride on
+order columns + `order_events` with NO new lifecycle states — returns close via canonical
+`delivery_failed`. New RPCs: `ensure_order_otp_codes` (system, atomic with
+`payment_complete_verified`), `issue_order_otp`/`verify_order_otp` (owner/rider),
+`confirm_order_receipt` (owner), `register_order_photo` (owner/rider),
+`order_initiate_return`/`order_complete_return`/`process_waiting_expiry` (system tick via
+the jobs-gated waiting-tick route). Waiting-fee collection/settlement and the
+Embee-borne return cost are ledger-pending (M8) — no financial rules invented.

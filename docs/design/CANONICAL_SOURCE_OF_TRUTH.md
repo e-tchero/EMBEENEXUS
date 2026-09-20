@@ -151,10 +151,18 @@ V1 order state names · Resend email in MVP · V1 UI inventory as design target.
 `EMBEE_NEXUS_Founder_Business_Decision_Register_260917_133156.pdf` — notably D05 waiting
 charge (first 10 min free, then ₦700 per additional minute, 30-min max, return to pickup
 customer, Embee pays return), D06 refund matrix, D07/D08 (answered jointly), D17–D21, D09/D10
-quote validity (V2 uses a 45-min default — reconcile to the register value), D26 SMS cost,
-D28 contact exposure, D29/D30. Plus: Pro monthly price, SMS gateway, auto-completion policy.
-Register-sourced values are to be **transcribed from the register**, not re-asked. See
-`EMBEE_NEXUS_M6_FOUNDER_DECISION_RECONCILIATION.md`.
+quote validity (**10 minutes — implemented in migration 0013**, superseding the 45-min M3
+default), D26 SMS cost, D28 contact exposure, D29/D30. Plus: Pro monthly price, SMS gateway,
+auto-completion policy. Register-sourced values are to be **transcribed from the register**,
+not re-asked. See `EMBEE_NEXUS_M6_FOUNDER_DECISION_RECONCILIATION.md`.
+
+**M6 implemented (2026-09-20, migrations 0013–0014):** chain of custody (hashed one-time
+pickup/delivery OTPs, three-photo private evidence chain, recipient confirmation), waiting
+flow (10 min free → ₦700/additional minute via `waiting_charge_kobo` → 30-min cap → return
+to pickup customer, Embee-borne return cost recorded ledger-pending for M8 settlement), and
+quote validity 10 minutes. No new lifecycle states: waiting/return ride on
+`order_events` + dedicated order columns; returns close via the canonical `delivery_failed`
+path. See `EMBEE_NEXUS_M6_IMPLEMENTATION_REPORT.md`.
 
 ---
 
