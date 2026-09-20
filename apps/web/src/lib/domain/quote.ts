@@ -5,17 +5,16 @@
  * the authority for pricing/coverage; this module defines the quote's own
  * lifecycle rules so both the service layer and tests share one definition.
  *
- * FOUNDER-PENDING DEFAULT: quote validity is 45 minutes. No founder decision
- * exists for quote validity (adjacent to D09/D10 — quote validity window and
- * whether a re-quote at new pricing is required when pricing changes). This
- * is a documented implementation default, single-site, flagged for
- * ratification — not an invented business rule.
+ * FOUNDER DECISION (D09, approved register — M6 reconciliation): quote
+ * validity is 10 MINUTES. This supersedes the documented M3 founder-pending
+ * default of 45 minutes (migration 0005); the database was reconciled in
+ * migration 0013.
  */
 
 import { err, ok, type Result } from '@embee/shared';
 
-/** Quote validity in minutes (founder-pending; see module docblock). */
-export const QUOTE_VALIDITY_MINUTES = 45;
+/** Quote validity in minutes (founder D09: 10 minutes). */
+export const QUOTE_VALIDITY_MINUTES = 10;
 
 export type QuoteStatus = 'active' | 'consumed' | 'expired';
 

@@ -4,4 +4,5 @@ export * from './result';
 export * from './rider-schemas';
 export * from './order-schemas';
 export * from './payment-schemas';
+export * from './custody-schemas';
 export * from './money';

@@ -14,9 +14,20 @@ function quote(status: 'active' | 'consumed' | 'expired', expiresAt: Date) {
   return { status, expiresAt };
 }
 
-describe('quote validity default (founder-pending)', () => {
-  it('is the documented 45-minute implementation default', () => {
-    expect(QUOTE_VALIDITY_MINUTES).toBe(45);
+describe('quote validity (founder D09)', () => {
+  it('is the founder-approved 10 minutes', () => {
+    expect(QUOTE_VALIDITY_MINUTES).toBe(10);
+  });
+
+  it('gives a 10-minute window: orderable just inside, expired at the boundary', () => {
+    const expiresAt = new Date(T0.getTime() + QUOTE_VALIDITY_MINUTES * 60_000);
+    expect(isQuoteOrderable(quote('active', expiresAt), at(9 * 60_000 + 59_999)).orderable).toBe(
+      true,
+    );
+    expect(isQuoteOrderable(quote('active', expiresAt), at(10 * 60_000))).toEqual({
+      orderable: false,
+      reason: 'expired',
+    });
   });
 });
 
