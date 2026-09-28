@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 /**
@@ -48,6 +49,9 @@ const COPY: Record<Exclude<Phase, 'resolving' | 'stalled'>, { title: string; bod
 
 export function PaymentCallbackClient() {
   const [phase, setPhase] = useState<Phase>('resolving');
+  // Authoritative orderId from the polling endpoint — used only to link the
+  // customer to their order page; never to assert payment state client-side.
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -72,8 +76,9 @@ export function PaymentCallbackClient() {
           body: JSON.stringify({ transactionReference: txRef }),
         });
         if (!res.ok) throw new Error(`status ${res.status}`);
-        const json = (await res.json()) as { ok: boolean; payment?: { status: string } };
+        const json = (await res.json()) as { ok: boolean; payment?: { status: string; orderId?: string } };
         if (json.ok && json.payment) {
+          if (json.payment.orderId) setOrderId(json.payment.orderId);
           const next = phaseFromStatus(json.payment.status);
           setPhase(next);
           if (next === 'pending' && polls < MAX_POLLS) {
@@ -115,6 +120,14 @@ export function PaymentCallbackClient() {
           We could not confirm your payment just yet. If you were debited, your order will update
           automatically — check again shortly.
         </p>
+        {orderId ? (
+          <Link
+            href={`/orders/${orderId}`}
+            className="inline-block rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+          >
+            Go to your delivery
+          </Link>
+        ) : null}
       </>
     );
   }
@@ -124,6 +137,18 @@ export function PaymentCallbackClient() {
     <>
       <h1 className="text-xl font-semibold">{copy.title}</h1>
       <p className="text-sm text-neutral-500">{copy.body}</p>
+      {orderId ? (
+        <Link
+          href={`/orders/${orderId}`}
+          className={`inline-block rounded-lg px-4 py-2.5 text-sm font-medium ${
+            phase === 'successful'
+              ? 'bg-neutral-900 text-white hover:bg-neutral-700'
+              : 'border border-neutral-300 hover:bg-neutral-100'
+          }`}
+        >
+          {phase === 'successful' ? 'Track your delivery' : 'Back to your delivery'}
+        </Link>
+      ) : null}
     </>
   );
 }

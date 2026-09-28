@@ -5,4 +5,5 @@ export * from './rider-schemas';
 export * from './order-schemas';
 export * from './payment-schemas';
 export * from './custody-schemas';
+export * from './geo-schemas';
 export * from './money';

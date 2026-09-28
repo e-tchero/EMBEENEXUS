@@ -1,42 +1,57 @@
-import Link from 'next/link';
+import type { Metadata } from 'next';
 
 import { requireUser } from '@/lib/auth/guards';
-import { signOutAction } from '@/lib/auth/actions';
+import { getSession } from '@/lib/auth/session';
+import { createClient } from '@/lib/db/client-server';
+
+import { DashboardClient, type OrderListItem } from './dashboard-client';
+
+export const metadata: Metadata = {
+  title: 'Your deliveries',
+  robots: { index: false },
+};
+
+interface OrderRow {
+  id: string;
+  status: string;
+  pickup_address: string;
+  dropoff_address: string;
+  customer_price_kobo: string | number;
+  created_at: string;
+}
 
 /**
- * Authenticated landing page. M0 intentionally renders no domain data.
- * Role-scoped surfaces (customer/rider/seller/operator) are later milestones;
- * when they exist, routing forks on the server-resolved session role.
+ * Customer dashboard (pilot scope).
+ *
+ * Server component: the RLS-bound client reads only the signed-in
+ * customer's own orders — an invisible row is indistinguishable from a
+ * missing one. The dashboard is the customer's landing surface after
+ * sign-in: start a delivery, or track an existing one.
  */
 export default async function DashboardPage() {
-  const session = await requireUser();
+  await requireUser();
 
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">Embee Nexus</h1>
-        <form action={signOutAction}>
-          <button
-            type="submit"
-            className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100"
-          >
-            Sign out
-          </button>
-        </form>
-      </header>
-      <section className="rounded-xl border border-neutral-200 p-4">
-        <p className="text-sm font-medium">Signed in</p>
-        <p className="mt-1 text-sm text-neutral-500">
-          Role: <span className="font-mono text-xs">{session.role ?? 'unassigned'}</span>
-        </p>
-        <p className="mt-1 text-xs text-neutral-400">
-          Role is resolved server-side from the database on every request. Role-scoped dashboards
-          arrive in later milestones.
-        </p>
-      </section>
-      <Link href="/" className="text-sm underline underline-offset-4">
-        Back to home
-      </Link>
-    </main>
-  );
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('orders')
+    .select(
+      'id, status, pickup_address, dropoff_address, customer_price_kobo, created_at',
+    )
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const orders: OrderListItem[] = ((data ?? []) as OrderRow[]).map((row) => ({
+    id: row.id,
+    status: row.status,
+    pickupAddress: row.pickup_address,
+    dropoffAddress: row.dropoff_address,
+    customerPriceKobo: String(row.customer_price_kobo),
+    createdAt: row.created_at,
+  }));
+
+  // Re-resolve the session for the email display (requireUser already
+  // verified it exists).
+  const current = await getSession();
+
+  return <DashboardClient orders={orders} email={current?.email ?? null} />;
 }

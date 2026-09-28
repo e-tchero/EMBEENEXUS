@@ -217,13 +217,11 @@ export async function initiateOrderPayment(input: unknown): Promise<CheckoutResu
     // Fall through: create a fresh checkout under the same stored reference.
   }
 
-  // 5. Customer email for the hosted checkout (account email — profile data).
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('email')
-    .eq('id', session.userId)
-    .single();
-  const email = (profile as { email: string | null } | null)?.email;
+  // 5. Customer email for the hosted checkout: the account email carried by
+  //    the verified session (resolved server-side from the auth JWT via
+  //    supabase.auth.getUser()). Profiles intentionally do not mirror the
+  //    email; auth.users is its only home.
+  const email = session.email;
   if (!email) return { ok: false, error: 'unknown_error' };
 
   // 6. Provider call (hosted checkout). NOT retried by the adapter.
