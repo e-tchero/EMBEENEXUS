@@ -18,7 +18,11 @@ const publicEnvSchema = z.object({
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 
+let cached: PublicEnv | null = null;
+
 function loadPublicEnv(): PublicEnv {
+  if (cached) return cached;
+
   const parsed = publicEnvSchema.safeParse({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -33,7 +37,28 @@ function loadPublicEnv(): PublicEnv {
     );
   }
 
+  cached = parsed.data;
   return parsed.data;
 }
 
-export const publicEnv = loadPublicEnv();
+/**
+ * Lazy public-env accessor.
+ *
+ * Environment is validated on first access, NOT at module import. This keeps
+ * `next build` working when public variables exist only at runtime (build-time
+ * page data collection imports route module graphs; a module-import throw
+ * would fail the build even when the deployment supplies the values at
+ * runtime). Misconfiguration still fails fast — at the first call that needs
+ * a value. Mirrors the documented lazy pattern in `env/server.ts`.
+ */
+export const publicEnv = {
+  get NEXT_PUBLIC_APP_URL(): string {
+    return loadPublicEnv().NEXT_PUBLIC_APP_URL;
+  },
+  get NEXT_PUBLIC_SUPABASE_URL(): string {
+    return loadPublicEnv().NEXT_PUBLIC_SUPABASE_URL;
+  },
+  get NEXT_PUBLIC_SUPABASE_ANON_KEY(): string {
+    return loadPublicEnv().NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  },
+} as const;
