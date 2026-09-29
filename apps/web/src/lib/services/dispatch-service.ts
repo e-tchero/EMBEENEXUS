@@ -6,6 +6,7 @@ import { assertRole, AuthorizationError } from '@/lib/auth/rbac';
 import { getSession, type Session } from '@/lib/auth/session';
 import { createAdminClient } from '@/lib/db/client-admin';
 import { createClient } from '@/lib/db/client-server';
+import { rpcBusinessCode } from '@/lib/db/rpc-errors';
 import { canOfferBeAccepted } from '@/lib/domain/dispatch';
 import { logger } from '@/lib/logging/logger';
 
@@ -152,7 +153,7 @@ export async function offerNext(orderId: string): Promise<DispatchRefResult> {
     p_order_id: orderId,
   });
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('dispatch.offer_next.rpc_failed', { code, orderId });
     return { ok: false, error: mapRpcError(code) };
   }
@@ -190,7 +191,7 @@ export async function dispatchTick(maxOrders = 50): Promise<DispatchTickResult |
     p_max_orders: maxOrders,
   });
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.error('dispatch.tick.rpc_failed', { code });
     return { error: mapRpcError(code) };
   }
@@ -202,50 +203,56 @@ export async function dispatchTick(maxOrders = 50): Promise<DispatchTickResult |
 // 4. Rider surface: current offer, accept, decline, availability
 // ---------------------------------------------------------------------------
 
-/** The calling rider's current active offer (RLS-bound read + live checks). */
+/**
+ * The calling rider's current active offer.
+ *
+ * Read path: the rider_current_offer SECURITY DEFINER RPC (migration 0018).
+ * An inline offers⋈orders join cannot work here: the orders RLS policy does
+ * not grant reads to a rider who is offered but not yet assigned, so the
+ * join silently returned no rows for exactly the rider who must see the
+ * offer. The RPC projects only caller-owned offered rows and only the
+ * limited pre-acceptance fields (founder rule).
+ */
 export async function getCurrentOffer(): Promise<RiderOfferResult> {
   const auth = await requireRiderSession();
   if (typeof auth === 'string') return { ok: false, error: auth };
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('dispatch_offers')
-    .select(
-      'id, order_id, status, offered_at, expires_at, orders!inner(pickup_address, dropoff_address, road_distance_m, rider_share_kobo)',
-    )
-    .eq('status', 'offered')
-    .order('offered_at', { ascending: false })
-    .limit(1);
+  const { data, error } = await supabase.rpc('rider_current_offer');
 
-  type OfferJoin = {
-    id: string;
-    order_id: string;
-    status: string;
-    offered_at: string;
-    expires_at: string;
-    orders: {
-      pickup_address: string;
-      dropoff_address: string;
-      road_distance_m: number;
-      rider_share_kobo: string | number;
-    };
-  };
+  if (error) {
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
+    logger.warn('dispatch.current_offer.rpc_failed', { code });
+    return { ok: false, error: mapRpcError(code) };
+  }
 
-  const row = (data as unknown as OfferJoin[] | null)?.[0];
+  const row = (Array.isArray(data) ? data[0] : data) as
+    | {
+        offer_id: string;
+        order_id: string;
+        status: string;
+        offered_at: string;
+        expires_at: string;
+        pickup_address: string;
+        dropoff_address: string;
+        road_distance_m: number;
+        rider_share_kobo: string | number;
+      }
+    | null;
   if (!row) return { ok: false, error: 'not_found' };
 
   return {
     ok: true,
     offer: {
-      offerId: row.id,
+      offerId: row.offer_id,
       orderId: row.order_id,
       status: row.status,
       offeredAt: row.offered_at,
       expiresAt: row.expires_at,
-      pickupAddress: row.orders.pickup_address,
-      dropoffAddress: row.orders.dropoff_address,
-      roadDistanceM: row.orders.road_distance_m,
-      riderShareKobo: String(row.orders.rider_share_kobo),
+      pickupAddress: row.pickup_address,
+      dropoffAddress: row.dropoff_address,
+      roadDistanceM: row.road_distance_m,
+      riderShareKobo: String(row.rider_share_kobo),
     },
   };
 }
@@ -277,7 +284,7 @@ export async function acceptOffer(offerId: string): Promise<RiderOfferResult> {
     p_offer_id: offerId,
   });
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('dispatch.accept.rpc_failed', { code, offerId });
     return { ok: false, error: mapRpcError(code) };
   }
@@ -316,7 +323,7 @@ export async function declineOffer(
     p_offer_id: offerId,
   });
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('dispatch.decline.rpc_failed', { code, offerId });
     return { ok: false, error: mapRpcError(code) };
   }
@@ -338,7 +345,7 @@ export async function setAvailability(
     p_is_available: parsed.data.isAvailable,
   });
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('dispatch.availability.rpc_failed', { code });
     return { ok: false, error: mapRpcError(code) };
   }

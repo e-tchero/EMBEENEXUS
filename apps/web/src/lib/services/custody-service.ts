@@ -13,6 +13,7 @@ import { assertRole, AuthorizationError } from '@/lib/auth/rbac';
 import { getSession, type Session } from '@/lib/auth/session';
 import { createAdminClient } from '@/lib/db/client-admin';
 import { createClient } from '@/lib/db/client-server';
+import { rpcBusinessCode } from '@/lib/db/rpc-errors';
 import {
   PHOTO_MAX_BYTES,
   PHOTO_MIME_TYPES,
@@ -161,7 +162,7 @@ export async function issueOrderOtp(input: unknown): Promise<OtpIssueResult> {
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('custody.otp.issue_failed', { code, orderId: parsed.data.orderId });
     return { ok: false, error: mapRpcError(code) };
   }
@@ -192,7 +193,7 @@ export async function verifyOrderOtp(input: unknown): Promise<CustodyRefResult> 
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     // Log the failure CLASS only — never the code attempt or its value.
     logger.warn('custody.otp.verify_failed', {
       code,
@@ -260,7 +261,7 @@ export async function confirmOrderReceipt(
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('custody.receipt.confirm_failed', { code, orderId: parsed.data.orderId });
     return { ok: false, error: mapRpcError(code) };
   }
@@ -431,7 +432,53 @@ export async function getOrderPhotoUrl(
 }
 
 // ---------------------------------------------------------------------------
-// 6. Waiting tick (jobs gate; service role) — waiting-maximum returns
+// 6. Return completion (assigned rider; operator backstop) — D05 return path
+// ---------------------------------------------------------------------------
+
+export interface ReturnCompletionResult {
+  readonly ok: boolean;
+  readonly order?: { readonly id: string; readonly status: string };
+  readonly error?: CustodyServiceError;
+}
+
+/**
+ * Records the completed return journey (parcel physically back with the
+ * pickup customer). The RPC (migration 0014) validates assignment/role,
+ * requires return_initiated_at (only the waiting tick initiates returns),
+ * and closes the order through the canonical delivery_failed transition.
+ * Idempotent-guarded against double taps by its own state checks.
+ */
+export async function completeOrderReturn(
+  input: unknown,
+): Promise<ReturnCompletionResult> {
+  const auth = await requireSession(['rider', 'operator']);
+  if (typeof auth === 'string') return { ok: false, error: auth };
+
+  // Same shape as receipt confirmation: orderId + optional notes.
+  const parsed = confirmReceiptSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: 'invalid_input' };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('order_complete_return', {
+    p_order_id: parsed.data.orderId,
+    p_notes: parsed.data.notes ?? null,
+  });
+
+  if (error) {
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
+    logger.warn('custody.return.complete_failed', { code, orderId: parsed.data.orderId });
+    return { ok: false, error: mapRpcError(code) };
+  }
+
+  const row = (Array.isArray(data) ? data[0] : data) as { order_id: string; status: string } | null;
+  if (!row) return { ok: false, error: 'unknown_error' };
+
+  logger.info('custody.return.completed', { orderId: row.order_id, status: row.status });
+  return { ok: true, order: { id: row.order_id, status: row.status } };
+}
+
+// ---------------------------------------------------------------------------
+// 7. Waiting tick (jobs gate; service role) — waiting-maximum returns
 // ---------------------------------------------------------------------------
 
 export interface WaitingTickResult {
@@ -444,7 +491,7 @@ export async function waitingTick(maxOrders = 50): Promise<WaitingTickResult | {
     p_max_orders: maxOrders,
   });
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.error('custody.waiting.tick_failed', { code });
     return { error: mapRpcError(code) };
   }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 import { requireUser } from '@/lib/auth/guards';
-import { getSession } from '@/lib/auth/session';
 import { createClient } from '@/lib/db/client-server';
 
 import { DashboardClient, type OrderListItem } from './dashboard-client';
@@ -21,15 +21,13 @@ interface OrderRow {
 }
 
 /**
- * Customer dashboard (pilot scope).
- *
- * Server component: the RLS-bound client reads only the signed-in
- * customer's own orders — an invisible row is indistinguishable from a
- * missing one. The dashboard is the customer's landing surface after
- * sign-in: start a delivery, or track an existing one.
+ * Post-sign-in landing, role-forked server-side: riders go to their
+ * operational console; everyone else gets the customer dashboard. The
+ * RLS-bound read below returns only the signed-in user's own orders.
  */
 export default async function DashboardPage() {
-  await requireUser();
+  const session = await requireUser();
+  if (session.role === 'rider') redirect('/rider/home');
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -49,9 +47,5 @@ export default async function DashboardPage() {
     createdAt: row.created_at,
   }));
 
-  // Re-resolve the session for the email display (requireUser already
-  // verified it exists).
-  const current = await getSession();
-
-  return <DashboardClient orders={orders} email={current?.email ?? null} />;
+  return <DashboardClient orders={orders} email={session.email} />;
 }

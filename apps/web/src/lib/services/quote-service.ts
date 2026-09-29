@@ -5,6 +5,7 @@ import { createQuoteSchema, type CreateQuoteInput } from '@embee/shared';
 import { assertRole, AuthorizationError } from '@/lib/auth/rbac';
 import { getSession } from '@/lib/auth/session';
 import { createClient } from '@/lib/db/client-server';
+import { rpcBusinessCode } from '@/lib/db/rpc-errors';
 import { roadDistanceKmToMetres } from '@/lib/domain/pricing';
 import { logger } from '@/lib/logging/logger';
 import { getMapsProvider } from '@/lib/providers/maps';
@@ -117,7 +118,7 @@ export async function requestQuote(
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('quote.rpc_failed', { code });
     if (code === 'OUT_OF_COVERAGE') return { ok: false, error: 'out_of_coverage' };
     if (code === 'INVALID_INPUT') return { ok: false, error: 'invalid_input' };

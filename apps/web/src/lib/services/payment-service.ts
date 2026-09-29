@@ -5,6 +5,7 @@ import { initiatePaymentSchema } from '@embee/shared';
 import { assertRole, AuthorizationError } from '@/lib/auth/rbac';
 import { getSession, type Session } from '@/lib/auth/session';
 import { createAdminClient } from '@/lib/db/client-admin';
+import { rpcBusinessCode } from '@/lib/db/rpc-errors';
 import { createClient } from '@/lib/db/client-server';
 import { logger } from '@/lib/logging/logger';
 import {
@@ -171,7 +172,7 @@ export async function initiateOrderPayment(input: unknown): Promise<CheckoutResu
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('payments.initiate.rpc_failed', { code, customerId: session.userId });
     return { ok: false, error: mapRpcError(code) };
   }
@@ -353,7 +354,7 @@ export async function verifyAndGrantPayment(
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.error('payments.verify.grant_failed', { code, paymentId: payment.id });
     if (code === 'AMOUNT_MISMATCH') {
       // Defense-in-depth catch: provider said one thing, DB snapshot another.

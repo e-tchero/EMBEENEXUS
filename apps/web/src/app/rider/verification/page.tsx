@@ -33,7 +33,8 @@ export default async function RiderVerificationPage() {
         <h1 className="text-xl font-semibold tracking-tight">Rider verification</h1>
         <p className="mt-1 text-sm text-neutral-500">
           Verification is separate from availability. You become operationally eligible only
-          after approval and, later, explicit availability (dispatch arrives in a future milestone).
+          after approval AND going available on the{' '}
+          <a href="/rider/home" className="underline underline-offset-4">rider console</a>.
         </p>
       </header>
 

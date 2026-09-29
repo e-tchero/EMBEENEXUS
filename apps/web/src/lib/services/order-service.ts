@@ -5,6 +5,7 @@ import { createOrderSchema, orderTransitionSchema } from '@embee/shared';
 import { assertRole, AuthorizationError } from '@/lib/auth/rbac';
 import { getSession } from '@/lib/auth/session';
 import { createClient } from '@/lib/db/client-server';
+import { rpcBusinessCode } from '@/lib/db/rpc-errors';
 import { logger } from '@/lib/logging/logger';
 
 /**
@@ -65,7 +66,7 @@ export async function createOrderFromQuote(
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('order.create_failed', { code, customerId: userId });
     if (code === 'QUOTE_EXPIRED') return { ok: false, error: 'quote_expired' };
     if (code === 'QUOTE_NOT_ACTIVE') return { ok: false, error: 'quote_not_active' };
@@ -130,7 +131,7 @@ export async function applyOrderTransition(
   });
 
   if (error) {
-    const code = (error as { code?: string }).code ?? '';
+    const code = rpcBusinessCode(error as { code?: string; message?: string });
     logger.warn('order.transition_failed', { code, orderId: parsed.data.orderId });
     if (code === 'INVALID_TRANSITION') return { ok: false, error: 'invalid_transition' };
     if (code === 'PREREQUISITE_MISSING') return { ok: false, error: 'prerequisite_missing' };
