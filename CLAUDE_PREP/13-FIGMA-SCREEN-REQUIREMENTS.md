@@ -1,102 +1,75 @@
-# EMBEE NEXUS — FIGMA SCREEN REQUIREMENTS
+# EMBEE NEXUS — FIGMA SCREEN REQUIREMENTS (V2)
 
-**Authority:** LEVEL 2 — Checklist for Claude's Figma design
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+**Figma is not yet the approved visual source of truth.** No Figma file has
+been approved by the founder; when one is, `14-FIGMA-HANDOFF-RULES.md`
+activates as the constraint set. This catalog maps the actual V2 product —
+screens are not invented to complete the catalog.
 
-## Public / Marketing
+## Public / shared
 
 | # | Screen | Priority | Responsive | Notes |
-|---|--------|----------|------------|-------|
-| 1 | Homepage / Landing | MUST | Mobile + Desktop | Hero, value prop, CTA |
-| 2 | Login | MUST | Mobile + Desktop | Email/password form |
-| 3 | Signup | MUST | Mobile + Desktop | Registration form |
-| 4 | 404 Not Found | SHOULD | Mobile + Desktop | Helpful error page |
-| 5 | Forgot Password | SHOULD | Mobile + Desktop | Password reset flow |
-
----
+|---|---|---|---|---|
+| 1 | Landing | MUST | Mobile + Desktop | Hero, value prop, CTAs |
+| 2 | Login | MUST | Mobile + Desktop | Email/password |
+| 3 | Signup | MUST | Mobile + Desktop | |
+| 4 | 404 Not Found | SHOULD | Mobile + Desktop | exists (`not-found.tsx`) |
+| 5 | Error page | SHOULD | Mobile + Desktop | exists (`error.tsx`, `global-error.tsx`) |
 
 ## Customer
 
 | # | Screen | Priority | Responsive | Notes |
-|---|--------|----------|------------|-------|
-| 6 | Dashboard Home | MUST | Mobile + Desktop | Recent orders, quick actions |
-| 7 | Address List | MUST | Mobile + Desktop | Saved addresses |
-| 8 | Add/Edit Address | MUST | Mobile + Desktop | Search + map + form (REDESIGN) |
-| 9 | New Booking — Step 1: Addresses | MUST | Mobile + Desktop | Pickup + destination selection |
-| 10 | New Booking — Step 2: Package | MUST | Mobile + Desktop | Category, weight, description |
-| 11 | New Booking — Step 3: Quote | MUST | Mobile + Desktop | Price breakdown, confirm |
-| 12 | New Booking — Step 4: Payment | MUST | Mobile + Desktop | Paystack checkout |
-| 13 | Order List | MUST | Mobile + Desktop | All orders with status |
-| 14 | Order Detail | MUST | Mobile + Desktop | Full order info |
-| 15 | Order Tracking (Map) | MUST | Mobile + Desktop | Real-time rider location |
-| 16 | Order Cancellation | SHOULD | Mobile + Desktop | Confirm cancellation |
-| 17 | Delivery Proof View | SHOULD | Mobile + Desktop | Photo + text proof |
-| 18 | Rating Form | SHOULD | Mobile + Desktop | 1-5 stars + comment |
-| 19 | Refund Status | SHOULD | Mobile + Desktop | Refund tracking |
-| 20 | Notification List | MUST | Mobile + Desktop | All notifications |
-| 21 | Profile/Settings | SHOULD | Mobile + Desktop | Account info |
-
----
+|---|---|---|---|---|
+| 6 | Dashboard home (customer) | MUST | Mobile + Desktop | role-forked |
+| 7 | New booking — locations | MUST | Mobile + Desktop | server geocode search; no coordinates shown |
+| 8 | New booking — parcels | MUST | Mobile + Desktop | motorcycle-sized categories |
+| 9 | New booking — quote | MUST | Mobile + Desktop | price breakdown + validity window |
+| 10 | New booking — payment | MUST | Mobile + Desktop | "Secure checkout" step |
+| 11 | Payment callback | MUST | Mobile + Desktop | polling return surface |
+| 12 | Order tracking (status timeline) | MUST | Mobile + Desktop | no map — status/timeline is the tracking surface |
+| 13 | Order OTP display | MUST | Mobile + Desktop | customer-side pickup/delivery OTP, shown once |
+| 14 | Confirm receipt | MUST | Mobile + Desktop | `recipient_confirmed` |
+| 15 | Cancellation confirmation | SHOULD | Mobile + Desktop | where state permits |
+| 16 | Waiting/return state view | SHOULD | Mobile + Desktop | waiting banner + return notice copy |
 
 ## Rider
 
 | # | Screen | Priority | Responsive | Notes |
-|---|--------|----------|------------|-------|
-| 22 | Rider Registration | MUST | Mobile + Desktop | Sign up as rider |
-| 23 | Rider Onboarding | MUST | Mobile + Desktop | Document upload |
-| 24 | Rider Dashboard | MUST | Mobile | Main rider view |
-| 25 | Availability Toggle | MUST | Mobile | Online/offline switch |
-| 26 | Offer Card/Modal | MUST | Mobile | Incoming delivery offer |
-| 27 | Active Delivery | MUST | Mobile | Current delivery workflow |
-| 28 | Delivery Progress Steps | MUST | Mobile | Step-by-step progress |
-| 29 | Proof Submission | MUST | Mobile | Photo + text upload |
-| 30 | Earnings Summary | SHOULD | Mobile | Total earnings |
-| 31 | Earnings History | SHOULD | Mobile | Transaction list |
-| 32 | Vehicle Management | SHOULD | Mobile + Desktop | Add/edit vehicles |
+|---|---|---|---|---|
+| 17 | Rider home (verification gate) | MUST | Mobile | approved/pending/rejected states |
+| 18 | Availability toggle state | MUST | Mobile | explicit on/off |
+| 19 | Offer card (20 s TTL) | MUST | Mobile | countdown, accept/decline |
+| 20 | Active delivery (status progression) | MUST | Mobile | thumb-friendly, one-handed |
+| 21 | Photo evidence capture/upload | MUST | Mobile | three-kind custody chain |
+| 22 | OTP verification entry | MUST | Mobile | mono boxes |
+| 23 | Waiting banner + return confirm | MUST | Mobile | D05 cap flow |
 
----
-
-## Admin
+## Operator (desktop-primary, mobile-usable)
 
 | # | Screen | Priority | Responsive | Notes |
-|---|--------|----------|------------|-------|
-| 33 | Admin Dashboard | MUST | Desktop | Stats overview |
-| 34 | Order List (Admin) | MUST | Desktop | All orders, filters |
-| 35 | Order Detail (Admin) | MUST | Desktop | Full order + actions |
-| 36 | Rider List (Admin) | MUST | Desktop | All riders, status |
-| 37 | Rider Detail (Admin) | MUST | Desktop | Profile + verification |
-| 38 | Document Verification | MUST | Desktop | Approve/reject docs |
-| 39 | Customer List (Admin) | SHOULD | Desktop | All customers |
-| 40 | Notification Bell | MUST | Mobile + Desktop | Persistent in nav |
+|---|---|---|---|---|
+| 24 | Overview + attention queue | MUST | Desktop | real-state attention only |
+| 25 | Order monitor + filters | MUST | Desktop | canonical-status tabs |
+| 26 | Order detail (timeline, dispatch, payment, evidence) | MUST | Desktop | signed-URL evidence viewing |
+| 27 | Operator cancel (typed confirm) | MUST | Desktop | destructive confirmation pattern |
+| 28 | Dispatch trigger/recovery | MUST | Desktop | outcome surfaced |
+| 29 | Rider visibility list | MUST | Desktop | verification/availability/offers |
+| 30 | Rider verification review | MUST | Desktop | approve/reject + notes |
+| 31 | Jobs/health | SHOULD | Desktop | real signals only |
 
----
+## Removed from the V1 catalog (obsolete for V2)
 
-## Shared / Cross-Role
+Address CRUD (no addresses table in pilot), real-time tracking map, ratings,
+refund status, notification bell/panel, rider earnings screens, admin sidebar
+screens, GPS/vehicle management, forgot-password screens beyond current auth
+scope. These exist in `archive/v1/13-FIGMA-SCREEN-REQUIREMENTS.md` as history.
 
-| # | Screen | Priority | Responsive | Notes |
-|---|--------|----------|------------|-------|
-| 41 | Notification Panel | MUST | Mobile + Desktop | Dropdown/overlay |
-| 42 | Error Page | SHOULD | Mobile + Desktop | Generic error |
-| 43 | Loading State | MUST | Mobile + Desktop | Skeleton screens |
-| 44 | Empty State | MUST | Mobile + Desktop | No data messages |
+## Design notes (retained)
 
----
-
-## Priority Summary
-
-| Priority | Count | Description |
-|----------|-------|-------------|
-| MUST | 30 | Must be designed for launch |
-| SHOULD | 14 | Should be designed, can be simplified |
-
----
-
-## Design Notes
-
-1. **Address page (Screen 8) is the primary UX redesign target.** Current implementation requires manual lat/lng. New design must use search + map pin.
-2. **Tracking (Screen 15) is the hero experience.** Make it feel real-time and trustworthy.
-3. **Rider workflow (Screens 24–29) must be thumb-friendly.** Riders use phones while on the move.
-4. **Admin (Screens 33–39) is desktop-first.** Data-dense, efficient, professional.
-5. **Every screen needs mobile + desktop variants** unless explicitly mobile-only.
+1. Booking flow is the money flow — frictionless.
+2. Status/timeline presentation is the trust surface (until map milestones).
+3. Rider screens are thumb-friendly, one-handed, large targets.
+4. Operator is desktop-first, data-dense, efficient.
+5. Every screen defines loading, empty, and error states — missing any fails
+   design review.

@@ -1,232 +1,76 @@
-# EMBEE NEXUS — FRONTEND ARCHITECTURE
+# EMBEE NEXUS — FRONTEND ARCHITECTURE (V2)
 
-**Authority:** LEVEL 1 — Derived from actual codebase inspection
-**Date:** September 1, 2026
-
----
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE (derived from actual codebase) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
 ## Framework & Build
 
 | Property | Value |
-|----------|-------|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript |
-| Build | `pnpm build` (Turborepo) |
-| Package Manager | pnpm (monorepo) |
-| Styling | Tailwind CSS |
-| Component Library | shadcn/ui (default style) |
-| CSS Variables | Yes (HSL-based design tokens) |
-| Dark Mode | Supported via `class` strategy |
+|---|---|
+| Framework | Next.js (App Router) + TypeScript |
+| Styling | Tailwind CSS v4 (CSS-first `@theme` tokens in `globals.css`) |
+| Component library | **None.** Components are route-local and co-located under `apps/web/src/app/**` |
+| Design tokens | `apps/web/DESIGN.md` contract + `globals.css` `@theme inline` |
+| Dark mode | `prefers-color-scheme` auto-flip; no manual toggle, no class strategy |
+| State management | React Server Components + client islands; no global state library |
 
----
-
-## Application Structure
+## Application structure (actual)
 
 ```
-apps/web/
-├── app/                          # Next.js App Router
-│   ├── layout.tsx                # Root layout (Manrope font)
-│   ├── page.tsx                  # Homepage
-│   ├── globals.css               # Design tokens + Tailwind
-│   ├── error.tsx                 # Root error boundary
-│   ├── loading.tsx               # Root loading state
-│   ├── not-found.tsx             # 404 page
-│   ├── login/page.tsx            # Customer login
-│   ├── signup/page.tsx           # Customer signup
-│   ├── auth/signout/route.ts     # Sign out handler
-│   ├── (dashboard)/              # Customer dashboard (route group)
-│   │   ├── layout.tsx            # Dashboard layout
-│   │   ├── dashboard/page.tsx    # Customer home
-│   │   ├── addresses/page.tsx    # Address management
-│   │   ├── orders/page.tsx       # Order list
-│   │   └── orders/[id]/page.tsx  # Order detail + tracking
-│   ├── rider/                    # Rider section
-│   │   ├── layout.tsx            # Rider layout
-│   │   ├── register/page.tsx     # Rider registration
-│   │   ├── onboarding/page.tsx   # Rider onboarding
-│   │   └── dashboard/page.tsx    # Rider dashboard
-│   ├── admin/                    # Admin section
-│   │   ├── layout.tsx            # Admin layout
-│   │   ├── dashboard/page.tsx    # Admin dashboard
-│   │   ├── orders/page.tsx       # Order management
-│   │   ├── orders/[id]/page.tsx  # Order detail
-│   │   ├── riders/page.tsx       # Rider list
-│   │   ├── riders/[id]/page.tsx  # Rider detail
-│   │   └── customers/page.tsx    # Customer list
-│   └── api/                      # API routes
-│       ├── health/route.ts       # Health check
-│       ├── auth/                 # Auth endpoints
-│       ├── addresses/            # Address CRUD
-│       ├── orders/               # Order + quote + payment
-│       ├── payments/             # Payment initialization
-│       ├── riders/               # Rider operations
-│       ├── admin/                # Admin operations
-│       ├── notifications/        # Notification endpoints
-│       ├── categories/           # Delivery categories
-│       ├── cron/                 # Background jobs
-│       └── webhooks/             # External webhooks
-├── components/                   # React components
-│   ├── ui/                       # shadcn/ui primitives
-│   ├── shared/                   # Shared components
-│   ├── addresses/                # Address components
-│   ├── booking/                  # Booking flow
-│   ├── order/                    # Order management
-│   ├── tracking/                 # Tracking + maps
-│   ├── rider/                    # Rider components
-│   ├── admin/                    # Admin components
-│   └── notifications/            # Notification components
-├── hooks/                        # Custom React hooks
-├── lib/                          # Utilities & services
-│   ├── supabase/                 # Supabase clients
-│   ├── maps/                     # Map provider abstraction
-│   ├── services/                 # Backend service modules
-│   ├── notifications/            # Notification system
-│   └── utils.ts                  # Utility functions
-├── types/                        # TypeScript types
-└── public/                       # Static assets (currently empty)
+apps/web/src/app/
+├── layout.tsx                 # Root layout (metadata, viewport; no webfont yet)
+├── globals.css                # Tailwind v4 + @theme inline tokens (light/dark)
+├── page.tsx                   # Landing
+├── (auth)/login | signup      # Authentication
+├── dashboard/                 # Role fork: customer home / rider → /rider/home / operator → /operator
+├── orders/new/                # Booking wizard: wizard.tsx + locations-form, parcels-form, quote-form, payment-step
+├── orders/[orderId]/          # Customer tracking: order-status-client, status-copy
+├── payments/callback/         # Flutterwave return surface
+├── rider/                     # home-client, offer-card, order-card, error-copy; verification/
+├── operator/                  # layout (server gate), home, orders/, orders/[orderId]/, riders/, jobs/
+└── api/                       # 31 route handlers (see 05-API-CONTRACT-BRIEF.md)
 ```
 
----
+Shared code lives in `apps/web/src/lib/`: `services/` (backend service modules),
+`domain/` (pure state machines and view models), `db/` (clients, RPC error
+mapping), `auth/` (session + role guards). There is no `components/` tree, no
+shadcn/ui, no `hooks/` directory — the V1 architecture in `archive/v1/02` does
+not describe this codebase.
 
-## Routing Architecture
+## Routing & authorization model
 
-### Customer Routes (authenticated)
-| Route | Page | Purpose |
-|-------|------|---------|
-| `/` | `page.tsx` | Homepage / marketing |
-| `/login` | `login/page.tsx` | Customer login |
-| `/signup` | `signup/page.tsx` | Customer signup |
-| `/dashboard` | `(dashboard)/dashboard/page.tsx` | Customer home |
-| `/addresses` | `(dashboard)/addresses/page.tsx` | Address management |
-| `/orders` | `(dashboard)/orders/page.tsx` | Order list |
-| `/orders/[id]` | `(dashboard)/orders/[id]/page.tsx` | Order detail + tracking |
+- **Server-side role gates.** Pages render through `requireRole([...])` /
+  session checks on the server; hiding UI is never the authorization mechanism.
+- **Role fork.** `/dashboard` redirects by role: customer stays, rider →
+  `/rider/home`, operator → `/operator`.
+- **API authorization.** Every route handler re-establishes the session and
+  role server-side; RLS enforces data access; business writes go through
+  SECURITY DEFINER RPCs that re-validate actor and state.
+- Public surfaces: `/`, `(auth)/*`, `/api/health`, Flutterwave webhook
+  (signature-verified).
 
-### Rider Routes (authenticated)
-| Route | Page | Purpose |
-|-------|------|---------|
-| `/rider/register` | `rider/register/page.tsx` | Rider registration |
-| `/rider/onboarding` | `rider/onboarding/page.tsx` | Document upload |
-| `/rider/dashboard` | `rider/dashboard/page.tsx` | Rider home + deliveries |
+## Supabase integration
 
-### Admin Routes (authenticated, admin role)
-| Route | Page | Purpose |
-|-------|------|---------|
-| `/admin/dashboard` | `admin/dashboard/page.tsx` | Admin overview |
-| `/admin/orders` | `admin/orders/page.tsx` | Order management |
-| `/admin/orders/[id]` | `admin/orders/[id]/page.tsx` | Order detail |
-| `/admin/riders` | `admin/riders/page.tsx` | Rider management |
-| `/admin/riders/[id]` | `admin/riders/[id]/page.tsx` | Rider detail |
-| `/admin/customers` | `admin/customers/page.tsx` | Customer list |
+- Cookie-based sessions (no tokens in localStorage); server clients per route.
+- Forced RLS on all tables; anon key never bypasses policies.
+- Operator console reads (offers/availability) use RLS policies added by
+  migration 0019; evidence viewing uses short-lived signed URLs (300 s) via the
+  custody service.
 
----
+## Background jobs
 
-## Component Architecture
+Three real job endpoints, token-gated, invoked by an external scheduler:
+`/api/jobs/dispatch-tick` (offer expiry + continuation), `/api/jobs/waiting-tick`
+(waiting fee accrual + 30-min cap + return initiation), `/api/jobs/reconcile-payments`.
+No other scheduler exists in the app.
 
-### UI Primitives (shadcn/ui)
-- `badge.tsx` — Status badges
-- `button.tsx` — Buttons
-- `card.tsx` — Cards
-- `input.tsx` — Form inputs
-- `label.tsx` — Form labels
-- `select.tsx` — Select dropdowns
-- `status-badge.tsx` — Status indicators
+## Maps
 
-### Shared Components
-- `logo.tsx` — Logo (text-based, awaiting SVG asset)
-- `app-nav.tsx` — Navigation bar
-- `mobile-nav.tsx` — Mobile navigation
-- `page-header.tsx` — Page header with title
-- `status-badge.tsx` — Status indicator
-- `empty-state.tsx` — Empty state display
-- `loading-state.tsx` — Loading spinner
-- `error-boundary.tsx` — Error boundary
+`lib/` maps provider abstraction (Stadia adapter) — **server-side only**:
+address search and geocoding for the booking wizard. No map rendering, no
+tracking map, no rider GPS anywhere in V2 (founder-excluded).
 
-### Feature Components
-- **Addresses:** `address-list`, `create-address-form`, `create-address-button`
-- **Booking:** `booking-form`, `quote-display`
-- **Orders:** `cancel-order-button`, `proof-display`, `rating-form`, `refund-status`
-- **Tracking:** `order-tracking`, `tracking-map`, `order-timeline`, `rider-card`
-- **Rider:** `rider-dashboard`, `active-delivery-card`, `offer-card`, `availability-toggle`, `earnings-panel`, `delivery-progress-steps`
-- **Admin:** `admin-sidebar`, `rider-detail`, `rider-queue`, `document-card`, `verification-history`, `verify-actions`
-- **Notifications:** `notification-bell`, `index`
+## Historical note
 
----
-
-## Supabase Integration
-
-### Client Architecture
-```
-lib/supabase/
-├── client.ts          # Browser client (anon key, RLS enforced)
-├── server.ts          # Server client (service-role for API routes)
-└── middleware.ts       # Middleware client (auth session check)
-```
-
-### Auth Flow
-1. Middleware checks Supabase session via cookies
-2. Unauthenticated users → redirected to `/login`
-3. Authenticated users → allowed through
-4. Role-based access checked in API routes
-
-### Realtime
-- Used for order tracking (customer sees rider location)
-- Rider location updates broadcast to customers
-- Supabase Realtime channels with authorization
-
----
-
-## Maps Architecture
-
-```
-lib/maps/
-├── types.ts           # MapsProvider interface
-├── index.ts           # Provider factory
-├── stadia.ts          # Stadia Maps implementation
-├── mapbox.ts          # Mapbox implementation (unused)
-└── google-maps.ts     # Google Maps implementation (unused)
-```
-
-**Current Provider:** Stadia Maps
-**Provider-Neutral:** Yes — interface-based abstraction
-
----
-
-## State Management
-
-- **No global state library** (no Redux, Zustand, Jotai)
-- React Server Components (RSC) for data fetching
-- Client components for interactive UI
-- Supabase client for realtime subscriptions
-- URL state for filters/pagination
-
----
-
-## Design System
-
-### CSS Variables (HSL)
-```css
---background: 210 20% 98%;       /* Cool White #F5F7FA */
---foreground: 222 47% 11%;       /* Deep Charcoal #111827 */
---primary: 213 94% 53%;          /* Embee Blue #147BFF */
---accent: 199 89% 60%;           /* Digital Cyan #38BDF8 */
---destructive: 0 84% 60%;        /* Red */
---success: 142 71% 45%;          /* Green */
---warning: 38 92% 50%;           /* Amber */
-```
-
-### Tailwind Custom Colors
-```typescript
-embee: {
-  navy: '#0B1220',
-  blue: '#147BFF',
-  cyan: '#38BDF8',
-  white: '#F5F7FA',
-  charcoal: '#111827',
-  slate: '#64748B',
-}
-```
-
-### Font
-- **Family:** Manrope (Google Fonts)
-- **Loaded via:** `next/font/google`
-- **Subsets:** Latin
+The V1 frontend (shadcn/ui, `(dashboard)` route group, `admin/*` section,
+Supabase Realtime subscriptions, GPS endpoints) is preserved in
+`archive/v1/02-FRONTEND-ARCHITECTURE.md` and does not describe V2.

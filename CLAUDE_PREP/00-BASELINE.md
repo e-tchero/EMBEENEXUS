@@ -1,5 +1,14 @@
 # EMBEE NEXUS — REPOSITORY BASELINE
 
+**STATUS:** HISTORICAL · **AUTHORITY:** REFERENCE (V1 baseline) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V1
+
+> This is the V1 repository baseline (2026-09-01, `master@640af0d`) preserved
+> in place. It does not describe the current repository: that commit does not
+> exist on `main`, and the stack table (Paystack, Realtime, shadcn/ui) is V1.
+> The current baseline is `00-V2-BASELINE.md`. The verbatim original is also
+> preserved in `archive/v1/00-BASELINE.md`.
+
+
 **Document Status:** Baseline for Claude Design Handoff
 **Date:** September 1, 2026
 

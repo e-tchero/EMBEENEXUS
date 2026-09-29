@@ -1,73 +1,79 @@
-# EMBEE NEXUS — DOCUMENT INDEX
+# EMBEE NEXUS — DOCUMENT INDEX (V2)
 
-**Purpose:** Every document in `CLAUDE_PREP/` listed with authority level.
+**STATUS:** CURRENT · **AUTHORITY:** META (package map) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+Every file in this package carries an explicit status. Statuses:
+`CURRENT · PARTIALLY CURRENT · SUPERSEDED · HISTORICAL · UNKNOWN`. The
+authority order when information conflicts:
 
-## Authority Levels
-
-| Level | Meaning |
-|-------|---------|
-| **LEVEL 1 — AUTHORITATIVE** | Treat as ground truth. Override all other docs. |
-| **LEVEL 2 — DESIGN / PRODUCT CONTEXT** | Important context. Reference for design decisions. |
-| **LEVEL 3 — HISTORICAL / CONTEXTUAL** | Background information. Do not override Level 1–2. |
-
----
-
-## CLAUDE_PREP/ Directory Contents
-
-### Root Documents
-
-| File | Source | Purpose | Authority |
-|------|--------|---------|-----------|
-| `README.md` | Created for handoff | Entry point for Claude | Meta |
-| `00-BASELINE.md` | Repository state at handoff | Git baseline, commit history | LEVEL 1 |
-| `01-DOCUMENT-INDEX.md` | This file | Document map | Meta |
-| `02-FRONTEND-ARCHITECTURE.md` | Codebase inspection | Current frontend architecture | LEVEL 1 |
-| `03-PRODUCT-UX-BRIEF.md` | Codebase + docs | Product experience for all roles | LEVEL 2 |
-| `04-EXISTING-UI-INVENTORY.md` | Codebase inspection | Current pages/components/routes | LEVEL 1 |
-| `05-API-CONTRACT-BRIEF.md` | Codebase + ARCHITECTURE.md | API endpoints Claude can consume | LEVEL 1 |
-| `06-STATE-MACHINES.md` | ARCHITECTURE.md + code | Order, payment, rider state machines | LEVEL 1 |
-| `07-MAPS-LOCATION-BRIEF.md` | Codebase + docs | Maps/location architecture | LEVEL 1 |
-| `08-NOTIFICATION-BRIEF.md` | M8 reports + code | Notification architecture | LEVEL 2 |
-| `09-SECURITY-UX-BRIEF.md` | ARCHITECTURE.md + code | Frontend security requirements | LEVEL 1 |
-| `10-UX-QUALITY-STANDARDS.md` | Design requirements | Responsive, accessibility, UX standards | LEVEL 2 |
-| `11-DESIGN-DIRECTION.md` | Design brief | What Claude is being asked to achieve | LEVEL 2 |
-| `12-DESIGN-SYSTEM-REQUIREMENTS.md` | Design system spec | Components, tokens, states | LEVEL 2 |
-| `13-FIGMA-SCREEN-REQUIREMENTS.md` | Screen inventory | All screens Claude should design | LEVEL 2 |
-| `14-FIGMA-HANDOFF-RULES.md` | Rules | Constraints for Figma design | LEVEL 1 |
-| `15-CLAUDE-STARTING-PROMPT.md` | Prompt | Complete prompt for Claude to begin | Meta |
-| `ASSET-MANIFEST.md` | Asset tracking | Every copied asset with hashes | Meta |
-
-### docs/ — Copied Documentation
-
-| File | Source | Authority |
-|------|--------|-----------|
-| `docs/ROADMAP.md` | `docs/ROADMAP.md` | LEVEL 1 |
-| `docs/ARCHITECTURE.md` | `ARCHITECTURE.md` | LEVEL 1 |
-| `docs/ARCHITECTURE-DETAILED.md` | `docs/architecture/ARCHITECTURE.md` | LEVEL 1 |
-
-### brand/ — Visual Identity
-
-| File | Source | Authority |
-|------|--------|-----------|
-| `brand/LOGO-INVENTORY.md` | Logo analysis | LEVEL 1 |
-| `brand/COLOR-SYSTEM.md` | Tailwind + CSS inspection | LEVEL 1 |
-| `brand/TYPOGRAPHY.md` | Layout + font inspection | LEVEL 1 |
-| `brand/assets/DARK.jpeg` | `EMBEENEXUS_LOGOS/DARK.jpeg` | LEVEL 1 — Founder-provided |
-| `brand/assets/FULL_COLOR.jpeg` | `EMBEENEXUS_LOGOS/FULL_COLOR.jpeg` | LEVEL 1 — Founder-provided |
-| `brand/assets/FULL_COLOR _02.jpeg` | `EMBEENEXUS_LOGOS/FULL_COLOR _02.jpeg` | LEVEL 1 — Founder-provided |
-| `brand/assets/FULL_COLOR-removebg-preview.png` | `EMBEENEXUS_LOGOS/FULL_COLOR-removebg-preview.png` | LEVEL 1 — Founder-provided |
-| `brand/assets/LOGO_CONSTRUCTION.jpeg` | `EMBEENEXUS_LOGOS/LOGO_CONSTRUCTION.jpeg` | LEVEL 1 — Founder-provided |
-| `brand/assets/WHITE.jpeg` | `EMBEENEXUS_LOGOS/WHITE.jpeg` | LEVEL 1 — Founder-provided |
+1. Current explicit founder decisions (latest instructions win)
+2. Current V2 implementation (the repository, `main`)
+3. Current canonical repo documentation (`docs/design/CANONICAL_SOURCE_OF_TRUTH.md`, `apps/web/DESIGN.md`, `globals.css`)
+4. Current BrandKit assets (`brand/assets/` — founder material)
+5. Historical CLAUDE_PREP documentation (`archive/v1/` — evidence only)
 
 ---
 
-## Important Notes for Claude
+## Root documents
 
-1. **`docs/ROADMAP.md` is the authoritative roadmap.** It tracks completed milestones and remaining work.
-2. **`ARCHITECTURE.md` is the technical architecture authority.** It defines the database schema, security model, and system design.
-3. **Existing application behavior is more authoritative than any documentation.** If docs conflict with code, the code wins.
-4. **Brand assets in `brand/assets/` are founder-provided.** Do not modify them.
-5. **Do not treat discovery/verification reports as design requirements.** They are historical records.
-6. **The frontend redesign must work against the existing backend.** APIs, database, and state machines are fixed.
+| File | Status | Authority | Era | Notes |
+|---|---|---|---|---|
+| `README.md` | CURRENT | CANONICAL | V2 | Package entry point |
+| `00-V2-BASELINE.md` | CURRENT | CANONICAL | V2 | Current repo state, verified 2026-09-29 |
+| `00-BASELINE.md` | HISTORICAL | REFERENCE | V1 | V1 baseline, headered in place; see `00-V2-BASELINE.md` |
+| `01-DOCUMENT-INDEX.md` | CURRENT | META | V2 | This file |
+| `02-FRONTEND-ARCHITECTURE.md` | CURRENT | REFERENCE | V2 | Describes the real V2 web app |
+| `03-PRODUCT-UX-BRIEF.md` | CURRENT | REFERENCE | V2 | V2 journeys; absent features marked absent-by-decision |
+| `04-EXISTING-UI-INVENTORY.md` | CURRENT | REFERENCE | V2 | The 14 real pages |
+| `05-API-CONTRACT-BRIEF.md` | CURRENT | REFERENCE | V2 | The 31 real API routes |
+| `06-STATE-MACHINES.md` | CURRENT | CANONICAL-for-reconstruction | V2 | Derived from `order-state.ts` + migration 0005 |
+| `07-MAPS-LOCATION-BRIEF.md` | CURRENT | REFERENCE | V2 | Server-side geo only; GPS/realtime excluded by founder |
+| `08-NOTIFICATION-BRIEF.md` | HISTORICAL | REFERENCE | V1 | No V2 notifications; SMS pending founder D26 |
+| `09-SECURITY-UX-BRIEF.md` | CURRENT | REFERENCE | V2 | Principles retained; V2 role model |
+| `10-UX-QUALITY-STANDARDS.md` | CURRENT | REFERENCE | V2 | Standards retained; mobile patterns deferred to mobile milestone |
+| `11-DESIGN-DIRECTION.md` | CURRENT | REFERENCE | V2 | Binding principle: never invent a brand |
+| `12-DESIGN-SYSTEM-REQUIREMENTS.md` | CURRENT | REFERENCE | V2 | Per-requirement V2 classification |
+| `13-FIGMA-SCREEN-REQUIREMENTS.md` | CURRENT | REFERENCE | V2 | V2 screen inventory; Figma not yet approved as source of truth |
+| `14-FIGMA-HANDOFF-RULES.md` | CURRENT | CANONICAL-when-activated | V1-era, still valid | Status header added; content unchanged |
+| `15-CLAUDE-STARTING-PROMPT.md` | HISTORICAL | REFERENCE | V1 | Original Figma kickoff prompt |
+| `ASSET-MANIFEST.md` | CURRENT | REFERENCE | V2 | Re-verified against disk bytes with md5 |
+| `archive/v1/*` | HISTORICAL | REFERENCE | V1 | Verbatim V1 originals, preserved for provenance |
+
+## Brand
+
+| File | Status | Authority | Notes |
+|---|---|---|---|
+| `brand/COLOR-SYSTEM.md` | CURRENT | CANONICAL | Founder resolutions of 2026-09-29 incorporated |
+| `brand/LOGO-INVENTORY.md` | CURRENT | CANONICAL | Disk truth; founder never-create-logo rule |
+| `brand/TYPOGRAPHY.md` | CURRENT | CANONICAL | Manrope canonical; implementation gap documented |
+| `brand/assets/*` | CURRENT | **FOUNDER MATERIAL — DO NOT MODIFY** | md5-verified 2026-09-29 |
+
+## Founder resolutions recorded 2026-09-29
+
+1. **Muted foreground:** `#94A3B8` is the documented brand value; a separate
+   AA derivative governs normal-size text use (frozen in COLOR-SYSTEM.md).
+2. **Embee Blue:** `#147BFF` is never darkened/redefined; AA text derivative
+   frozen separately for normal-size text.
+3. **Radius:** 8/12/16 base, border-first elevation, minimal shadows; 20px
+   retained as an optional larger radius.
+4. **Mobile patterns** (bottom nav, skeletons): future Figma/mobile
+   requirements — not applied to the V2 web pilot.
+5. **Manrope:** integrate in the next implementation phase.
+6. **Package structure** approved (rebuilt index, rebased docs, `archive/`).
+
+## Pointers the index must answer
+
+- **Mobile-milestone material (not current web pilot):** bottom tab
+  navigation, mobile navigation patterns, skeleton-loader system, mobile
+  sidebar patterns — classified in `10-UX-QUALITY-STANDARDS.md` and
+  `12-DESIGN-SYSTEM-REQUIREMENTS.md`; designed in the future Figma/mobile
+  phase.
+- **Next implementation phase:** V2 design-system implementation in the app —
+  founder-value token re-base (incl. AA derivatives), Manrope integration,
+  logo + favicon integration (destinations in `ASSET-MANIFEST.md`), then
+  visual QA. Do not start it without founder authorization.
+- **V1 archive:** `archive/v1/` (verbatim originals, 20 files).
+- **Canonical brand assets:** `brand/assets/` (founder material; md5s in
+  `ASSET-MANIFEST.md`).
+
+---

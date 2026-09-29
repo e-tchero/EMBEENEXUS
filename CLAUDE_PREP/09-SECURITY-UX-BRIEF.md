@@ -1,153 +1,77 @@
-# EMBEE NEXUS — SECURITY UX BRIEF
+# EMBEE NEXUS — SECURITY UX BRIEF (V2)
 
-**Authority:** LEVEL 1 — Derived from ARCHITECTURE.md + codebase
-**Date:** September 1, 2026
-
----
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE (principles retained; role model and providers re-based) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
 ## Authentication
 
 | Aspect | Implementation |
-|--------|---------------|
-| Provider | Supabase Auth (GoTrue) |
-| Methods | Email/password |
-| Session | Cookie-based (httpOnly) |
-| Middleware | Session check on all protected routes |
-| Redirect | Unauthenticated → `/login` |
+|---|---|
+| Provider | Supabase Auth (GoTrue), email/password |
+| Session | Cookie-based; no tokens in localStorage |
+| Redirects | Unauthenticated → login; wrong role → 403/role-appropriate surface |
+| Role gates | Server-side `requireRole([...])` on pages and route handlers; hiding UI is never the mechanism |
 
-### Frontend Auth Rules
-- Never store tokens in localStorage
-- Never expose service-role keys to client
-- Always use Supabase anon key for client-side
-- Handle 401 by redirecting to login
-- Handle 403 by showing "Access Denied"
+## Roles (V2)
 
----
+| Role | Can access | Cannot access |
+|---|---|---|
+| `customer` | Landing, auth, dashboard, booking wizard, own orders, payment callback | `/rider/*`, `/operator/*` (403) |
+| `rider` | Rider home, verification, offers, active-delivery actions, own evidence uploads | customer surfaces beyond shared chrome, `/operator/*` (403) |
+| `operator` | Operator console (overview, orders, riders, jobs), controlled actions | customer/rider personal surfaces |
 
-## Role-Based Access
+No `admin`/`super_admin` roles exist in V2; the V1 role table is historical.
 
-| Role | Can Access | Cannot Access |
-|------|-----------|---------------|
-| `customer` | Dashboard, addresses, orders, booking | Rider dashboard, admin panel |
-| `rider` | Rider dashboard, deliveries, earnings | Customer dashboard, admin panel |
-| `admin` | Admin panel, all data | — |
-| `super_admin` | Everything | — |
+## Data ownership (V2)
 
-### Frontend Role Rules
-- Never trust client-side role checks alone
-- Server validates role on every API call
-- UI should hide unavailable features based on role
-- Navigation should be role-appropriate
+| Data | Owner | Read | Modify |
+|---|---|---|---|
+| Orders | Customer | participant + operator (RLS) | lifecycle actions via RPC |
+| Offers / availability | Rider | rider-own; operator SELECT via migration 0019 policies | RPCs only |
+| Rider profile | Rider | rider + operator | verification by operator RPC |
+| Evidence photos | System (private bucket) | participant + operator via 300 s signed URLs | upload by custody RPC only |
+| Payment rows | System | participant + operator (normalized states, no provider secrets) | verification RPC only |
 
----
+## Sensitive data rules (retained, re-based)
 
-## Data Ownership
+Never display or expose: service-role keys, Flutterwave secret keys, database
+connection strings, internal identifiers where a public reference exists,
+other users' data, raw OTP codes (plaintext shown once, to the verifying
+party's counterparty only — never stored client-side), provider transaction
+identifiers or checkout URLs in operator payloads.
 
-| Data | Owner | Can Read | Can Modify |
-|------|-------|----------|------------|
-| Customer profile | Customer | Customer, Admin | Customer (limited), Admin |
-| Addresses | Customer | Customer only | Customer only |
-| Orders (customer) | Customer | Customer, Admin | Customer (cancel only) |
-| Orders (rider) | Rider | Rider, Admin | Rider (status updates) |
-| Rider profile | Rider | Rider, Admin | Rider, Admin (verification) |
-| Earnings | Rider | Rider, Admin | System only |
-| Notifications | User | Owner only | Owner (mark as read) |
-| Delivery proofs | System | Customer (own orders), Admin | System only |
+Safe to display: order reference, canonical status, timestamps, price
+breakdown, rider first name/vehicle type, verification state, normalized
+payment state.
 
----
+## Webhook security
 
-## Sensitive Data Rules
+Flutterwave webhook is signature-verified server-side over the raw body,
+idempotent, and has no frontend interaction. Payment status reaches the UI by
+polling server truth only.
 
-### NEVER Display to Customer
-- Supabase service-role keys
-- Paystack secret keys
-- Resend API keys
-- Database connection strings
-- Internal system IDs (use public identifiers)
-- Other customers' data
-- Rider's personal phone number (use masked or in-app messaging)
+## Error messages (retained)
 
-### NEVER Expose in Client Bundle
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `PAYSTACK_SECRET_KEY`
-- `RESEND_API_KEY`
-- Any `NEXT_PUBLIC_*` that shouldn't be public
+Safe: state what happened + next action, never reveal which credential or
+record failed. Never show: database errors, stack traces, SQL, provider API
+errors raw. Business rejections surface as canonical codes mapped to
+human copy per role (`status-copy.ts`, `error-copy.ts`, `operator-labels.ts`).
 
-### Safe to Display
-- Order number
-- Tracking code
-- Estimated delivery time
-- Price breakdown
-- Rider first name
-- Vehicle type
-- Rating
+## Input validation
 
----
+Client-side validation is convenience only; every route handler re-validates
+authoritatively (zod schemas, UUID checks, state-machine checks inside RPCs).
+Rate limiting and attempt locks (e.g., 5-attempt OTP lock) are server-side.
 
-## Webhook Security
+## What this brief governs in design work
 
-| Webhook | Verification | Notes |
-|---------|-------------|-------|
-| Paystack | HMAC-SHA512 signature | Raw body verification |
-| Resend | Svix signature | Raw body verification |
+1. Never weaken server authorization for UI convenience.
+2. Never place secrets, OTPs, or provider identifiers in client payloads.
+3. Always design the 401/403/404 paths, not only the happy path.
+4. Destructive actions require explicit confirmation (typed for operators).
+5. Evidence access is metadata-first, signed-URL on explicit action, never
+   public, never permanent links.
 
-### Frontend Implications
-- Webhook endpoints are server-only
-- No frontend interaction with webhooks
-- Payment status updates come via polling or realtime
+## Historical note
 
----
-
-## Input Validation
-
-### Client-Side
-- Form validation (required fields, formats)
-- Phone number format
-- Email format
-- Address completeness
-- Package weight/dimensions
-
-### Server-Side (Authoritative)
-- All API routes validate input
-- UUID format validation
-- Authorization checks
-- State machine validation
-- Rate limiting
-
----
-
-## Error Messages
-
-### Safe Error Messages
-- "Invalid email or password" (don't reveal which)
-- "Address not found"
-- "Payment failed — please try again"
-- "This order cannot be cancelled"
-
-### Unsafe Error Messages (NEVER SHOW)
-- Database error details
-- Stack traces
-- Internal service errors
-- API key validation failures
-- SQL query errors
-
----
-
-## Rate Limiting
-
-- In-memory sliding window rate limiter
-- Applied to all API routes
-- Returns 429 Too Many Requests
-- Frontend should handle gracefully with retry UI
-
----
-
-## What Claude Should Design
-
-1. **Login/Signup Forms** — Clean, trustworthy, minimal
-2. **Error States** — User-friendly, non-technical
-3. **Loading States** — Don't reveal data before auth
-4. **Role-Based Navigation** — Show only relevant features
-5. **Sensitive Data Handling** — Never display what shouldn't be shown
-6. **Session Expiry** — Graceful handling when session expires
-7. **Mobile Security** — Touch targets, no accidental actions
+The V1 brief (Paystack/Resend specifics, admin/super_admin roles) is preserved
+in `archive/v1/09-SECURITY-UX-BRIEF.md`.

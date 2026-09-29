@@ -2840,3 +2840,10 @@ export async function middleware(request: NextRequest) {
 **ARCHITECTURE STATUS: READY FOR IMPLEMENTATION**
 
 *This architecture has been reviewed twice and all identified issues have been resolved. Implementation may begin upon explicit approval.*
+---
+
+**STATUS:** HISTORICAL · **AUTHORITY:** REFERENCE (V1 architecture) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V1
+
+> V1 technical architecture ("V1.2" blueprint). The current authority is the
+> repository's `docs/architecture/ARCHITECTURE-V2.md` plus the actual
+> implementation (migrations 0001–0019).

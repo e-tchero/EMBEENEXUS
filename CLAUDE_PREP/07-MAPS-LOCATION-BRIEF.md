@@ -1,137 +1,37 @@
-# EMBEE NEXUS — MAPS & LOCATION BRIEF
+# EMBEE NEXUS — MAPS & LOCATION BRIEF (V2)
 
-**Authority:** LEVEL 1 — Derived from codebase + mapping architecture
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+## Provider architecture (current)
 
-## Provider Architecture
+Maps are provider-abstracted behind a server-side interface with the Stadia
+Maps adapter active. Provider choice is a locked founder decision (Stadia for
+MVP; keep the abstraction). Server-side key handling only.
 
-```
-lib/maps/
-├── types.ts           # MapsProvider interface (abstract)
-├── index.ts           # Provider factory (creates provider from env)
-├── stadia.ts          # Stadia Maps implementation (CURRENT)
-├── mapbox.ts          # Mapbox implementation (NOT USED)
-└── google-maps.ts     # Google Maps implementation (NOT USED)
-```
+## What V2 actually uses maps for
 
-### Provider-Neutral Interface
+| Use | Exists? | Notes |
+|---|---|---|
+| Address autocomplete (`/api/geo/search`) | YES | Server-side Stadia; powers booking-wizard location selection |
+| Forward geocoding (`/api/geo/geocode`) | YES | Server-side |
+| Distance for pricing | YES | Server-side at quote time (kobo math, road distance, 35 km cap) |
+| Map rendering | **NO** | No map UI exists in V2 web |
+| Route geometry display | **NO** | Not implemented |
+| Rider GPS ingestion | **NO** | Founder-excluded; do not design for it |
+| Real-time tracking | **NO** | Founder-excluded; no Supabase Realtime in V2 |
 
-```typescript
-interface MapsProvider {
-  // Address autocomplete/search
-  searchAddresses(query: string, location?: { lat: number; lng: number }): Promise<AddressResult[]>;
-  
-  // Reverse geocoding (coordinates → address)
-  reverseGeocode(lat: number, lng: number): Promise<AddressResult>;
-  
-  // Forward geocoding (address → coordinates)
-  geocode(address: string): Promise<GeocodeResult>;
-  
-  // Route calculation
-  getRoute(
-    origin: { lat: number; lng: number },
-    destination: { lat: number; lng: number }
-  ): Promise<RouteResult>;
-  
-  // Distance matrix
-  getDistance(
-    origin: { lat: number; lng: number },
-    destination: { lat: number; lng: number }
-  ): Promise<DistanceResult>;
-}
-```
+The customer never enters or sees coordinates: the wizard presents address
+search results; the server resolves and stores coordinates.
 
-### Current Provider: Stadia Maps
+## Design implications
 
-| Feature | Status |
-|---------|--------|
-| Address search | ✅ Implemented |
-| Reverse geocoding | ✅ Implemented |
-| Forward geocoding | ✅ Implemented |
-| Route calculation | ✅ Implemented |
-| Distance calculation | ✅ Implemented |
-| Map rendering | ✅ Implemented (frontend) |
-| API key handling | ✅ Server-side only |
-
----
-
-## How Maps Are Used
-
-### 1. Address Management (Customer)
-- Customer enters address text
-- Backend geocodes to get latitude/longitude
-- Coordinates stored in `addresses` table
-- **UX ISSUE:** Current form requires manual lat/lng entry
-
-### 2. Quote/Booking (Customer)
-- Pickup and destination coordinates used for:
-  - Distance calculation
-  - Route geometry
-  - Pricing calculation
-  - Estimated duration
-
-### 3. Order Tracking (Customer)
-- Map shows rider location in real-time
-- Route geometry displayed on map
-- Rider marker moves along route
-
-### 4. Rider Location (Rider)
-- Rider's GPS coordinates sent to server
-- Stored in `rider_locations` and `rider_current_locations`
-- Used for dispatch (finding nearest rider)
-
-### 5. Dispatch (System)
-- Spatial query finds nearest available riders
-- Uses PostGIS geography type
-- `find_nearest_riders()` PostgreSQL function
-
----
-
-## Coordinate Requirements
-
-| System | Requires Coordinates | Notes |
-|--------|---------------------|-------|
-| Addresses | YES | latitude + longitude stored |
-| Quotes | YES | pickup + destination |
-| Orders | YES | pickup + destination |
-| Dispatch | YES | rider current location |
-| Tracking | YES | rider real-time location |
-| Pricing | YES | distance calculation |
-
-**Coordinates are REQUIRED by the backend. The frontend must provide them.**
-
----
-
-## Frontend Map Components
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| Tracking Map | `components/tracking/tracking-map.tsx` | Shows rider location on map |
-
-### Map Rendering
-- Uses Stadia Maps JS API for map display
-- Map container with rider marker
-- Route polyline display
-- Auto-center on rider location
-
----
-
-## Provider Portability
-
-To switch from Stadia Maps to another provider:
-1. Create new adapter implementing `MapsProvider` interface
-2. Add case in provider factory
-3. Change `MAPS_PROVIDER` environment variable
-4. **No domain logic changes required**
-
----
-
-## What Claude Should Know
-
-1. **Maps are provider-abstracted.** Claude should NOT hard-code Stadia Maps into the UI design.
-2. **Coordinates are backend requirements.** The customer should never see raw coordinates.
-3. **The address form UX is being redesigned.** Current manual lat/lng entry is unacceptable.
-4. **Map rendering happens in the tracking view.** This is the primary map interaction.
-5. **Route geometry is pre-calculated.** One route per quote, stored on the order.
+1. Do not draw tracking maps, route polylines, or rider markers for the
+   current V2 web pilot — those belong to the future mobile/tracking milestone
+   with founder authorization.
+2. Do not hard-code Stadia branding in UI copy ("View on map" style
+   abstraction still applies when map surfaces arrive).
+3. Any future map work derives tokens from the founder palette
+   (`map.route.*`, `map.marker.*` are PROPOSED extensions pending founder
+   review — repo BRANDKIT.md §2).
+4. The V1 brief's tracking-map and GPS architecture is preserved in
+   `archive/v1/07-MAPS-LOCATION-BRIEF.md` as historical reference.

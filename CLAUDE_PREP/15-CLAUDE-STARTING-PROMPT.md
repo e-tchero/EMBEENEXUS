@@ -1,5 +1,13 @@
 # EMBEE NEXUS — CLAUDE STARTING PROMPT
 
+**STATUS:** HISTORICAL · **AUTHORITY:** REFERENCE (V1 kickoff artifact) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V1
+
+> Preserved verbatim as the original Figma-phase kickoff prompt (2026-09-01).
+> It references the V1 repository (Paystack, admin section, tracking maps,
+> jpeg assets) which does not describe current V2. Do not execute this prompt;
+> the current phase directives and `01-DOCUMENT-INDEX.md` govern.
+
+
 **Purpose:** Complete prompt for Claude to begin the Figma design phase
 **Date:** September 1, 2026
 

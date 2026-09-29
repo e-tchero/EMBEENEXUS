@@ -1,173 +1,85 @@
-# EMBEE NEXUS — DESIGN SYSTEM REQUIREMENTS
+# EMBEE NEXUS — DESIGN SYSTEM REQUIREMENTS (V2)
 
-**Authority:** LEVEL 2 — What Claude should build in Figma
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE (each requirement classified against actual V2) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+Classification vocabulary: `IMPLEMENTED · PARTIALLY IMPLEMENTED · PLANNED ·
+SUPERSEDED · NOT APPLICABLE TO V2 WEB PILOT · OWNER DECISION REQUIRED`.
+The token values layer is governed by the founder palette (brand/) and the
+app contract (`apps/web/DESIGN.md`); this document classifies requirements,
+not duplicate values.
 
-## Foundation Layer
+## Foundation
 
-### Colors
-- Brand colors (6 swatches)
-- Semantic colors (primary, secondary, destructive, success, warning)
-- Neutral scale (50–900)
-- Dark mode variants
-- Usage guidelines per color
+| Requirement | V2 classification | Notes |
+|---|---|---|
+| Brand colors (6 swatches) | IMPLEMENTED (documentation) / PLANNED (CSS integration) | founder palette canonical in `brand/COLOR-SYSTEM.md`; app tokens re-base approved |
+| Semantic colors (primary/secondary/destructive/success/warning) | PARTIALLY IMPLEMENTED | app has status-* semantics; action color re-base pending |
+| Dark-mode variants | IMPLEMENTED | `prefers-color-scheme` auto-flip; AA-verified |
+| Neutral scale 50–900 | PARTIALLY IMPLEMENTED | Tailwind neutrals in use; formal scale documented at re-base |
+| Accessibility contrast requirements | IMPLEMENTED | AA verified per pairing; derivatives frozen |
+| Manrope type scale (12–30px) | PLANNED | typeface integration approved for next phase; no formal scale yet |
+| Spacing 4px base, scale 4→96 | IMPLEMENTED (in practice) | Tailwind 4px grid used throughout |
+| Radius 8/12/16 + optional 20 | IMPLEMENTED (as 12/16) | founder decision 2026-09-29: border-first, minimal shadows; `rounded-lg` 12 and `rounded-xl` 16 in use; 8 and 20 documented as vocabulary, adopt where appropriate |
+| Shadow scale (small/medium/large) | **SUPERSEDED** | founder decision: borders carry elevation; shadows minimal |
+| Borders 1px default, 2px focus | PARTIALLY IMPLEMENTED | 1px borders in force; focus uses browser default ring — formalize at re-base |
 
-### Typography
-- Manrope font family
-- Type scale (12px–30px)
-- Heading styles (h1–h6)
-- Body text styles
-- Caption/metadata styles
-- Font weight assignments
-- Line height scale
+## Component layer
 
-### Spacing
-- 4px base unit
-- Scale: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96
-- Usage guidelines
+| Component | V2 classification | Notes |
+|---|---|---|
+| Button (variants × sizes × states) | PARTIALLY IMPLEMENTED | primary/secondary/danger exist inline per surface; loading/disabled in force; extraction optional, not forced |
+| Input / Select / Textarea | PARTIALLY IMPLEMENTED | route-local; labels-above, inline errors in force |
+| OTP input | IMPLEMENTED | mono boxes, paste-safe |
+| Badge / Status badge | PARTIALLY IMPLEMENTED | status copy single-sourced; no shared primitive |
+| Card | IMPLEMENTED | `rounded-xl border p-4` language; border-first |
+| Modal/Dialog | PARTIALLY IMPLEMENTED | typed-confirm destructive dialogs (operator) |
+| Toast/Alert | PARTIALLY IMPLEMENTED | alert/status regions; no toast system |
+| Skeleton / Spinner | **NOT APPLICABLE TO V2 WEB PILOT** | explicit text/region loading states; skeletons deferred to mobile milestone |
+| Tooltip / Avatar / Switch / Checkbox / Radio | **NOT APPLICABLE TO V2 WEB PILOT** | no current surface uses them |
+| Timeline (order) | IMPLEMENTED | authoritative `order_events` rendering (operator detail) |
+| Table / List | IMPLEMENTED | operator monitor + riders tables (wrapped top-nav density) |
+| Price breakdown | IMPLEMENTED | server-priced quote display |
+| Stat card | IMPLEMENTED | operator overview |
 
-### Border Radius
-- Small: 4px (badges, tags)
-- Medium: 8px (cards, inputs)
-- Large: 12px (modals, panels)
-- Full: 9999px (avatars, pills)
+## Navigation
 
-### Shadows
-- Small: subtle elevation (cards)
-- Medium: moderate elevation (dropdowns)
-- Large: high elevation (modals)
-- Dark mode shadow adjustments
+| Requirement | V2 classification | Notes |
+|---|---|---|
+| Top app bar | PARTIALLY IMPLEMENTED | operator wrapped top-nav; customer/rider minimal headers |
+| Bottom tab bar | **NOT APPLICABLE TO V2 WEB PILOT** | future mobile milestone requirement |
+| Sidebar | **NOT APPLICABLE TO V2 WEB PILOT** | operator console is top-nav by design |
+| Breadcrumb / Pagination | **NOT APPLICABLE TO V2 WEB PILOT** | list sizes do not require them |
 
-### Borders
-- Default: 1px solid border color
-- Focus: 2px solid primary color
-- Input: 1px solid input border
+## Product-specific cards
 
----
+| Component | V2 classification |
+|---|---|
+| Order card (customer) | IMPLEMENTED |
+| Quote card | IMPLEMENTED |
+| Offer card (rider) | IMPLEMENTED — 20 s TTL countdown |
+| Delivery card (rider active) | IMPLEMENTED |
+| Rider card (operator) | IMPLEMENTED |
+| Status badge | IMPLEMENTED (via status copy single-sourcing) |
+| Earnings card | **NOT APPLICABLE** — earnings excluded by founder |
+| Notification item | **NOT APPLICABLE** — notifications excluded |
+| Map container | **NOT APPLICABLE** — no map rendering in V2 web |
 
-## Component Layer
+## Pattern layer
 
-### Primitives
-| Component | States | Variants |
-|-----------|--------|----------|
-| Button | Default, Hover, Focus, Active, Disabled, Loading | Primary, Secondary, Destructive, Ghost, Outline; Sm, Md, Lg |
-| Input | Default, Focus, Error, Disabled, ReadOnly | Text, Password, Email, Phone, Number, Search |
-| Select | Default, Focus, Error, Disabled | Single, Multi |
-| Badge | Default | Success, Warning, Error, Info, Neutral; Sm, Md |
-| Card | Default, Hover, Selected | Flat, Elevated, Outlined |
-| Avatar | Default, Loading, Error | Sm, Md, Lg; Image, Initials, Icon |
-| Checkbox | Default, Checked, Indeterminate, Disabled | — |
-| Radio | Default, Selected, Disabled | — |
-| Switch | Default, On, Off, Disabled | — |
-| Modal/Dialog | Default | Sm, Md, Lg, Fullscreen |
-| Toast/Alert | Default | Success, Warning, Error, Info |
-| Skeleton | Loading | Rectangle, Circle, Text |
-| Spinner | Loading | Sm, Md, Lg |
-| Tooltip | Default | Top, Bottom, Left, Right |
+| Pattern | V2 classification |
+|---|---|
+| Loading states (explicit) | IMPLEMENTED |
+| Empty states | IMPLEMENTED |
+| Error states (retry, safe copy) | IMPLEMENTED |
+| Destructive confirmation | IMPLEMENTED (typed) |
+| Offline banner / permission deep-link | **PLANNED** (mobile milestone) |
+| No-coverage / >35 km rejection | IMPLEMENTED (server-validated, surfaced in wizard) |
 
-### Navigation
-| Component | Context | Notes |
-|-----------|---------|-------|
-| Top Navbar | Customer, Rider | Logo, nav links, notification bell, avatar |
-| Bottom Tab Bar | Customer (mobile), Rider (mobile) | 3–5 tabs with icons |
-| Sidebar | Admin (desktop) | Collapsible, icon + text |
-| Breadcrumb | Admin, deep pages | Optional |
-| Pagination | Lists | Previous/Next + page numbers |
+## Responsive variants
 
-### Forms
-| Component | Notes |
-|-----------|-------|
-| Form Group | Label + Input + Error message |
-| Address Input | Search + map pin + manual fields |
-| Phone Input | Country code + number |
-| Date Picker | If needed for scheduling |
-| File Upload | Document upload with preview |
-| Textarea | Multi-line with character count |
+Mobile-first in force; every surface renders usable at 320px. Component-level
+mobile/tablet/desktop variant matrices are **PLANNED** (Figma phase).
 
-### Data Display
-| Component | Notes |
-|-----------|-------|
-| Table | Sortable columns, row actions, pagination |
-| List Item | For order lists, rider lists, etc. |
-| Stat Card | Number + label + trend indicator |
-| Timeline | Order status timeline |
-| Progress Bar | Multi-step delivery progress |
-| Price Breakdown | Itemized cost display |
+## Historical note
 
-### Product-Specific
-| Component | Context |
-|-----------|---------|
-| Order Card | Customer order list |
-| Quote Card | Booking quote display |
-| Rider Card | Tracking view rider info |
-| Delivery Card | Rider active delivery |
-| Offer Card | Rider incoming offer |
-| Earnings Card | Rider earnings summary |
-| Notification Item | Notification list |
-| Map Container | Tracking map wrapper |
-| Status Badge | Order/rider status |
-
----
-
-## Pattern Layer
-
-### Loading Patterns
-- Skeleton screen (page-level)
-- Inline spinner (button-level)
-- Progress indicator (multi-step)
-- Shimmer (image/content loading)
-
-### Empty Patterns
-- Illustration + message + action button
-- Different per context (orders, addresses, etc.)
-
-### Error Patterns
-- Inline field error
-- Form-level error
-- Page-level error
-- Network error
-- Server error
-
-### Navigation Patterns
-- Tab switching
-- Back navigation
-- Deep linking
-- Modal stacking
-
----
-
-## Responsive Variants
-
-Every component should have:
-- **Mobile** (0–639px): Stacked, full-width, touch-optimized
-- **Tablet** (640–1023px): Partial grid, side-by-side where appropriate
-- **Desktop** (1024px+): Full layout, sidebar, multi-column
-
----
-
-## Variables / Tokens
-
-Figma variables should map to:
-
-```json
-{
-  "color.brand.blue": "#147BFF",
-  "color.brand.cyan": "#38BDF8",
-  "color.brand.navy": "#0B1220",
-  "color.semantic.primary": "{color.brand.blue}",
-  "color.neutral.50": "#F8FAFC",
-  "color.neutral.900": "#0F172A",
-  "spacing.sm": "8px",
-  "spacing.md": "16px",
-  "spacing.lg": "24px",
-  "radius.sm": "4px",
-  "radius.md": "8px",
-  "radius.lg": "12px",
-  "font.family": "Manrope",
-  "font.size.sm": "14px",
-  "font.size.base": "16px",
-  "font.size.lg": "18px"
-}
-```
+The V1-era specification is preserved in `archive/v1/12-DESIGN-SYSTEM-REQUIREMENTS.md`.

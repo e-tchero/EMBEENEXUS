@@ -1,109 +1,66 @@
-# EMBEE NEXUS — DESIGN DIRECTION
+# EMBEE NEXUS — DESIGN DIRECTION (V2)
 
-**Authority:** LEVEL 2 — What Claude is being asked to achieve
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE (principles binding; V1 visuals stripped) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+## The standing rule
 
-## The Ask
+**Do not invent a new brand.** The founder-supplied identity — the E/N
+monogram logo family, the six-color founder palette, and the Manrope
+typeface — is the brand. This principle is binding and survived every
+reconciliation; any proposal that introduces a new palette, typeface, logo,
+or identity is void on arrival.
 
-**A complete Embee Nexus frontend redesign.**
-
-This is NOT a new product. The backend, APIs, database, and business logic are complete and production-ready. Claude is being asked to redesign the **visual layer and user experience** of an existing, functional delivery platform.
-
----
-
-## Brand Personality
+## Brand personality (retained, founder material)
 
 | Trait | Expression |
-|-------|-----------|
-| **Professional** | Clean lines, consistent spacing, no clutter |
-| **Trustworthy** | Clear status indicators, transparent pricing, reliable feedback |
-| **Modern** | Contemporary design patterns, smooth interactions |
-| **Nigerian-market appropriate** | Works on mobile, works on slow networks, handles imperfect addresses |
-| **Delivery-focused** | Every screen serves the delivery mission |
-| **Operationally clear** | Riders know what to do, admins see what matters |
-| **Fast** | Minimal friction, quick actions, instant feedback |
+|---|---|
+| Professional | clean lines, consistent spacing, no clutter |
+| Trustworthy | clear status, transparent pricing, reliable feedback |
+| Modern | contemporary patterns without fashion-driven decoration |
+| Nigerian-market appropriate | mobile-first, slow-network tolerant, imperfect-address tolerant |
+| Delivery-focused | every screen serves the delivery mission |
+| Operationally clear | riders know what to do; operators see what matters |
+| Fast | minimal friction, quick actions, instant feedback |
 
----
+## Design philosophy (retained)
 
-## Visual Language
+- **Functional beauty** — every decision serves the user's goal; clear beats
+  decorative.
+- **Progressive disclosure** — show the minimum; reveal complexity when needed.
+- **Trust through transparency** — status, progress, and price are always
+  visible and always server truth.
+- **Mobile-first, always** — design for the phone in a rider's hand on a busy
+  Abuja street, then scale up.
 
-### Color Usage
-- **Embee Blue (#147BFF):** Primary brand, CTAs, active states
-- **Digital Cyan (#38BDF8):** Accents, highlights, "NEXUS" in logo
-- **Embee Navy (#0B1220):** Dark backgrounds, authority
-- **Embee Charcoal (#111827):** Text, cards on dark
-- **Embee White (#F5F7FA):** Light backgrounds
-- **Embee Slate (#64748B):** Muted text, secondary info
+## Visual language (re-based on the founder palette)
 
-### Typography
-- **Manrope** — Professional, geometric, clean
-- Extra bold for "EMBEE", Light for "NEXUS"
-- Clear hierarchy through weight and size
+- **Color usage:** Embee Blue `#147BFF` = primary actions/CTAs/active
+  states/links/focus; Digital Cyan `#38BDF8` = selected accents/highlights;
+  Embee Navy `#0B1220` = dark authority surfaces and dark-mode background;
+  Embee Charcoal `#111827` = text on light; Embee White `#F5F7FA` = light
+  surfaces; Embee Slate `#64748B` = supporting tones. Accessibility-safe
+  derivatives are engineering values layered on top, never new brand colors.
+- **Restrained language:** no gradients, no glow, no glassmorphism, no
+  decorative color fields, no icon decoration for its own sake. Borders carry
+  elevation; shadows are minimal.
+- **Geometry:** card-based layouts, rounded corners (8/12/16 base with 20 as
+  the optional larger radius), border-first surfaces.
+- **Typography:** Manrope with explicit weight roles (ExtraBold hero/"EMBEE",
+  Bold headings, SemiBold buttons/nav, Regular body, Light wide-tracked
+  "NEXUS"); tabular numerals for all data.
+- **Imagery:** founder-supplied logo assets only; minimal illustration — let
+  the product speak.
 
-### Shapes
-- Rounded corners (0.5rem default)
-- Card-based layouts
-- Clean borders (subtle, not heavy)
+## What NOT to do (binding)
 
-### Imagery
-- Founder-supplied logo assets (see `brand/assets/`)
-- Minimal illustrations — let the product speak
-- Map imagery from Stadia Maps
-- Delivery-related icons
+1. Do not invent a new brand, palette, typeface, or logo.
+2. Do not add features the backend does not support.
+3. Do not hard-code provider identities in UI (payments, maps, email).
+4. Do not use placeholder content — Nigerian context, NGN, Abuja addresses.
+5. Do not ignore mobile — it is the primary surface.
+6. Do not copy competitor apps blindly.
 
----
+## Historical note
 
-## What NOT to Do
-
-1. **Do not invent a new brand.** Use the supplied Embee Nexus logo and color system.
-2. **Do not add new providers.** Maps, payments, email are already integrated.
-3. **Do not redesign the backend.** APIs, database, state machines are fixed.
-4. **Do not add features not in the existing system.** Design what exists.
-5. **Do not use placeholder content.** Use realistic Nigerian data (Abuja addresses, NGN currency).
-6. **Do not ignore mobile.** This is primarily a mobile delivery product.
-7. **Do not copy other delivery apps blindly.** Be inspired, but be original.
-
----
-
-## Design Philosophy
-
-### Functional Beauty
-Every design decision should serve the user's goal. Beautiful but confusing is worse than simple and clear.
-
-### Progressive Disclosure
-Show the minimum needed. Reveal complexity only when the user needs it.
-
-### Trust Through Transparency
-Show status, show progress, show pricing breakdown. Never leave the user guessing.
-
-### Mobile-First, Always
-Design for the phone in a rider's hand on a busy Abuja street. Then scale up.
-
----
-
-## Inspiration References
-
-| Category | Inspiration |
-|----------|------------|
-| Delivery tracking | Uber, Bolt, Glovo tracking screens |
-| Payment flows | Paystack Checkout, Flutterwave |
-| Admin dashboards | Stripe Dashboard, Supabase Dashboard |
-| Mobile navigation | Instagram, Twitter bottom nav |
-| Map interactions | Google Maps, Apple Maps |
-| Form design | Linear, Notion |
-
----
-
-## Success Criteria
-
-The redesign is successful when:
-
-1. A new customer can book a delivery without instructions
-2. A rider can complete a delivery workflow intuitively
-3. An admin can manage operations at a glance
-4. The product feels professional and trustworthy
-5. Every screen works beautifully on mobile
-6. The brand is consistently applied
-7. The design system is reusable and maintainable
+The V1 direction document (V1 token names, "Claude" framing) is preserved in
+`archive/v1/11-DESIGN-DIRECTION.md`.

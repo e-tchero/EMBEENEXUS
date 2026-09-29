@@ -1,205 +1,84 @@
-# EMBEE NEXUS — PRODUCT UX BRIEF
+# EMBEE NEXUS — PRODUCT UX BRIEF (V2)
 
-**Authority:** LEVEL 2 — Product context for design decisions
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+## Product overview
 
-## Product Overview
+Embee Nexus is a motorcycle delivery platform for Abuja, Nigeria: customers
+book deliveries, verified riders execute them, operators supervise the closed
+pilot. Core promise: *"You want it delivered. Embee Nexus is the right
+platform for the job."*
 
-Embee Nexus is a **delivery platform** connecting customers who need items delivered with verified riders who carry them. Think of it as a Nigerian logistics platform — like Uber for package delivery.
+**Absent by founder decision** (do not design for them in the web pilot):
+realtime tracking, GPS/rider location, rider earnings/payouts UI, ratings,
+notifications, seller features, addresses CRUD. Where the V1 brief described
+these (`archive/v1/03-PRODUCT-UX-BRIEF.md`), they are historical.
 
-### Core Value Proposition
-"You want it delivered. Embee Nexus is the right platform for the job."
+## Roles
 
-### Market
-Nigeria — primarily Abuja initially, expanding to other cities.
+| Role | Entry | Capabilities (actual) |
+|---|---|---|
+| Customer | `(auth)/login` · `(auth)/signup` | Book (4-step wizard), pay (Flutterwave), track by status timeline, confirm receipt, cancel where permitted |
+| Rider | `/rider/home` | Verification gate, availability toggle, receive/accept/decline one offer at a time (20 s TTL), execute delivery with OTP + photo evidence, waiting state, confirm return |
+| Operator | `/operator` | Overview, order monitor, order detail (timeline/dispatch/payment/evidence/actions), rider visibility + verification review, jobs/health view |
 
----
+## Customer journey (actual)
 
-## CUSTOMER EXPERIENCE
+1. **Auth** — email/password; role defaults to customer.
+2. **Booking wizard** `/orders/new` — locations (server geocode search → pick
+   from results) → parcels → quote (server-priced, validity window) → payment.
+   The customer never enters or sees coordinates.
+3. **Payment** — Flutterwave via provider abstraction; return lands on
+   `/payments/callback`; state is confirmed by backend verification only
+   ("Secure checkout" copy; no provider branding).
+4. **Tracking** `/orders/[orderId]` — canonical status vocabulary rendered from
+   server truth; OTP issued to the customer for pickup and delivery handover.
+5. **Completion** — explicit recipient confirmation (`recipient_confirmed`);
+   no auto-completion timer exists.
+6. **Cancellation** — customer may cancel through `en_route_pickup`; after
+   arrival only operators may cancel (refund treatment is D06, founder-gated).
 
-### 1. Authentication
-- **Entry:** `/login` or `/signup`
-- **Goal:** Create account or sign in
-- **Actions:** Email/password signup, login
-- **Backend:** Supabase Auth → profile auto-created via trigger
-- **Role assigned:** `customer` by default
+## Rider journey (actual)
 
-### 2. Dashboard Home
-- **Entry:** `/dashboard`
-- **Goal:** See recent orders, quick actions
-- **States:** Empty (no orders), Active (has orders)
-- **Actions:** Start new booking, view orders, manage addresses
+1. **Verification gate** — approval required before dispatch eligibility;
+   status surfaced at `/rider/home` with a link to `/rider/verification`.
+2. **Availability** — explicit toggle; the longest-available eligible rider
+   receives the next offer; availability is consumed when an offer is created.
+3. **Offer** — single live offer with 20-second TTL countdown; accept or
+   decline (decline restores availability with the queue clock reset).
+4. **Execution** — status progression `rider_assigned → en_route_pickup →
+   arrived_pickup → picked_up (pickup OTP + rider_pickup photo) → in_transit →
+   arrived_destination → delivered (delivery OTP + rider_delivery photo)`.
+5. **Waiting & return** — waiting is free for 10 minutes, then ₦700 per
+   started minute to the 30-minute cap; at the cap the system initiates the
+   return and the rider completes it; the order closes `failed`.
+6. **After completion** — availability is NOT auto-restored; the rider
+   re-declares it.
 
-### 3. Address Management
-- **Entry:** `/addresses`
-- **Goal:** Add/edit/delete delivery addresses
-- **Current UX Issue:** Requires manual latitude/longitude entry (being redesigned)
-- **Fields:** Label (Home/Work/Other), Street Address, City, State, Latitude, Longitude
-- **Actions:** Create address, set default, edit, delete
-- **Backend:** `addresses` table with PostGIS geography column
+## Operator journey (actual)
 
-### 4. Booking Flow
-- **Entry:** Dashboard → "New Delivery"
-- **Goal:** Create a delivery order
-- **Steps:**
-  1. Select/create pickup address
-  2. Select/create delivery address
-  3. Choose delivery category
-  4. Enter package details (description, weight)
-  5. Select urgency level (standard/express/urgent)
-  6. Review quote (price breakdown)
-  7. Confirm and pay
-- **Backend:** Quote generation → order creation → payment initialization
-- **Quote components:** base_fee, distance_fee, weight_fee, tax (7.5% VAT), total
+1. **Overview** — what deliveries exist, what needs attention, payment
+   progression, rider availability; attention flags derive only from real
+   backend state (no invented SLAs).
+2. **Order monitor** — canonical-status filters, attention indicator, last
+   meaningful event.
+3. **Order detail** — authoritative event timeline, dispatch state (current
+   offer, TTL, attempts), payment state (initiated → redirected → pending →
+   successful/failed/…), evidence via short-lived signed URLs (300 s),
+   controlled actions: dispatch trigger/recovery, cancel with typed
+   confirmation.
+4. **Riders** — verification status, availability/queue clock, committed
+   order, current offer; verification review at `/operator/riders/review`.
+5. **Jobs** — the three real job endpoints with their observable effects;
+   health from the real `/api/health` checks. No fabricated indicators.
 
-### 5. Payment
-- **Entry:** After quote confirmation
-- **Goal:** Pay for delivery
-- **Provider:** Paystack (card, bank transfer, USSD)
-- **Flow:** Initialize → Paystack checkout → Webhook verification → Order state update
-- **States:** pending → processing → success/failed
+## Cross-cutting UX (actual)
 
-### 6. Order Tracking
-- **Entry:** `/orders/[id]`
-- **Goal:** Track delivery in real-time
-- **Features:**
-  - Map showing rider location (real-time)
-  - Order status timeline
-  - Rider info card
-  - Estimated arrival
-- **Realtime:** Supabase Realtime subscription for rider location
-
-### 7. Order Cancellation
-- **Entry:** Order detail page
-- **Goal:** Cancel an order
-- **Rules:** Allowed before rider pickup (state-dependent)
-- **Refund:** Automatic refund via Paystack if payment was made
-
-### 8. Delivery Proof
-- **Entry:** Order detail (after delivery)
-- **Goal:** View proof of delivery
-- **Types:** Text-only or Photo + Text
-- **Photo:** Uploaded to Supabase Storage (private bucket)
-
-### 9. Rating
-- **Entry:** After order completion
-- **Goal:** Rate the delivery experience
-- **Fields:** Rating (1-5 stars), optional comment
-- **Timing:** Available after `completed` status
-
-### 10. Notifications
-- **Entry:** Notification bell icon
-- **Goal:** View order updates, system messages
-- **Features:** In-app notifications, unread count, mark as read
-- **Email:** Transactional emails via Resend (order confirmations, etc.)
-
----
-
-## RIDER EXPERIENCE
-
-### 1. Registration
-- **Entry:** `/rider/register`
-- **Goal:** Apply to become a rider
-- **Fields:** Full name, phone, vehicle info
-- **Backend:** Creates rider profile with `pending` verification
-
-### 2. Onboarding
-- **Entry:** `/rider/onboarding`
-- **Goal:** Upload verification documents
-- **Documents:** Driver's license, vehicle registration, insurance
-- **Storage:** Supabase Storage (private bucket)
-- **Status:** `pending` → `under_review` → `approved`/`rejected`
-
-### 3. Dashboard
-- **Entry:** `/rider/dashboard`
-- **Goal:** See available offers, active deliveries, earnings
-- **Features:**
-  - Availability toggle (online/offline)
-  - Offer cards (accept/reject)
-  - Active delivery card with progress steps
-  - Earnings summary
-
-### 4. Delivery Offers
-- **Source:** Dispatch system sends offers to nearest available riders
-- **Display:** Offer cards showing pickup, destination, distance, payment
-- **Actions:** Accept or Reject (with timeout)
-- **Timeout:** Offers expire after configured duration
-
-### 5. Active Delivery Workflow
-- **States:**
-  1. `rider_assigned` — Rider accepted offer
-  2. `rider_en_route_to_pickup` — Rider heading to pickup
-  3. `arrived_at_pickup` — Rider at pickup location
-  4. `picked_up` — Package collected
-  5. `in_transit` — En route to destination
-  6. `arrived_at_destination` — At delivery location
-  7. `delivered` — Proof submitted
-  8. `completed` — Customer confirmed or auto-completed
-
-### 6. Delivery Proof Submission
-- **Entry:** Active delivery card
-- **Goal:** Prove delivery completion
-- **Fields:** Photo (optional), text description (required)
-- **Upload:** Photo → Supabase Storage → signed URL
-
-### 7. Earnings
-- **Entry:** Earnings panel on dashboard
-- **Goal:** View earnings history and summary
-- **Data:** Earnings ledger (credits from completed deliveries)
-- **Backend:** `earnings_ledger` table, `earnings_ledger_summary` view
-
----
-
-## ADMIN EXPERIENCE
-
-### 1. Dashboard
-- **Entry:** `/admin/dashboard`
-- **Goal:** System overview
-- **Stats:** Total orders, active deliveries, revenue, rider count
-
-### 2. Order Management
-- **Entry:** `/admin/orders`
-- **Goal:** View and manage all orders
-- **Actions:** View details, cancel order (admin cancellation)
-
-### 3. Rider Management
-- **Entry:** `/admin/riders`
-- **Goal:** Manage rider fleet
-- **Features:**
-  - Rider list with status
-  - Rider detail with verification status
-  - Document verification (approve/reject)
-  - Verification history
-
-### 4. Customer Management
-- **Entry:** `/admin/customers`
-- **Goal:** View customer list
-- **Read-only** — admin can view but not modify customer profiles
-
----
-
-## CROSS-CUTTING UX CONCERNS
-
-### Loading States
-- Skeleton loaders for data-dependent pages
-- Button loading spinners for async actions
-- Page-level loading states
-
-### Error States
-- Error boundaries per section (customer, rider, admin)
-- API error handling with user-friendly messages
-- Network failure handling
-
-### Empty States
-- No orders → "Start your first delivery"
-- No addresses → "Add your first address"
-- No offers → "Waiting for delivery offers"
-- No deliveries → "No active deliveries"
-
-### Responsive Design
-- Mobile-first approach
-- Desktop sidebar navigation (admin)
-- Mobile bottom navigation (customer, rider)
-- Touch-friendly controls
+- Backend truth rendered verbatim; status copy single-sourced per role
+  (`status-copy.ts`, `error-copy.ts`, `operator-labels.ts`).
+- Explicit loading, empty, and error states on every data view.
+- `role="alert"` / `role="status"` regions for errors and progress.
+- 44px minimum touch targets on all primary/secondary interactive controls.
+- Destructive actions require explicit confirmation (typed where operator).
+- Whole-naira `₦` formatting; distances in km; no internal jargon in
+  customer copy (e.g., "quote" presented as price with validity).

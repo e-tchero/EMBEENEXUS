@@ -1,199 +1,100 @@
-# EMBEE NEXUS — STATE MACHINES
+# EMBEE NEXUS — STATE MACHINES (V2)
 
-**Authority:** LEVEL 1 — Derived from ARCHITECTURE.md + database schema
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** CANONICAL FOR RECONSTRUCTION — derived from `apps/web/src/lib/domain/order-state.ts` and migrations 0002/0005/0007/0014 · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+The implementation is authoritative. The V1 machine in
+`archive/v1/06-STATE-MACHINES.md` (`pending_payment → paid`, `expired`,
+`disputed`, `refunded`, `dispatch_rider_v2()`) does not describe V2.
 
-## Order Status Machine
+## Order status machine
 
-The order status is the central state machine. All other systems react to order state changes.
+`draft → awaiting_payment → payment_verified → searching_rider →
+rider_assigned → en_route_pickup → arrived_pickup → picked_up → in_transit →
+arrived_destination → delivered → completed`
 
-```
-draft
-  ↓ (customer confirms quote)
-pending_payment
-  ↓ (payment webhook confirms)
-paid
-  ↓ (dispatch system finds rider)
-searching_rider
-  ↓ (rider accepts offer)
-rider_assigned
-  ↓ (rider starts heading to pickup)
-rider_en_route_to_pickup
-  ↓ (rider arrives at pickup)
-arrived_at_pickup
-  ↓ (rider confirms pickup)
-picked_up
-  ↓ (rider starts transit)
-in_transit
-  ↓ (rider arrives at destination)
-arrived_at_destination
-  ↓ (rider submits proof)
-delivered
-  ↓ (customer confirms or auto-completed after window)
-completed
+- **Payment is a separate axis**, not an order state. `payment_verified` is
+  reached only through backend verification (Flutterwave webhook/verification),
+  never a client callback.
+- **No `expired`/`disputed`/`refunded` states exist.** Returns close via
+  `delivery_failed`; refunds are a financial axis (M8+, D06).
+- **`under_review`** is an operator hold state (any non-terminal,
+  non-completed order); release returns the order to its pre-hold status.
 
-CANCELLATION PATH (from any non-completed state):
-  ↓ (customer/admin cancels)
-cancelled
-  ↓ (if payment was made)
-refunded
+### Lifecycle transitions (trigger · actors)
 
-FAILURE PATH:
-  ↓ (rider reports failure)
-failed
+| From → To | Trigger | Actors | Guard |
+|---|---|---|---|
+| `draft → awaiting_payment` | `order_submitted` | customer, seller, system | — |
+| `awaiting_payment → payment_verified` | `payment_verified` | system | payment verified server-side |
+| `payment_verified → searching_rider` | `dispatch_started` | system | — |
+| `searching_rider → rider_assigned` | `rider_accepted_offer` | rider, system | server-recorded acceptance |
+| `rider_assigned → en_route_pickup` | `rider_departed` | rider | — |
+| `en_route_pickup → arrived_pickup` | `rider_arrived_pickup` | rider | — |
+| `arrived_pickup → picked_up` | `pickup_otp_verified` | rider | pickup OTP verified server-side |
+| `picked_up → in_transit` | `rider_departed` | rider | — |
+| `in_transit → arrived_destination` | `rider_arrived_destination` | rider | — |
+| `arrived_destination → delivered` | `delivery_otp_verified` | rider | delivery OTP verified server-side |
+| `delivered → completed` | `recipient_confirmed` | customer, recipient, system | recipient inspection confirmed — no auto-completion exists |
 
-EXPIRATION PATH:
-  ↓ (no rider accepted within timeout)
-expired
+### Failure & cancellation
 
-DISPUTE PATH:
-  ↓ (customer disputes delivery)
-disputed
-```
+| From → To | Trigger | Actors |
+|---|---|---|
+| `in_transit → failed` | `delivery_failed` | rider, operator |
+| `arrived_destination → failed` | `delivery_failed` | rider, operator |
+| `draft/awaiting_payment/payment_verified/searching_rider/rider_assigned/en_route_pickup → cancelled` | `cancel` | customer, seller, operator |
+| `arrived_pickup/picked_up/in_transit → cancelled` | `cancel` | operator only |
 
-### Valid Transitions
+Terminal outcomes: `cancelled`, `failed`. Customer cancellation is permitted
+up to the point the rider arrives at pickup; refund treatment of cancellation
+is D06 (founder-gated) and is deliberately not encoded.
 
-| From | To | Trigger | Actor |
-|------|----|---------|-------|
-| `draft` | `pending_payment` | Quote confirmed | Customer |
-| `pending_payment` | `paid` | Payment webhook | System |
-| `pending_payment` | `cancelled` | Customer cancels | Customer |
-| `paid` | `searching_rider` | Dispatch initiated | System |
-| `paid` | `cancelled` | Customer/admin cancels | Customer/Admin |
-| `searching_rider` | `rider_assigned` | Rider accepts | Rider |
-| `searching_rider` | `expired` | No rider accepts | System |
-| `searching_rider` | `cancelled` | Customer/admin cancels | Customer/Admin |
-| `rider_assigned` | `rider_en_route_to_pickup` | Rider starts | Rider |
-| `rider_assigned` | `cancelled` | Customer/admin cancels | Customer/Admin |
-| `rider_en_route_to_pickup` | `arrived_at_pickup` | Rider arrives | Rider |
-| `arrived_at_pickup` | `picked_up` | Rider confirms | Rider |
-| `picked_up` | `in_transit` | Rider starts transit | Rider |
-| `in_transit` | `arrived_at_destination` | Rider arrives | Rider |
-| `arrived_at_destination` | `delivered` | Rider submits proof | Rider |
-| `delivered` | `completed` | Customer confirms / auto | System |
-| `delivered` | `disputed` | Customer disputes | Customer |
-| Any (pre-pickup) | `cancelled` | Cancel | Customer/Admin |
-| Any (pre-pickup) | `failed` | Rider reports | Rider |
+### Custody (OTP) chain facts
 
----
+- Pickup OTP requires `customer_parcel` + `rider_pickup` photos before
+  verification; delivery OTP requires `rider_delivery`.
+- Verification is valid exactly at `arrived_pickup` / `arrived_destination`.
+- 5 incorrect attempts lock verification; plaintext OTP is shown once,
+  customer-only.
 
-## Payment Lifecycle
+## Waiting & return (not separate states — event/metadata axis)
 
-```
-pending
-  ↓ (Paystack checkout opened)
-processing
-  ↓ (webhook: charge.success)
-success
-  ↓ (refund initiated)
-refunded
-  OR
-  ↓ (webhook: charge.failed)
-failed
-  OR
-  ↓ (customer abandons checkout)
-abandoned
-```
+Waiting is free for the first 10 minutes, then ₦700 per started minute,
+capped at 30 minutes (migration 0014; `waiting_charge_kobo` on the order).
+At the cap the waiting tick initiates the return (`return_initiated_at`); the
+assigned rider completes the return via `order_complete_return`, closing the
+order through the canonical `delivery_failed` path → `failed`.
 
-### Payment States
+## Payment lifecycle (Flutterwave axis)
 
-| State | Meaning |
-|-------|---------|
-| `pending` | Payment initialized, awaiting customer action |
-| `processing` | Customer completed checkout, awaiting webhook |
-| `success` | Payment confirmed via webhook |
-| `failed` | Payment failed (card declined, etc.) |
-| `abandoned` | Customer closed checkout without paying |
-| `refunded` | Full refund processed |
-| `partially_refunded` | Partial refund processed |
+`initiated → redirected → pending → successful | failed | cancelled |
+verification_failed`
 
----
+- Backend verification is the authority; the client never marks a payment
+  successful.
+- `successful` allows the `payment_verified` order transition; verification
+  failure holds the order for review.
 
-## Rider Verification Status
+## Rider verification states
 
-```
-pending
-  ↓ (documents submitted)
-under_review
-  ↓ (admin approves)
-approved
-  OR
-  ↓ (admin rejects)
-rejected
-  ↓ (rider resubmits)
-pending (cycle repeats)
-```
+`pending → under_review → approved | rejected` (reviewer: operator; notes
+recorded). Approval plus an active motorcycle vehicle row plus a declared
+availability flag constitute dispatch eligibility.
 
----
+## Dispatch offer states
 
-## Rider Assignment States
+`offered → accepted | declined | expired`
 
-```
-offered
-  ↓ (rider accepts)
-accepted
-  ↓ (delivery starts)
-completed
-  OR
-  ↓ (rider rejects)
-rejected
-  OR
-  ↓ (timeout)
-expired
-  OR
-  ↓ (order cancelled)
-cancelled
-```
+- One offer at a time; 20-second TTL (`OFFER_TTL_SECONDS`).
+- Creating an offer consumes the rider's availability flag; decline restores
+  it with the queue clock reset; expiry restores it with the clock preserved.
+- Queue order: longest-`available_since` among eligible riders (approved +
+  available + not busy + active motorcycle). Expired riders are excluded from
+  immediate re-offer of the same order (anti-thrash), and the tick continues
+  dispatch to the next eligible rider.
+- Completion does not auto-restore availability; the rider re-declares.
 
-### Constraints
-- Only ONE active assignment per order (partial unique index)
-- Only ONE active assignment per rider (partial unique index)
+## Historical note
 
----
-
-## Dispatch States
-
-The dispatch system uses PostgreSQL functions:
-
-1. `dispatch_rider_v2()` — Finds nearest riders and creates offers
-2. `find_nearest_riders()` — Spatial query for available riders
-3. `accept_rider_offer()` — Atomic rider acceptance
-4. `reject_rider_offer()` — Rider rejection
-5. `process_expired_offers()` — Background job for timeouts
-
----
-
-## Cancellation Rules
-
-| Order State | Customer Can Cancel | Admin Can Cancel | Refund |
-|-------------|--------------------|--------------------|--------|
-| `draft` | ✅ | ✅ | N/A (no payment) |
-| `pending_payment` | ✅ | ✅ | N/A |
-| `paid` | ✅ | ✅ | Full refund |
-| `searching_rider` | ✅ | ✅ | Full refund |
-| `rider_assigned` | ✅ | ✅ | Full refund |
-| `rider_en_route_to_pickup` | ✅ | ✅ | Full refund |
-| `arrived_at_pickup` | ❌ | ✅ | Full refund |
-| `picked_up` | ❌ | ✅ | Full refund |
-| `in_transit` | ❌ | ✅ | Full refund |
-| `arrived_at_destination` | ❌ | ❌ | N/A |
-| `delivered` | ❌ | ❌ | N/A |
-| `completed` | ❌ | ❌ | N/A |
-
----
-
-## Delivery Proof States
-
-- Proof can be submitted when order is in `arrived_at_destination` or later
-- Proof consists of: text (required) + photo URL (optional)
-- Once submitted, order moves to `delivered`
-
----
-
-## Rating Availability
-
-- Rating becomes available after order reaches `completed` status
-- One rating per order
-- Rating: 1-5 stars + optional comment
+V1 names (`pending_payment`, `paid`, `expired`, `disputed`, `refunded`,
+`partially_refunded`, `abandoned`) are preserved in `archive/v1/06-STATE-MACHINES.md`.

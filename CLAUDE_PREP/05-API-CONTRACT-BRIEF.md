@@ -1,184 +1,86 @@
-# EMBEE NEXUS — API CONTRACT BRIEF
+# EMBEE NEXUS — API CONTRACT BRIEF (V2)
 
-**Authority:** LEVEL 1 — Derived from actual API routes + ARCHITECTURE.md
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** REFERENCE (derived from actual route handlers) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+Every route below exists in the repository at reconciliation date. Do not
+assume endpoints from the V1 brief (`archive/v1/05-API-CONTRACT-BRIEF.md`);
+that API surface does not exist in V2.
 
-## Authentication
+## Conventions
 
-All authenticated endpoints use Supabase Auth. The frontend must:
-1. Include Supabase session cookies in requests
-2. Handle 401 responses by redirecting to login
-3. Handle 403 responses by showing authorization errors
+- Cookie-session auth (Supabase); 401 unauthenticated, 403 wrong role.
+- Business rejections are Postgres RPC codes surfaced as 4xx JSON with
+  canonical business codes (mapped by `lib/db/rpc-errors.ts`).
+- Money is integer kobo server-side; Naira presentation is UI-only.
+- Background-job endpoints require the jobs token header; the Flutterwave
+  webhook verifies signatures server-side.
 
----
+## Public
 
-## Customer APIs
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/api/health` | GET | Real integration checks (Supabase, service-role, payments, maps as booleans) |
+| `/api/webhooks/flutterwave` | POST | Payment events (signature-verified, idempotent) |
 
-### Addresses
+## Auth & account
 
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/addresses` | GET | — | `{ addresses: Address[] }` |
-| `/api/addresses` | POST | `{ label, street_address, city, state, latitude, longitude }` | `{ address: Address }` |
-| `/api/addresses/[id]` | PUT | `{ label?, street_address?, city?, state?, latitude?, longitude? }` | `{ address: Address }` |
-| `/api/addresses/[id]` | DELETE | — | `{ success: true }` |
-| `/api/addresses/[id]/default` | PUT | — | `{ success: true }` |
+| Endpoint | Method | Purpose |
+|---|---|---|
+| Supabase Auth | — | Email/password via Supabase; sessions are cookie-based; role from `profiles` |
 
-### Orders
+## Customer
 
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/orders` | GET | `?page=&limit=` | `{ orders: Order[], total: number }` |
-| `/api/orders` | POST | `{ pickup_address_id, destination_address_id, category_id, package_description, package_weight_kg?, quantity?, urgency_level? }` | `{ order: Order }` |
-| `/api/orders/[id]` | GET | — | `{ order: Order }` |
-| `/api/orders/[id]/cancel` | POST | `{ reason? }` | `{ order: Order }` |
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/api/quotes` | POST | Create quote (server-priced; validity window) |
+| `/api/quotes/[quoteId]` | GET | Quote snapshot |
+| `/api/orders` | GET / POST | List own orders / create order from a confirmed quote |
+| `/api/orders/[orderId]` | GET | Order detail (participant or operator) |
+| `/api/orders/[orderId]/transition` | POST | Canonical lifecycle transition (RPC re-validates actor + state) |
+| `/api/orders/[orderId]/confirm-receipt` | POST | Recipient confirmation → `completed` |
+| `/api/orders/[orderId]/otp/issue` | POST | Customer-only; plaintext OTP once |
+| `/api/payments` | POST | Initiate Flutterwave payment (reserves row, returns hosted link) |
+| `/api/payments/status` | GET | Payment state (server truth) |
+| `/api/payments/status/poll` | GET | Callback-surface polling |
+| `/api/geo/search` | GET | Address autocomplete (server-side Stadia) |
+| `/api/geo/geocode` | GET | Forward geocode |
 
-### Quotes
+## Rider
 
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/orders/quote` | POST | `{ pickup_latitude, pickup_longitude, destination_latitude, destination_longitude, category_id, weight_kg?, urgency_level? }` | `{ quote: Quote }` |
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/api/rider/state` | GET | Snapshot: verification, availability, current offer (20 s TTL), active order |
+| `/api/rider/availability` | POST | Declare available/unavailable |
+| `/api/dispatch/offers/current` | GET | Current offered order (RPC-gated) |
+| `/api/dispatch/offers/[offerId]/accept` | POST | Accept offer → `rider_assigned` |
+| `/api/dispatch/offers/[offerId]/decline` | POST | Decline; availability restored, queue clock reset |
+| `/api/orders/[orderId]/transition` | POST | Rider status progression (`rider_departed`, arrivals) |
+| `/api/orders/[orderId]/photos` | POST | Multipart evidence upload (private bucket) |
+| `/api/orders/[orderId]/otp/verify` | POST | Pickup/delivery OTP verification (server-checked) |
+| `/api/orders/[orderId]/complete-return` | POST | Complete return after waiting cap → `delivery_failed` |
 
-### Payments
+## Operator
 
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/payments/initialize` | POST | `{ order_id }` | `{ authorization_url, access_code, reference }` |
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/api/operator/overview` | GET | Overview + attention queue (real-state derived) |
+| `/api/operator/orders` | GET | Monitor list with canonical-status filters |
+| `/api/operator/orders/[orderId]` | GET | Detail: timeline, dispatch, payment, evidence metadata |
+| `/api/operator/riders` | GET | Rider visibility (verification, availability, offers) |
+| `/api/orders/[orderId]/dispatch` | POST | Operator-only dispatch trigger/recovery |
+| `/api/orders/[orderId]/transition` | POST | Operator cancel / hold-for-review / release |
+| `/api/orders/[orderId]/evidence/[kind]` | GET | Short-lived signed URL (300 s) for private evidence |
 
-### Ratings
+## Background jobs (token-gated)
 
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/orders/[id]/rating` | POST | `{ rating: 1-5, comment? }` | `{ rating: Rating }` |
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/api/jobs/dispatch-tick` | POST | Expire stale offers + continue dispatch |
+| `/api/jobs/waiting-tick` | POST | Waiting fee accrual; 30-min cap initiates return |
+| `/api/jobs/reconcile-payments` | POST | Payment reconciliation pass |
 
-### Delivery Proof
+## Not present in V2 (historical only)
 
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/orders/[id]/proof` | GET | — | `{ proof: Proof }` |
-| `/api/orders/[id]/proof` | POST | `{ text, photo_url? }` | `{ proof: Proof }` |
-| `/api/orders/[id]/proof/photo-url` | POST | `{ filename, content_type }` | `{ signed_url, storage_path }` |
-
-### Refunds
-
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/orders/[id]/refund` | GET | — | `{ refund: Refund }` |
-
----
-
-## Rider APIs
-
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/riders/register` | POST | `{ full_name, phone, vehicle_type, ... }` | `{ rider: RiderProfile }` |
-| `/api/riders/profile` | GET | — | `{ rider: RiderProfile }` |
-| `/api/riders/profile` | PUT | `{ ... }` | `{ rider: RiderProfile }` |
-| `/api/riders/documents` | GET | — | `{ documents: Document[] }` |
-| `/api/riders/documents` | POST | `{ document_type, file_url }` | `{ document: Document }` |
-| `/api/riders/availability` | PUT | `{ is_available: boolean }` | `{ rider: RiderProfile }` |
-| `/api/riders/location` | PUT | `{ latitude, longitude, heading?, speed?, accuracy? }` | `{ success: true }` |
-| `/api/riders/assignments/active` | GET | — | `{ assignment: Assignment \| null }` |
-| `/api/riders/offers` | GET | — | `{ offers: Offer[] }` |
-| `/api/riders/offers/[id]` | GET | — | `{ offer: Offer }` |
-| `/api/riders/offers/[id]/accept` | POST | — | `{ assignment: Assignment }` |
-| `/api/riders/offers/[id]/reject` | POST | `{ reason? }` | `{ success: true }` |
-| `/api/riders/deliveries/[orderId]/start` | POST | — | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/arrive-pickup` | POST | — | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/confirm-pickup` | POST | — | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/arrive-destination` | POST | — | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/complete` | POST | `{ text, photo_url? }` | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/fail` | POST | `{ reason }` | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/cancel` | POST | `{ reason }` | `{ order: Order }` |
-| `/api/riders/deliveries/[orderId]/proof-upload` | POST | `{ filename, content_type }` | `{ signed_url }` |
-| `/api/riders/earnings` | GET | `?page=&limit=` | `{ earnings: Earning[], total: number }` |
-| `/api/riders/earnings/summary` | GET | — | `{ total_earnings, total_deliveries, ... }` |
-| `/api/riders/verification-status` | GET | — | `{ status, notes? }` |
-| `/api/riders/vehicles` | GET | — | `{ vehicles: Vehicle[] }` |
-| `/api/riders/vehicles` | POST | `{ vehicle_type, make?, model?, ... }` | `{ vehicle: Vehicle }` |
-
----
-
-## Admin APIs
-
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/admin/dashboard` | GET | — | `{ stats: DashboardStats }` |
-| `/api/admin/orders` | GET | `?page=&limit=&status=` | `{ orders: Order[], total: number }` |
-| `/api/admin/orders/[id]` | GET | — | `{ order: Order }` |
-| `/api/admin/orders/[id]` | PUT | `{ status?, notes? }` | `{ order: Order }` |
-| `/api/admin/orders/[id]/cancel` | POST | `{ reason }` | `{ order: Order }` |
-| `/api/admin/riders` | GET | `?page=&limit=&status=` | `{ riders: Rider[], total: number }` |
-| `/api/admin/riders/[id]` | GET | — | `{ rider: RiderDetail }` |
-| `/api/admin/riders/[id]` | PUT | `{ verification_status?, notes? }` | `{ rider: Rider }` |
-| `/api/admin/riders/[id]/verify` | POST | `{ status, notes? }` | `{ rider: Rider }` |
-| `/api/admin/riders/[id]/documents/[docId]/verify` | POST | `{ status, notes? }` | `{ document: Document }` |
-| `/api/admin/customers` | GET | `?page=&limit=` | `{ customers: Customer[], total: number }` |
-
----
-
-## Notification APIs
-
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/notifications` | GET | `?page=&limit=` | `{ notifications: Notification[], total: number }` |
-| `/api/notifications/[id]/read` | PUT | — | `{ notification: Notification }` |
-| `/api/notifications/read-all` | POST | — | `{ success: true }` |
-| `/api/notifications/unread-count` | GET | — | `{ count: number }` |
-
----
-
-## Public APIs
-
-| Endpoint | Method | Request | Response |
-|----------|--------|---------|----------|
-| `/api/health` | GET | — | `{ status: "healthy", ... }` |
-| `/api/categories` | GET | — | `{ categories: Category[] }` |
-
----
-
-## Webhook APIs (External)
-
-| Endpoint | Method | Auth | Purpose |
-|----------|--------|------|---------|
-| `/api/webhooks/paystack` | POST | Signature verification | Payment events |
-| `/api/webhooks/resend` | POST | Signature verification | Email delivery events |
-
----
-
-## Background Jobs
-
-| Endpoint | Method | Auth | Purpose |
-|----------|--------|------|---------|
-| `/api/cron/process-jobs` | GET | Timing-safe auth | Process background jobs |
-
----
-
-## Common Response Patterns
-
-### Success
-```json
-{ "data": { ... } }
-// or
-{ "order": { ... } }
-// or
-{ "success": true }
-```
-
-### Error
-```json
-{ "error": "Human-readable error message" }
-// HTTP status: 400, 401, 403, 404, 500
-```
-
-### Pagination
-```json
-{
-  "orders": [...],
-  "total": 42,
-  "page": 1,
-  "limit": 20
-}
-```
+Addresses CRUD, ratings, refunds, notifications, rider earnings, GPS/location
+ingestion, admin section — none of these endpoints exist. Do not design or
+call them.

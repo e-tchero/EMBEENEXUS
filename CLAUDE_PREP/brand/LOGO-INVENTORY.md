@@ -1,71 +1,65 @@
-# EMBEE NEXUS — LOGO INVENTORY
+# EMBEE NEXUS — LOGO INVENTORY (V2)
 
-**Authority:** LEVEL 1 — Founder-provided assets
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** CANONICAL (founder brand material) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+## Founder rule (standing, 2026-09-29)
 
-## Logo Assets
+**Use the existing EMBEE NEXUS logo as supplied. NEVER create, redesign,
+redraw, reconstruct, or invent a logo.** No new SVG, no simplified variants,
+no AI-generated alternatives, no reconstruction from the construction image.
+`LOGO_CONSTRUCTION.jpeg` is reference material only — it is not permission to
+rebuild the mark. If a needed variant is missing, **report the gap**.
 
-| # | Filename | Format | Size | Background | Intended Use | Light/Dark | Source |
-|---|----------|--------|------|------------|--------------|------------|--------|
-| 1 | `DARK.jpeg` | JPEG | 47 KB | Dark | Logo on dark backgrounds | Dark | `EMBEENEXUS_LOGOS/DARK.jpeg` |
-| 2 | `FULL_COLOR.jpeg` | JPEG | 55 KB | White/Light | Primary logo, general use | Light | `EMBEENEXUS_LOGOS/FULL_COLOR.jpeg` |
-| 3 | `FULL_COLOR _02.jpeg` | JPEG | 24 KB | White/Light | Secondary color variant | Light | `EMBEENEXUS_LOGOS/FULL_COLOR _02.jpeg` |
-| 4 | `FULL_COLOR-removebg-preview.png` | PNG | 121 KB | Transparent | Logo without background | Both | `EMBEENEXUS_LOGOS/FULL_COLOR-removebg-preview.png` |
-| 5 | `LOGO_CONSTRUCTION.jpeg` | JPEG | 40 KB | White/Light | Logo construction/specification | Reference | `EMBEENEXUS_LOGOS/LOGO_CONSTRUCTION.jpeg` |
-| 6 | `WHITE.jpeg` | JPEG | 57 KB | Dark | Logo on dark backgrounds | Dark | `EMBEENEXUS_LOGOS/WHITE.jpeg` |
+## Assets on disk (verified by bytes and md5, 2026-09-29)
 
----
+| Asset | Format | Dimensions | Transparency | Intended use | md5 |
+|---|---|---|---|---|---|
+| `FULL_COLOR.png` | PNG | 1024×1024 | opaque | **PRIMARY / DEFAULT logo** — light surfaces, general use | `54f00929a81ebd3f58e29450b49af76b` |
+| `FULL_COLOR-removebg-preview.png` | PNG | 500×500 | **alpha** | **PRIMARY TRANSPARENT logo** — approved; verify cutout edges before print-scale use | `b1a824efd1b8394ea62780f0e6164cdf` |
+| `DARK.png` | PNG | 1024×1024 | opaque | Dark-scheme UI surfaces | `f90a07c68345e61c7abcd26ce5acb492` |
+| `WHITE.png` | PNG | 1024×1024 | opaque | Dark backgrounds; monochrome treatment | `3386fe30557fc0edee8fb2506a87ea03` |
+| `favicon.ico` | ICO (8 sizes) | 16–? px | — | **Default favicon** | `05219da4d24ecd57903587b6182bb271` |
+| `favicon_EMBEENEXUS_DARK.ico` | ICO (8 sizes) | 16–? px | — | Scheme-specific favicon variant (optional) | `c6ce884b00fb4dd3a28f8b03b916d4b3` |
+| `favicon_EMBEENEXUS_WHITE.ico` | ICO (8 sizes) | 16–? px | — | Scheme-specific favicon variant (optional) | `16731afdbb767c579fb780f02f3b493b` |
+| `LOGO_CONSTRUCTION.jpeg` | JPEG | 612×612 | opaque | **REFERENCE ONLY** — construction/spec, not production | `f67a657c7501035c9509ccdf7ffcfb25` |
 
-## Logo Variants
+`APP_ICONS/` exists but is **empty** — no app icons have been supplied.
+Do not generate them.
 
-### Color Variants
-1. **Full Color** — Primary logo with brand colors (blue/cyan)
-2. **Dark** — Logo variant for dark backgrounds
-3. **White** — Monochrome white logo for dark backgrounds
+## Usage guidelines
 
-### Format Notes
-- **JPEG files:** Compressed, suitable for web display
-- **PNG file:** Transparent background, suitable for overlays
-- **SVG files:** NOT YET PROVIDED — founder must supply SVG/vector versions for pixel-perfect rendering at all sizes
+| Context | Variant |
+|---|---|
+| Header on light surfaces | `FULL_COLOR.png` (primary) |
+| Dark-mode surfaces | `DARK.png` or `WHITE.png` |
+| Overlays/transparent contexts | `FULL_COLOR-removebg-preview.png` |
+| Browser tab | `favicon.ico` (default; scheme-specific ICOs optional) |
+| Loading/splash | `FULL_COLOR.png` |
 
----
+Usage rules: do not distort, stretch, rotate, recolor, or add effects; use
+variants for their intended backgrounds only; compact mark for icon/small
+contexts; wordmark where the name must be explicit.
 
-## Missing Assets
+## Gaps (report, never create)
 
-| Asset | Status | Required For |
-|-------|--------|-------------|
-| SVG vector logo | **MISSING FROM REPOSITORY — FOUNDER MUST SUPPLY** | Figma design system, responsive rendering |
-| Favicon | **MISSING FROM REPOSITORY — FOUNDER MUST SUPPLY** | Browser tab icon |
-| App icon | **MISSING FROM REPOSITORY — FOUNDER MUST SUPPLY** | Mobile/PWA |
-| Wordmark SVG | **MISSING FROM REPOSITORY — FOUNDER MUST SUPPLY** | Text-only logo usage |
+- **SVG / vector logo** — not supplied; all logo assets are rasters. Raster
+  use in the app is interim until the founder supplies vector art.
+- **Wordmark-only asset** — not supplied.
+- **App icons** — `APP_ICONS/` empty; founder must supply.
+- **Clear-space / minimum-size rules** — listed as still-to-finalize in the
+  founder brand kit.
 
----
+## Application integration status
 
-## Current Code Implementation
+The app currently ships **no logo or favicon** (`apps/web/public/` does not
+exist; no `favicon.ico`/icon in `src/app/`). Copying assets into the app is a
+subsequent implementation phase; destinations were proposed in the BrandKit
+reconciliation report (2026-09-29) and await that phase.
 
-The current `Logo` component (`components/shared/logo.tsx`) uses a **text-based fallback**:
+## Historical note
 
-```tsx
-// Compact E/N mark — text placeholder until monogram asset is available
-<div className="bg-embee-blue text-white font-extrabold rounded-lg">
-  EN
-</div>
-```
-
-This is explicitly documented as an **interim implementation** awaiting the official SVG logo asset.
-
----
-
-## Usage Guidelines
-
-| Context | Recommended Variant |
-|---------|-------------------|
-| Website header | Full Color or Dark (depending on background) |
-| Marketing pages | Full Color |
-| Dark mode UI | White variant |
-| Email signatures | Full Color |
-| Social media | Full Color |
-| Favicon | Pending SVG asset |
-| Loading/splash | Full Color |
+The jpeg-era inventory (2026-09-01) described six `.jpeg` assets and listed
+the favicon as "MISSING". Both statements are obsolete as of 2026-09-29: the
+founder replaced the jpegs with the PNG/ICO set above. The brand folder is
+founder material and was not archived — this document supersedes the old
+inventory in place.

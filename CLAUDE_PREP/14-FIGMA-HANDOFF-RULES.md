@@ -1,5 +1,18 @@
 # EMBEE NEXUS — FIGMA HANDOFF RULES
 
+**STATUS:** CURRENT · **AUTHORITY:** CANONICAL WHEN ACTIVATED (Figma approval pending) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V1-authored; rules verified still valid for V2
+
+> V2 reconciliation note (2026-09-29): the rules below remain fully in force.
+> Corrections to the era context only: V2 roles are customer/rider/operator
+> (no admin); the mapping provider is Stadia (keep the abstraction); payments
+> are Flutterwave (never brand the UI with the provider) — rule 9's
+> "Paystack checkout" example reads "Flutterwave checkout" in V2 terms and
+> rule 10's examples keep their provider-abstract wording. "Admin" file
+> structure below should read "Operator console" in V2 terms. Figma becomes
+> the visual source of truth only after founder approval of a Figma file —
+> none exists yet.
+
+
 **Authority:** LEVEL 1 — Constraints for Figma design
 **Date:** September 1, 2026
 

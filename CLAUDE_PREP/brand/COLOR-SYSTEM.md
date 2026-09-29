@@ -1,100 +1,98 @@
-# EMBEE NEXUS — COLOR SYSTEM
+# EMBEE NEXUS — COLOR SYSTEM (V2)
 
-**Authority:** LEVEL 1 — Derived from Tailwind config + CSS variables
-**Date:** September 1, 2026
+**STATUS:** CURRENT · **AUTHORITY:** CANONICAL (founder brand material) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V2
 
----
+## Founder resolutions recorded 2026-09-29
 
-## Brand Colors (Official)
+1. **Muted foreground:** `#94A3B8` is the documented muted-foreground value
+   (the historical document's HSL/hex contradiction is resolved in its favor).
+   `#64748B` (Embee Slate) remains a brand palette color in its own right —
+   the token is not rewritten. Where `#94A3B8` fails contrast for normal-size
+   text on light surfaces, the separate AA derivative in §3 governs.
+2. **Embee Blue:** `#147BFF` is canonical and is never darkened or redefined.
+   It is used for primary brand surfaces, CTA backgrounds, active states,
+   links where appropriate, and focus/ring treatment. Normal-size text whose
+   foreground is Embee Blue uses the AA text derivative in §3.
+3. Derivatives are **engineering values, never new brand colors.** They are
+   labeled as derivatives wherever they appear and are consumed through the
+   app's semantic tokens (`apps/web/DESIGN.md`), not duplicated in components.
 
-| Name | Hex | HSL | CSS Variable | Tailwind |
-|------|-----|-----|--------------|----------|
-| **Embee Navy** | `#0B1220` | — | `--embee-navy` | `embee-navy` |
-| **Embee Blue** | `#147BFF` | `213 94% 53%` | `--embee-blue` | `embee-blue` |
-| **Digital Cyan** | `#38BDF8` | `199 89% 60%` | `--embee-cyan` | `embee-cyan` |
-| **Embee White** | `#F5F7FA` | `210 20% 98%` | `--embee-white` | `embee-white` |
-| **Embee Charcoal** | `#111827` | `222 47% 11%` | `--embee-charcoal` | `embee-charcoal` |
-| **Embee Slate** | `#64748B` | `215 16% 47%` | `--embee-slate` | `embee-slate` |
+## 1. Brand tokens (founder palette — unchanged)
 
----
+| Name | Hex | HSL | Role |
+|---|---|---|---|
+| **Embee Navy** | `#0B1220` | 222 47% 7% | Dark backgrounds/hero, dark-mode page background, authority surfaces |
+| **Embee Blue** | `#147BFF` | 213 94% 53% | Primary brand: CTAs, active states, links, focus/ring |
+| **Digital Cyan** | `#38BDF8` | 199 89% 60% | Accents, highlights, "NEXUS" in the wordmark |
+| **Embee White** | `#F5F7FA` | 210 20% 98% | Light page backgrounds and UI surfaces |
+| **Embee Charcoal** | `#111827` | 222 47% 11% | Primary text on light surfaces; cards on dark |
+| **Embee Slate** | `#64748B` | 215 16% 47% | Supporting text and metadata (see §3 for contrast) |
 
-## Semantic Token System (Light Mode)
+## 2. Semantic UI tokens (documented mapping — provenance: V1-era derivation, founder-acknowledged)
 
-| Token | HSL | Hex Equivalent | Usage |
-|-------|-----|----------------|-------|
-| `--background` | `210 20% 98%` | `#F5F7FA` | Page background |
-| `--foreground` | `222 47% 11%` | `#111827` | Primary text |
-| `--card` | `0 0% 100%` | `#FFFFFF` | Card background |
-| `--card-foreground` | `222 47% 11%` | `#111827` | Card text |
-| `--popover` | `0 0% 100%` | `#FFFFFF` | Popover background |
-| `--popover-foreground` | `222 47% 11%` | `#111827` | Popover text |
-| `--primary` | `213 94% 53%` | `#147BFF` | Primary buttons, links |
-| `--primary-foreground` | `0 0% 100%` | `#FFFFFF` | Text on primary |
-| `--secondary` | `210 40% 96%` | `#F1F5F9` | Secondary buttons |
-| `--secondary-foreground` | `222 47% 11%` | `#111827` | Text on secondary |
-| `--muted` | `210 40% 96%` | `#F1F5F9` | Muted backgrounds |
-| `--muted-foreground` | `215 16% 47%` | `#94A3B8` | Subtle text |
-| `--accent` | `199 89% 60%` | `#38BDF8` | Accent elements |
-| `--accent-foreground` | `222 47% 11%` | `#111827` | Text on accent |
-| `--destructive` | `0 84% 60%` | `#EF4444` | Errors, delete |
-| `--destructive-foreground` | `0 0% 100%` | `#FFFFFF` | Text on destructive |
-| `--success` | `142 71% 45%` | `#22C55E` | Success states |
-| `--success-foreground` | `0 0% 100%` | `#FFFFFF` | Text on success |
-| `--warning` | `38 92% 50%` | `#F59E0B` | Warning states |
-| `--warning-foreground` | `0 0% 100%` | `#FFFFFF` | Text on warning |
-| `--border` | `214 32% 91%` | `#E2E8F0` | Borders |
-| `--input` | `214 32% 91%` | `#E2E8F0` | Input borders |
-| `--ring` | `213 94% 53%` | `#147BFF` | Focus rings |
+Light mode:
 
----
+| Token | Value | Usage |
+|---|---|---|
+| `--background` | `#F5F7FA` | Page background |
+| `--foreground` | `#111827` | Primary text |
+| `--card` / `--card-foreground` | `#FFFFFF` / `#111827` | Card surface / text |
+| `--primary` | `#147BFF` | Primary buttons, links |
+| `--primary-foreground` | `#FFFFFF` | Text on primary — **large text/fills only; see §3** |
+| `--secondary` / `--secondary-foreground` | `#F1F5F9` / `#111827` | Secondary buttons |
+| `--muted` | `#F1F5F9` | Muted backgrounds |
+| `--muted-foreground` | `#94A3B8` | Subtle text — **normal-size text on light uses the §3 derivative** |
+| `--accent` / `--accent-foreground` | `#38BDF8` / `#111827` | Accent elements |
+| `--destructive` | `#EF4444` | Errors, destructive actions |
+| `--success` | `#22C55E` | Success states |
+| `--warning` | `#F59E0B` | Warning states |
+| `--border` / `--input` | `#E2E8F0` | Borders, input borders |
+| `--ring` | `#147BFF` | Focus rings |
 
-## Semantic Token System (Dark Mode)
+Dark mode (navy base):
 
-| Token | HSL | Hex Equivalent | Usage |
-|-------|-----|----------------|-------|
-| `--background` | `222 47% 7%` | `#0B1220` | Page background |
-| `--foreground` | `0 0% 100%` | `#FFFFFF` | Primary text |
-| `--card` | `222 47% 11%` | `#111827` | Card background |
-| `--card-foreground` | `0 0% 100%` | `#FFFFFF` | Card text |
-| `--popover` | `222 47% 11%` | `#111827` | Popover background |
-| `--popover-foreground` | `0 0% 100%` | `#FFFFFF` | Popover text |
-| `--primary` | `213 94% 53%` | `#147BFF` | Primary buttons |
-| `--primary-foreground` | `0 0% 100%` | `#FFFFFF` | Text on primary |
-| `--secondary` | `217 33% 17%` | `#1E293B` | Secondary buttons |
-| `--secondary-foreground` | `0 0% 100%` | `#FFFFFF` | Text on secondary |
-| `--muted` | `217 33% 17%` | `#1E293B` | Muted backgrounds |
-| `--muted-foreground` | `215 20% 65%` | `#94A3B8` | Subtle text |
-| `--accent` | `199 89% 60%` | `#38BDF8` | Accent elements |
-| `--accent-foreground` | `0 0% 100%` | `#FFFFFF` | Text on accent |
-| `--destructive` | `0 63% 31%` | `#7F1D1D` | Errors (dark) |
-| `--destructive-foreground` | `0 0% 100%` | `#FFFFFF` | Text on destructive |
-| `--border` | `217 33% 17%` | `#1E293B` | Borders |
-| `--input` | `217 33% 17%` | `#1E293B` | Input borders |
-| `--ring` | `213 94% 53%` | `#147BFF` | Focus rings |
+| Token | Value |
+|---|---|
+| `--background` | `#0B1220` |
+| `--foreground` | `#FFFFFF` |
+| `--card` / `--card-foreground` | `#111827` / `#FFFFFF` |
+| `--secondary` / `--muted` / `--border` / `--input` | `#1E293B` |
+| `--muted-foreground` | `#94A3B8` (7.30:1 on navy — dark-surface safe) |
+| `--accent` | `#38BDF8` |
+| `--destructive` | `#7F1D1D` |
+| `--primary` / `--ring` | `#147BFF` |
 
----
+## 3. Engineering accessibility derivatives (frozen 2026-09-29 — NOT brand colors)
 
-## Color Usage Map
+Computed with the WCAG 2.x relative-luminance formula against the brand
+surfaces.
 
-| Element | Light | Dark |
-|---------|-------|------|
-| Page background | `--background` (#F5F7FA) | `--background` (#0B1220) |
-| Card surface | `--card` (#FFFFFF) | `--card` (#111827) |
-| Primary button | `--primary` (#147BFF) | `--primary` (#147BFF) |
-| Destructive button | `--destructive` (#EF4444) | `--destructive` (#7F1D1D) |
-| Success badge | `--success` (#22C55E) | `--success` (#22C55E) |
-| Warning badge | `--warning` (#F59E0B) | `--warning` (#F59E0B) |
-| Border/divider | `--border` (#E2E8F0) | `--border` (#1E293B) |
-| Focus ring | `--ring` (#147BFF) | `--ring` (#147BFF) |
-| Muted text | `--muted-foreground` (#94A3B8) | `--muted-foreground` (#94A3B8) |
+| Derivative | Hex | Verified pairings | Use |
+|---|---|---|---|
+| Blue text (AA) | `#0B5CD0` | 5.66:1 on `#F5F7FA` · 6.08:1 on `#FFFFFF` | Normal-size text with Embee Blue foreground (links, text buttons) |
+| Muted text (AA) | `#475569` | 7.06:1 on `#F5F7FA` · 7.58:1 on `#FFFFFF` | Normal-size secondary/metadata text on light surfaces |
 
----
+Verified brand pairings (for reference, not overrides):
 
-## What's Missing
+| Pairing | Ratio | Verdict |
+|---|---|---|
+| `#FFFFFF` on `#147BFF` | 3.96:1 | Large text (≥3:1) and fills only |
+| `#111827` on `#F5F7FA` | 16.53:1 | Pass |
+| `#FFFFFF` on `#0B1220` | 18.72:1 | Pass |
+| `#94A3B8` on `#0B1220` | 7.30:1 | Pass (dark surfaces) |
+| `#64748B` on `#F5F7FA` | 4.43:1 | Large text / non-essential decoration only |
+| `#38BDF8` with white text | 2.14:1 | Decoration only; never text |
 
-| Gap | Impact | Recommendation |
-|-----|--------|----------------|
-| No official brand color documentation | Claude must infer from code | Founder should confirm official palette |
-| No accessibility contrast ratios defined | May fail WCAG AA/AAA | Define minimum contrast ratios |
-| No gradient definitions | Inconsistent gradient usage | Define brand gradients if any |
-| No opacity/alpha scale | Inconsistent transparency | Define opacity scale |
+## 4. Usage rules
+
+- Semantic tokens only in components; raw hex in components is a lint-grade
+  violation (repo DESIGN_SYSTEM.md §0).
+- Color never carries meaning alone — pair with text/icons.
+- Status hues: success `#22C55E`, warning `#F59E0B`, destructive `#EF4444`
+  (light) / `#7F1D1D` (dark). Text-safe status variants for specific
+  surfaces are chosen per pairing and verified against AA.
+- No gradients, no glow, no decorative color fields.
+- **Implementation note:** the app's `globals.css` currently carries the v0.1
+  neutral token values; the approved re-base to these founder values is a
+  subsequent implementation phase. Until then, `globals.css` + `apps/web/DESIGN.md`
+  remain the implementation truth; this document is the brand truth.

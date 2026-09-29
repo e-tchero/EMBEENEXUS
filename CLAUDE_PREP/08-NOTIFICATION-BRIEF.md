@@ -1,9 +1,19 @@
 # EMBEE NEXUS — NOTIFICATION BRIEF
 
-**Authority:** LEVEL 2 — Design context from M8 implementation
-**Date:** September 1, 2026
+**STATUS:** HISTORICAL · **AUTHORITY:** REFERENCE (V1-era M8 design) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V1 — NOT CURRENT V2
+
+> **V2 reality:** no notification system exists in the V2 web pilot. There is
+> no notifications table UI, no notification bell, no email/SMS/push
+> integration. Notifications were excluded from the pilot scope by founder
+> order. SMS provider selection remains founder-gated (register decision D26).
+> The content below is preserved as the V1-era design reference for a future
+> notification milestone; it must not be treated as a description of current
+> V2 behavior.
 
 ---
+
+*(V1 content below, unchanged from the original package — see
+`archive/v1/08-NOTIFICATION-BRIEF.md` provenance.)*
 
 ## Architecture
 
@@ -25,8 +35,6 @@ Resend (initial provider)
 - No Resend-specific code in domain logic
 - No `resend_email_id` fields — uses `provider_message_id`
 
----
-
 ## Notification Types
 
 | Type | Trigger | Email | In-App |
@@ -45,8 +53,6 @@ Resend (initial provider)
 | Refund Processed | Refund completed | ✅ | ✅ |
 | Rider Verification | Verification status change | ✅ | ✅ |
 | System Announcement | Admin broadcast | ❌ | ✅ |
-
----
 
 ## In-App Notification UI
 
@@ -73,8 +79,6 @@ interface Notification {
 - Users can only read their own notifications
 - Users can only update their own notifications (mark as read)
 
----
-
 ## Email Templates
 
 | Template | Trigger | Content |
@@ -86,28 +90,9 @@ interface Notification {
 | Delivery Complete | Delivery done | Summary, rating prompt |
 | Cancellation | Order cancelled | Refund info, reason |
 
-### Template Requirements
-- Embee Nexus branding (logo, colors)
-- Mobile-responsive HTML
-- Safe HTML escaping
-- Configuration-driven links (not hardcoded)
-- No old project references
+## Design Considerations (for the future milestone)
 
----
-
-## What Claude Should Design
-
-1. **Notification Bell** — Persistent in navigation, shows unread count
-2. **Notification Dropdown/Panel** — List of recent notifications
-3. **Notification Detail** — Full notification content
-4. **Empty State** — "No notifications yet"
-5. **Loading State** — Skeleton loader
-6. **Read/Unread Visual Distinction** — Bold/unread indicator
-7. **Notification Preferences** — Future: opt-in/opt-out per type
-
-### Design Considerations
 - Notifications should be non-intrusive but visible
 - Unread count should be prominent on the bell icon
-- Notification list should be scrollable
-- Each notification should be tappable to navigate to relevant order/entity
-- Email notifications are separate from in-app — Claude designs in-app only
+- Each notification should be tappable to navigate to the relevant order
+- Email notifications are separate from in-app

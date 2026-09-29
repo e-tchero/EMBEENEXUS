@@ -1,5 +1,15 @@
 # Embee Nexus — Engineering Roadmap V2
 
+**STATUS:** HISTORICAL · **AUTHORITY:** REFERENCE (V1-era execution record) · **LAST RECONCILED:** 2026-09-29 · **ERA:** V1
+
+> This is the V1 engineering roadmap (Aug 28, 2026, HEAD `88ec1e1`): Paystack,
+> Realtime, GPS, admin dashboard, milestones M1–M10 of the V1 repository.
+> Despite the "V2" in its title, it does not track the current V2 project
+> (rebased pilot, `main`, Flutterwave, no realtime/GPS). V2 progress is
+> tracked by founder authorizations and repo milestone reports. Retained for
+> provenance and because the V2 CLAUDE_PREP package mirrors it.
+
+
 **Document Status:** Roadmap V2 — Reconciled
 **Date:** August 28, 2026
 **Based On:** ARCHITECTURE.md §15 (Original Milestones) + Actual Execution through Phase 6M
