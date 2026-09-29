@@ -78,7 +78,7 @@ export function OperatorActionButtons({
           type="button"
           disabled={inputDisabled}
           onClick={() => run()}
-          className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
+          className="rounded-lg bg-(--action-ink) px-3 py-1.5 text-xs font-medium text-white hover:bg-(--action-ink-hover) disabled:opacity-50"
         >
           Trigger / recover dispatch
         </button>

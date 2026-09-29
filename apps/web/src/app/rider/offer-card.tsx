@@ -80,11 +80,11 @@ export function RiderOfferCard(props: {
   return (
     <section
       className={`rounded-xl border-2 p-4 ${
-        expired ? 'border-neutral-300 bg-neutral-50' : urgent ? 'border-red-400 bg-red-50' : 'border-neutral-900 bg-white'
+        expired ? 'border-neutral-300 bg-neutral-50' : urgent ? 'border-red-400 bg-red-50' : 'border-(--line-strong) bg-white'
       }`}
     >
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <p className="text-xs font-semibold uppercase tracking-wide text-(--foreground-muted)">
           New delivery offer
         </p>
         <p
@@ -97,12 +97,12 @@ export function RiderOfferCard(props: {
       </div>
 
       <div className="mt-3 space-y-1.5">
-        <p className="text-sm"><span className="text-neutral-500">Pickup:</span> {props.offer.pickupAddress}</p>
-        <p className="text-sm"><span className="text-neutral-500">Drop-off:</span> {props.offer.dropoffAddress}</p>
+        <p className="text-sm"><span className="text-(--foreground-muted)">Pickup:</span> {props.offer.pickupAddress}</p>
+        <p className="text-sm"><span className="text-(--foreground-muted)">Drop-off:</span> {props.offer.dropoffAddress}</p>
         <p className="text-sm">
-          <span className="text-neutral-500">Distance:</span> {formatDistance(props.offer.roadDistanceM)}
+          <span className="text-(--foreground-muted)">Distance:</span> {formatDistance(props.offer.roadDistanceM)}
           <span className="mx-2 text-neutral-300">·</span>
-          <span className="text-neutral-500">Your earnings:</span>{' '}
+          <span className="text-(--foreground-muted)">Your earnings:</span>{' '}
           <span className="font-semibold">
             {formatNairaFromKobo(BigInt(props.offer.riderShareKobo))}
           </span>
@@ -117,7 +117,7 @@ export function RiderOfferCard(props: {
 
       {expired ? (
         <div className="mt-4 space-y-2">
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-(--foreground-muted)">
             This offer window has closed. The next offer will appear here automatically.
           </p>
           <button
@@ -142,7 +142,7 @@ export function RiderOfferCard(props: {
             type="button"
             disabled={busy !== null}
             onClick={() => void respond('accept')}
-            className="min-h-12 rounded-lg bg-neutral-900 px-4 py-3 text-sm font-semibold text-white hover:bg-neutral-700 disabled:opacity-40"
+            className="min-h-12 rounded-lg bg-(--action-ink) px-4 py-3 text-sm font-semibold text-white hover:bg-(--action-ink-hover) disabled:opacity-40"
           >
             {busy === 'accept' ? 'Accepting…' : 'Accept'}
           </button>

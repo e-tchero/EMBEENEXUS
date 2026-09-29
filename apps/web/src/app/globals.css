@@ -1,73 +1,123 @@
 @import 'tailwindcss';
 
 /*
- * EMBEE NEXUS V2 design tokens (v0.1), see DESIGN.md for the contract.
+ * EMBEE NEXUS V2 design tokens (v0.2).
  *
- * Neutral grayscale foundation, functional semantic colors only. Light values
- * are Tailwind neutral steps; dark values are centrally chosen so text on the
- * dark page surface meets WCAG AA (normal text 4.5:1). Semantic status colors
- * are provided for new work; existing fixed-light status panels
- * (bg-red-50/text-red-700 and siblings) already pass contrast in both schemes
- * and are updated separately if ever moved onto flipping surfaces.
+ * Re-based onto the founder brand palette (CLAUDE_PREP/brand/COLOR-SYSTEM.md;
+ * canonical commit 13b7ef4). Canonical brand values are used verbatim and are
+ * never darkened or redefined. Values marked "(derivative)" are engineering
+ * accessibility derivatives frozen by founder decision — they are not brand
+ * colors. Every pairing below is computed with the WCAG 2.x relative-luminance
+ * formula; comments record the exact ratios (none rounded upward).
  *
- * OWNER_DECISION (not tokenized, unresolved): brand accent, logo/brand mark,
- * custom typeface, imagery. Do not introduce them here.
+ * Elevation is border-first; shadows are not part of this system.
  */
 @theme inline {
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
   --color-foreground: var(--foreground);
   --color-foreground-muted: var(--foreground-muted);
   --color-foreground-subtle: var(--foreground-subtle);
-  --color-line: var(--line);
+  --color-foreground-inverse: var(--foreground-inverse);
+  --color-brand: var(--brand);
+  --color-brand-text: var(--brand-text);
   --color-action: var(--action);
   --color-action-hover: var(--action-hover);
+  --color-action-active: var(--action-active);
   --color-action-foreground: var(--action-foreground);
+  --color-action-ink: var(--action-ink);
+  --color-action-ink-hover: var(--action-ink-hover);
+  --color-ring: var(--ring);
+  --color-line: var(--line);
+  --color-line-muted: var(--line-muted);
+  --color-line-strong: var(--line-strong);
   --color-status-success: var(--status-success);
   --color-status-warning: var(--status-warning);
   --color-status-error: var(--status-error);
   --color-status-info: var(--status-info);
 
-  --radius-control: 0.5rem;
-  --radius-card: 0.75rem;
+  /* Geometry: founder radius system 8/12/16 with 20 as the optional larger radius. */
+  --radius-control: 0.5rem;   /* 8px — small controls */
+  --radius-card: 0.75rem;     /* 12px — cards, inputs, alerts */
+  --radius-panel: 1rem;       /* 16px — large cards/panels */
+  --radius-sheet: 1.25rem;    /* 20px — optional larger surface */
 
-  --spacing-touch: 2.75rem;
+  --spacing-touch: 2.75rem;   /* 44px touch-target minimum */
 }
 
 :root {
-  --surface: #ffffff;
-  --surface-muted: #f5f5f5;
-  --foreground: #171717;
-  /* #525252: 7.81:1 on light surface, 7.15:1 on dark surface. */
-  --foreground-muted: #525252;
-  /* #737373: 4.74:1 on light; fails on dark, so dark maps to #a3a3a3 (7.85:1). */
-  --foreground-subtle: #737373;
-  --line: #d4d4d4;
-  --action: #171717;
-  --action-hover: #404040;
-  /* 17.93:1 on both action values. */
+  /* Surfaces — light */
+  --surface: #f5f7fa;             /* Embee White — page background */
+  --surface-muted: #eef1f5;       /* derived tint of Embee White for grouped areas */
+  --surface-card: #ffffff;        /* cards; text #111827 = 17.74:1 */
+  --surface-elevated: #ffffff;    /* border-first elevation; same fill, stronger border */
+
+  /* Text — light (#F5F7FA base) */
+  --foreground: #111827;          /* Embee Charcoal — 16.53:1 */
+  --foreground-muted: #475569;    /* (derivative) — 7.06:1 */
+  --foreground-subtle: #526180;   /* (derivative) — 5.79:1 */
+  --foreground-inverse: #ffffff;  /* on brand navy/blue fills */
+
+  /* Brand + action — light */
+  --brand: #147bff;               /* Embee Blue, canonical — never darkened */
+  --brand-text: #0b5cd0;          /* (derivative) normal-size blue text — 5.66:1 */
+  --action: #147bff;              /* canonical brand-action token (Embee Blue) — fills, active states, brand UI; not darkened. White normal-size text on it is 3.96:1, so such labels use --action-ink instead */
+  --action-hover: #0b5cd0;        /* (derivative) hover — 6.08:1 with white */
+  --action-active: #0a4fb5;       /* (derivative) active */
   --action-foreground: #ffffff;
-  --status-success: #15803d;
-  --status-warning: #b45309;
-  --status-error: #b91c1c;
-  --status-info: #1d4ed8;
+  --action-ink: #0b5cd0;          /* (derivative) solid blue fill passing normal-text AA — 6.08:1 with white */
+  --action-ink-hover: #0a4fb5;    /* (derivative) — 7.50:1 with white */
+  --ring: #147bff;                /* focus ring — 3.69:1 vs page (≥3:1 non-text) */
+
+  /* Borders — light */
+  --line: #e2e8f0;                /* default (1.15:1 — decorative separator) */
+  --line-muted: #eef1f5;
+  --line-strong: #94a3b8;         /* canonical brand muted value as strong border (2.39:1) */
+
+  /* Status text (fixed-light tinted panels) — light */
+  --status-success: #15803d;      /* 4.79:1 on #F0FDF4 */
+  --status-warning: #b45309;      /* 4.84:1 on #FFFBEB */
+  --status-error: #b91c1c;        /* 5.91:1 on #FEF2F2 */
+  --status-info: #1d4ed8;         /* 6.16:1 on #EFF6FF */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface: #0a0a0a;
-    --surface-muted: #171717;
-    --foreground: #ededed;
-    --foreground-muted: #d4d4d4;
-    --foreground-subtle: #a3a3a3;
-    --line: #404040;
-    --action: #ededed;
-    --action-hover: #d4d4d4;
-    --action-foreground: #0a0a0a;
-    --status-success: #22c55e;
-    --status-warning: #fbbf24;
-    --status-error: #f87171;
-    --status-info: #93c5fd;
+    /* Surfaces — dark (Embee Navy base) */
+    --surface: #0b1220;             /* Embee Navy — page background */
+    --surface-muted: #111827;       /* Embee Charcoal — grouped areas (1.06:1 bg step) */
+    --surface-card: #111827;        /* cards; text #FFFFFF = 17.74:1 */
+    --surface-elevated: #111827;
+
+    /* Text — dark (#0B1220 base) */
+    --foreground: #ffffff;          /* 18.72:1 */
+    --foreground-muted: #b6c2d2;    /* (derivative) — 10.37:1 */
+    --foreground-subtle: #94a3b8;   /* canonical brand muted value — 7.30:1 on navy */
+    --foreground-inverse: #0b1220;
+
+    /* Brand + action — dark */
+    --brand: #147bff;
+    --brand-text: #93c5fd;          /* (derivative) blue text on navy — 10.38:1 */
+    --action: #147bff;
+    --action-hover: #3d92ff;        /* (derivative) hover step */
+    --action-active: #6bb0ff;       /* (derivative) active step */
+    --action-foreground: #ffffff;
+    --action-ink: #93c5fd;          /* (derivative) — 10.38:1 with navy text */
+    --action-ink-hover: #a9d3fe;    /* (derivative) — 11.98:1 with navy text */
+    --ring: #147bff;                /* 4.73:1 vs navy (≥3:1 non-text) */
+
+    /* Borders — dark */
+    --line: #1e293b;                /* 1.28:1 bg step */
+    --line-muted: #16202f;
+    --line-strong: #94a3b8;         /* 2.39:1 vs navy (7.30:1 as text) */
+
+    /* Status text — dark (on navy) */
+    --status-success: #22c55e;      /* 8.22:1 */
+    --status-warning: #fbbf24;      /* 11.22:1 */
+    --status-error: #f87171;        /* 6.77:1 */
+    --status-info: #93c5fd;         /* 10.38:1 */
   }
 }
 
@@ -75,6 +125,7 @@ body {
   background: var(--surface);
   color: var(--foreground);
   font-family:
+    var(--font-manrope),
     ui-sans-serif,
     system-ui,
     -apple-system,

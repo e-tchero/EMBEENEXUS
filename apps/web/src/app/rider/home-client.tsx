@@ -131,7 +131,7 @@ export function RiderHomeClient() {
   }
 
   if (phase === 'loading' || !state) {
-    return <p className="text-sm text-neutral-600">Loading your rider console…</p>;
+    return <p className="text-sm text-(--foreground-muted)">Loading your rider console…</p>;
   }
 
   const { rider, offer, activeOrder } = state;
@@ -152,7 +152,7 @@ export function RiderHomeClient() {
       <section className="rounded-xl border border-neutral-200 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">
+            <p className="text-xs font-medium uppercase tracking-wide text-(--foreground-muted)">
               Availability
             </p>
             <p className="mt-0.5 text-sm font-semibold">
@@ -166,14 +166,14 @@ export function RiderHomeClient() {
             className={`min-h-11 rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-40 ${
               rider.isAvailable
                 ? 'border border-neutral-300 text-neutral-700 hover:bg-neutral-100'
-                : 'bg-neutral-900 text-white hover:bg-neutral-700'
+                : 'bg-(--action-ink) text-white hover:bg-(--action-ink-hover)'
             }`}
           >
             {rider.isAvailable ? 'Go unavailable' : 'Go available'}
           </button>
         </div>
         {activeOrder !== null ? (
-          <p className="mt-2 text-xs text-neutral-600">
+          <p className="mt-2 text-xs text-(--foreground-muted)">
             You are committed to a delivery, so availability is controlled by the dispatch system
             until it completes.
           </p>
@@ -206,7 +206,7 @@ export function RiderHomeClient() {
           <p className="text-sm font-medium">
             {rider.isAvailable ? 'Waiting for the next delivery offer…' : 'You are unavailable.'}
           </p>
-          <p className="mt-1 text-xs text-neutral-600">
+          <p className="mt-1 text-xs text-(--foreground-muted)">
             {rider.isAvailable
               ? 'Offers go to available riders in order of availability. Keep this screen open.'
               : 'Go available to start receiving delivery offers.'}
@@ -214,7 +214,7 @@ export function RiderHomeClient() {
         </section>
       ) : null}
 
-      <section className="rounded-lg bg-neutral-100 px-4 py-3 text-xs text-neutral-600">
+      <section className="rounded-lg bg-neutral-100 px-4 py-3 text-xs text-(--foreground-muted)">
         <p>
           Earnings and payouts arrive in a later milestone. This screen shows only operational
           state.
@@ -269,7 +269,7 @@ function VerificationGate({ status, notes }: { status: string; notes: string | n
         {notes ? <p className="mt-2 text-xs text-amber-700">Reviewer notes: {notes}</p> : null}
         <Link
           href="/rider/verification"
-          className="mt-3 inline-block min-h-11 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-700"
+          className="mt-3 inline-block min-h-11 rounded-lg bg-(--action-ink) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--action-ink-hover)"
         >
           Go to verification
         </Link>

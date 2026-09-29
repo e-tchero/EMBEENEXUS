@@ -21,7 +21,7 @@ export default async function OperatorJobsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Jobs &amp; health</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-(--foreground-muted)">
           Background jobs run from an external scheduler through token/operator-gated, idempotent
           routes. No separate scheduler exists; this page is visibility only.
         </p>
@@ -46,19 +46,19 @@ export default async function OperatorJobsPage() {
                 <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {Object.entries(result.jobs.appHealth.configured).map(([key, value]) => (
                     <div key={key} className="rounded-lg border border-neutral-200 p-2">
-                      <dt className="text-xs text-neutral-500">{configuredLabels[key] ?? key}</dt>
+                      <dt className="text-xs text-(--foreground-muted)">{configuredLabels[key] ?? key}</dt>
                       <dd className={`text-sm font-medium ${value ? 'text-green-700' : 'text-red-700'}`}>
                         {value ? 'configured' : 'not configured'}
                       </dd>
                     </div>
                   ))}
                 </dl>
-                <p className="mt-2 text-xs text-neutral-500">
+                <p className="mt-2 text-xs text-(--foreground-muted)">
                   Booleans only, never configuration values or secrets.
                 </p>
               </>
             ) : (
-              <p className="mt-2 text-sm text-neutral-500">Health check did not return.</p>
+              <p className="mt-2 text-sm text-(--foreground-muted)">Health check did not return.</p>
             )}
           </section>
 
@@ -66,10 +66,10 @@ export default async function OperatorJobsPage() {
             <h2 className="text-sm font-semibold text-neutral-700">Background jobs</h2>
             {result.jobs.jobs.map((job) => (
               <div key={job.job} className="rounded-xl border border-neutral-200 bg-white p-4">
-                <p className="font-mono text-xs text-neutral-500">{job.route}</p>
+                <p className="font-mono text-xs text-(--foreground-muted)">{job.route}</p>
                 <p className="mt-1 text-sm text-neutral-900">{job.job}</p>
-                <p className="mt-0.5 text-sm text-neutral-600">{job.purpose}</p>
-                <p className="mt-1 text-xs text-neutral-500">{job.lastObservedSignal}</p>
+                <p className="mt-0.5 text-sm text-(--foreground-muted)">{job.purpose}</p>
+                <p className="mt-1 text-xs text-(--foreground-muted)">{job.lastObservedSignal}</p>
               </div>
             ))}
           </section>

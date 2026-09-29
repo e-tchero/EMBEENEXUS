@@ -22,7 +22,7 @@ export default async function OperatorRiderReviewPage() {
     <main className="flex flex-col gap-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Rider verification review</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-(--foreground-muted)">
           Approve or reject submissions. Decisions are recorded in the immutable verification
           history.
         </p>
@@ -31,12 +31,12 @@ export default async function OperatorRiderReviewPage() {
       <section className="space-y-3">
         {(riders ?? []).map((rider) => (
           <div key={rider.id} className="rounded-xl border border-neutral-200 bg-white p-4">
-            <p className="font-mono text-xs text-neutral-500">{rider.id}</p>
+            <p className="font-mono text-xs text-(--foreground-muted)">{rider.id}</p>
             <p className="mt-1 text-sm">
               Status: <span className="font-mono text-xs">{rider.verification_status}</span>
             </p>
             {rider.verification_notes ? (
-              <p className="mt-1 text-sm text-neutral-500">Notes: {rider.verification_notes}</p>
+              <p className="mt-1 text-sm text-(--foreground-muted)">Notes: {rider.verification_notes}</p>
             ) : null}
             <div className="mt-3">
               <ReviewForm riderId={rider.id} />
@@ -44,7 +44,7 @@ export default async function OperatorRiderReviewPage() {
           </div>
         ))}
         {(riders ?? []).length === 0 ? (
-          <p className="text-sm text-neutral-500">No submissions awaiting review.</p>
+          <p className="text-sm text-(--foreground-muted)">No submissions awaiting review.</p>
         ) : null}
       </section>
     </main>

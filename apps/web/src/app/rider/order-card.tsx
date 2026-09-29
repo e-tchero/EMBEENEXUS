@@ -31,7 +31,7 @@ interface ActiveOrderView {
 }
 
 const OTP_INPUT_CLASS =
-  'w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-center font-mono text-xl tracking-[0.5em] focus:border-neutral-900 focus:outline-none';
+  'w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-center font-mono text-xl tracking-[0.5em] focus:border-(--ring) focus:outline-none';
 
 export function RiderOrderCard(props: {
   order: ActiveOrderView;
@@ -197,15 +197,15 @@ export function RiderOrderCard(props: {
   return (
     <section className="space-y-4 rounded-xl border-2 border-neutral-900 p-4">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-600">
+        <p className="text-xs font-semibold uppercase tracking-wide text-(--foreground-muted)">
           Current delivery
         </p>
-        <p className="mt-0.5 font-mono text-xs text-neutral-600">{order.orderId}</p>
+        <p className="mt-0.5 font-mono text-xs text-(--foreground-muted)">{order.orderId}</p>
       </header>
 
       <div className="space-y-1.5">
-        <p className="text-sm"><span className="text-neutral-600">Pickup:</span> {order.pickupAddress}</p>
-        <p className="text-sm"><span className="text-neutral-600">Drop-off:</span> {order.dropoffAddress}</p>
+        <p className="text-sm"><span className="text-(--foreground-muted)">Pickup:</span> {order.pickupAddress}</p>
+        <p className="text-sm"><span className="text-(--foreground-muted)">Drop-off:</span> {order.dropoffAddress}</p>
       </div>
 
       {props.waiting ? (
@@ -220,7 +220,7 @@ export function RiderOrderCard(props: {
 
       <div className="rounded-lg bg-neutral-100 px-3 py-2.5">
         <p className="text-sm font-semibold">{props.step.label}</p>
-        <p className="mt-0.5 text-xs text-neutral-600">{props.step.detail}</p>
+        <p className="mt-0.5 text-xs text-(--foreground-muted)">{props.step.detail}</p>
       </div>
 
       {/* Progression actions per authoritative status. */}
@@ -331,7 +331,7 @@ function ActionButton(props: {
       type="button"
       disabled={props.busy !== null}
       onClick={props.onClick}
-      className="w-full min-h-12 rounded-lg bg-neutral-900 px-4 py-3 text-sm font-semibold text-white hover:bg-neutral-700 disabled:opacity-40"
+      className="w-full min-h-12 rounded-lg bg-(--action-ink) px-4 py-3 text-sm font-semibold text-white hover:bg-(--action-ink-hover) disabled:opacity-40"
     >
       {props.busy === props.label ? 'Working…' : props.children}
     </button>
@@ -348,7 +348,7 @@ function OtpEntry(props: {
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor="rider-otp" className="block text-xs font-medium text-neutral-600">
+      <label htmlFor="rider-otp" className="block text-xs font-medium text-(--foreground-muted)">
         {props.hint}
       </label>
       <input
@@ -371,7 +371,7 @@ function OtpEntry(props: {
         type="button"
         disabled={props.busy || props.otp.length !== 6}
         onClick={props.onSubmit}
-        className="w-full min-h-12 rounded-lg bg-neutral-900 px-4 py-3 text-sm font-semibold text-white hover:bg-neutral-700 disabled:opacity-40"
+        className="w-full min-h-12 rounded-lg bg-(--action-ink) px-4 py-3 text-sm font-semibold text-white hover:bg-(--action-ink-hover) disabled:opacity-40"
       >
         {props.busy ? 'Verifying…' : 'Verify code'}
       </button>
@@ -388,12 +388,12 @@ function EvidenceUpload(props: {
   const label = props.kind === 'rider_pickup' ? 'Pickup evidence photo' : 'Delivery evidence photo';
   return (
     <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
-      <p className="text-xs font-medium text-neutral-600">{label} (required before the code step)</p>
+      <p className="text-xs font-medium text-(--foreground-muted)">{label} (required before the code step)</p>
       <input
         ref={props.inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
-        className="block w-full text-xs text-neutral-600 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
+        className="block w-full text-xs text-(--foreground-muted) file:mr-3 file:rounded-lg file:border-0 file:bg-(--action-ink) file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
       />
       <button
         type="button"

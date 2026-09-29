@@ -63,13 +63,13 @@ export function DashboardClient({
 
       <Link
         href="/orders/new"
-        className="block rounded-xl bg-neutral-900 px-4 py-4 text-center text-sm font-semibold text-white hover:bg-neutral-700"
+        className="block rounded-xl bg-(--action-ink) px-4 py-4 text-center text-sm font-semibold text-white hover:bg-(--action-ink-hover)"
       >
         Start a delivery
       </Link>
 
       {orders.length === 0 ? (
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-(--foreground-muted)">
           No deliveries yet. Start your first delivery above.
         </p>
       ) : (
@@ -88,10 +88,10 @@ export function DashboardClient({
                       {nairaFromKoboString(order.customerPriceKobo)}
                     </p>
                   </div>
-                  <p className="truncate text-xs text-neutral-600">
+                  <p className="truncate text-xs text-(--foreground-muted)">
                     {order.pickupAddress} → {order.dropoffAddress}
                   </p>
-                  <p className="text-xs text-neutral-600">{shortDate(order.createdAt)}</p>
+                  <p className="text-xs text-(--foreground-muted)">{shortDate(order.createdAt)}</p>
                 </Link>
               </li>
             );
@@ -100,7 +100,7 @@ export function DashboardClient({
       )}
 
       {email !== null && email !== '' ? (
-        <p className="text-center text-xs text-neutral-600">Signed in as {email}</p>
+        <p className="text-center text-xs text-(--foreground-muted)">Signed in as {email}</p>
       ) : null}
     </div>
   );

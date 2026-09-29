@@ -29,7 +29,7 @@ function Feedback<T>({ state }: { state: ActionResult<T> | null }) {
 }
 
 const buttonClass =
-  'rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50';
+  'rounded-lg bg-(--action-ink) px-4 py-2 text-sm font-medium text-white hover:bg-(--action-ink-hover) disabled:opacity-50';
 
 export function VerificationActions({ status }: { status: string }) {
   const [submitState, submitAction, submitPending] = useActionState(submitVerificationAction, null);
@@ -73,7 +73,7 @@ export function VerificationActions({ status }: { status: string }) {
         <p className="text-sm text-green-700">Verification approved.</p>
       ) : null}
       {status === 'under_review' ? (
-        <p className="text-sm text-neutral-600">Your submission is under review.</p>
+        <p className="text-sm text-(--foreground-muted)">Your submission is under review.</p>
       ) : null}
     </div>
   );

@@ -39,7 +39,7 @@ export default async function OperatorOrdersPage({
     <div className="space-y-4">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Order monitor</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-(--foreground-muted)">
           Canonical statuses only; every filter maps to the database state.
         </p>
       </header>
@@ -51,7 +51,7 @@ export default async function OperatorOrdersPage({
             href={`/operator/orders?filter=${item.key}`}
             className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${
               (filter ?? 'all') === item.key
-                ? 'border-neutral-900 bg-neutral-900 text-white'
+                ? 'border-neutral-900 bg-(--action-ink) text-white'
                 : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500'
             }`}
           >
@@ -68,7 +68,7 @@ export default async function OperatorOrdersPage({
 
       <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
         <table className="min-w-full divide-y divide-neutral-200 text-sm">
-          <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
+          <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-(--foreground-muted)">
             <tr>
               <th className="px-3 py-2">Reference</th>
               <th className="px-3 py-2">Status</th>
@@ -92,12 +92,12 @@ export default async function OperatorOrdersPage({
                 <td className="px-3 py-2 text-xs">{statusLabel(order.status)}</td>
                 <td className="px-3 py-2 text-xs">{order.customerName}</td>
                 <td className="px-3 py-2 text-xs">{order.riderName ?? '—'}</td>
-                <td className="px-3 py-2 text-xs text-neutral-600">
+                <td className="px-3 py-2 text-xs text-(--foreground-muted)">
                   {order.pickupAddress} → {order.dropoffAddress}
                 </td>
                 <td className="px-3 py-2 text-right tabular-nums">{formatNairaFromKobo(order.customerPriceKobo)}</td>
-                <td className="px-3 py-2 text-xs text-neutral-500">{new Date(order.createdAt).toLocaleString('en-GB')}</td>
-                <td className="px-3 py-2 text-xs text-neutral-500">
+                <td className="px-3 py-2 text-xs text-(--foreground-muted)">{new Date(order.createdAt).toLocaleString('en-GB')}</td>
+                <td className="px-3 py-2 text-xs text-(--foreground-muted)">
                   {order.lastTrigger ? `${order.lastTrigger} · ${new Date(order.lastEventAt ?? order.createdAt).toLocaleString('en-GB')}` : '—'}
                 </td>
                 <td className="px-3 py-2 text-xs">
@@ -111,7 +111,7 @@ export default async function OperatorOrdersPage({
             ))}
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-3 py-6 text-center text-sm text-neutral-500">
+                <td colSpan={9} className="px-3 py-6 text-center text-sm text-(--foreground-muted)">
                   No orders for this filter.
                 </td>
               </tr>

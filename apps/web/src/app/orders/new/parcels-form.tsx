@@ -26,8 +26,8 @@ interface ParcelsFormProps {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-neutral-900 focus:outline-none';
-const labelClass = 'block text-xs font-medium text-neutral-600';
+  'w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-(--ring) focus:outline-none';
+const labelClass = 'block text-xs font-medium text-(--foreground-muted)';
 
 interface DraftParcel {
   weightKg: string;
@@ -77,7 +77,7 @@ export function ParcelsForm({ onBack, onContinue }: ParcelsFormProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg bg-neutral-100 px-4 py-3 text-xs text-neutral-600">
+      <div className="rounded-lg bg-neutral-100 px-4 py-3 text-xs text-(--foreground-muted)">
         <p className="font-medium">What we carry</p>
         <p className="mt-1">
           Up to {PARCEL_LIMITS.maxParcels} parcels per order · max {PARCEL_LIMITS.maxWeightKg} kg
@@ -166,7 +166,7 @@ export function ParcelsForm({ onBack, onContinue }: ParcelsFormProps) {
         <button
           type="button"
           onClick={() => setDrafts((current) => [...current, emptyParcel()])}
-          className="min-h-11 w-full rounded-lg border border-dashed border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+          className="min-h-11 w-full rounded-lg border border-dashed border-neutral-300 px-4 py-2.5 text-sm font-medium text-(--foreground-muted) hover:bg-neutral-100"
         >
           + Add another parcel ({drafts.length}/{PARCEL_LIMITS.maxParcels})
         </button>
@@ -193,7 +193,7 @@ export function ParcelsForm({ onBack, onContinue }: ParcelsFormProps) {
         <button
           type="button"
           onClick={handleContinue}
-          className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+          className="min-h-11 flex-1 rounded-lg bg-(--action-ink) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--action-ink-hover)"
         >
           Get price
         </button>

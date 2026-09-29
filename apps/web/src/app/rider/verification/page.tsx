@@ -31,7 +31,7 @@ export default async function RiderVerificationPage() {
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 p-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Rider verification</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-(--foreground-muted)">
           Verification is separate from availability. You become operationally eligible only
           after approval AND going available on the{' '}
           <a href="/rider/home" className="underline underline-offset-4">rider console</a>.
@@ -43,7 +43,7 @@ export default async function RiderVerificationPage() {
           Status: <span className="font-mono text-xs">{status}</span>
         </p>
         {profile?.verification_notes ? (
-          <p className="mt-2 text-sm text-neutral-600">Notes: {profile.verification_notes}</p>
+          <p className="mt-2 text-sm text-(--foreground-muted)">Notes: {profile.verification_notes}</p>
         ) : null}
         <div className="mt-4">
           <VerificationActions status={status} />
@@ -52,7 +52,7 @@ export default async function RiderVerificationPage() {
 
       <section className="rounded-xl border border-neutral-200 p-4">
         <h2 className="text-sm font-semibold">Your motorcycle</h2>
-        <p className="mt-1 text-xs text-neutral-600">
+        <p className="mt-1 text-xs text-(--foreground-muted)">
           Independent riders own/operate their motorcycles (motorcycle-only MVP).
         </p>
         <ul className="mt-3 space-y-2">
@@ -63,7 +63,7 @@ export default async function RiderVerificationPage() {
             </li>
           ))}
           {(vehicles ?? []).length === 0 ? (
-            <li className="text-sm text-neutral-600">No motorcycle recorded yet.</li>
+            <li className="text-sm text-(--foreground-muted)">No motorcycle recorded yet.</li>
           ) : null}
         </ul>
         <div className="mt-4">

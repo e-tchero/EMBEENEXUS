@@ -43,7 +43,7 @@ export function EvidenceViewer({
   }
 
   if (kinds.length === 0) {
-    return <p className="text-xs text-neutral-500">No evidence recorded for this order.</p>;
+    return <p className="text-xs text-(--foreground-muted)">No evidence recorded for this order.</p>;
   }
 
   return (
@@ -61,7 +61,7 @@ export function EvidenceViewer({
           </button>
         ))}
       </div>
-      {loading ? <p className="text-xs text-neutral-500">Minting authorized link…</p> : null}
+      {loading ? <p className="text-xs text-(--foreground-muted)">Minting authorized link…</p> : null}
       {error ? (
         <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           Evidence unavailable: {error}
@@ -72,7 +72,7 @@ export function EvidenceViewer({
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="inline-block rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700"
+          className="inline-block rounded-lg bg-(--action-ink) px-3 py-1.5 text-xs font-medium text-white hover:bg-(--action-ink-hover)"
         >
           Open {openKind} photo (short-lived link)
         </a>

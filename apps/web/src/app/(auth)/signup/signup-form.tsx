@@ -26,7 +26,7 @@ export function SignupForm() {
           type="text"
           autoComplete="name"
           required
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-(--ring)"
         />
       </div>
       <div className="space-y-1">
@@ -39,7 +39,7 @@ export function SignupForm() {
           type="email"
           autoComplete="email"
           required
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-(--ring)"
         />
       </div>
       <div className="space-y-1">
@@ -53,7 +53,7 @@ export function SignupForm() {
           autoComplete="new-password"
           required
           minLength={8}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-(--ring)"
         />
       </div>
       {state && !state.ok ? (
@@ -64,7 +64,7 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={pending}
-        className="min-h-11 w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
+        className="min-h-11 w-full rounded-lg bg-(--action-ink) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--action-ink-hover) disabled:opacity-50"
       >
         {pending ? 'Creating account…' : 'Create account'}
       </button>

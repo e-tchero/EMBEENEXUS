@@ -146,7 +146,7 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
   }
 
   if (!order) {
-    return <p className="text-sm text-neutral-600">Loading your delivery…</p>;
+    return <p className="text-sm text-(--foreground-muted)">Loading your delivery…</p>;
   }
 
   const copy = ORDER_STATUS_COPY[order.status] ?? {
@@ -160,32 +160,32 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">Status</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-(--foreground-muted)">Status</p>
         <p className="mt-1 text-xl font-semibold tracking-tight">{copy.label}</p>
-        <p className="mt-1 text-sm text-neutral-600">{copy.body}</p>
+        <p className="mt-1 text-sm text-(--foreground-muted)">{copy.body}</p>
         {copy.next !== '' ? (
-          <p className="mt-2 rounded-lg bg-neutral-100 px-3 py-2 text-xs text-neutral-600">
+          <p className="mt-2 rounded-lg bg-neutral-100 px-3 py-2 text-xs text-(--foreground-muted)">
             Next: {copy.next}
           </p>
         ) : null}
       </section>
 
       <section className="space-y-2 rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">Details</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-(--foreground-muted)">Details</p>
         <div>
-          <p className="text-xs text-neutral-600">Order reference</p>
+          <p className="text-xs text-(--foreground-muted)">Order reference</p>
           <p className="font-mono text-xs">{order.id}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-600">Pickup</p>
+          <p className="text-xs text-(--foreground-muted)">Pickup</p>
           <p className="text-sm font-medium">{order.pickupAddress}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-600">Destination</p>
+          <p className="text-xs text-(--foreground-muted)">Destination</p>
           <p className="text-sm font-medium">{order.dropoffAddress}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-600">Amount</p>
+          <p className="text-xs text-(--foreground-muted)">Amount</p>
           <p className="text-sm font-medium">
             ₦{(Number(order.customerPriceKobo) / 100).toLocaleString('en-NG')}
           </p>
@@ -203,7 +203,7 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
             type="button"
             onClick={() => void payNow()}
             disabled={busy !== null}
-            className="w-full rounded-lg bg-neutral-900 px-4 py-3 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-(--action-ink) px-4 py-3 text-sm font-medium text-white hover:bg-(--action-ink-hover) disabled:opacity-50"
           >
             {busy === 'pay' ? 'Opening secure payment…' : 'Complete payment'}
           </button>
@@ -212,14 +212,14 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
 
       {canConfirm ? (
         <section className="space-y-3">
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-(--foreground-muted)">
             Received and inspected the parcel? Confirm to complete the delivery.
           </p>
           <button
             type="button"
             onClick={() => void confirmReceipt()}
             disabled={busy !== null}
-            className="w-full rounded-lg bg-neutral-900 px-4 py-3 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-(--action-ink) px-4 py-3 text-sm font-medium text-white hover:bg-(--action-ink-hover) disabled:opacity-50"
           >
             {busy === 'confirm' ? 'Confirming…' : 'Confirm receipt'}
           </button>

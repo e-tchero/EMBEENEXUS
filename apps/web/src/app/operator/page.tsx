@@ -40,7 +40,7 @@ export default async function OperatorHomePage() {
     <div className="space-y-8">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Operations overview</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-(--foreground-muted)">
           Closed Abuja pilot: live operational state, no vanity analytics.
         </p>
       </header>
@@ -48,7 +48,7 @@ export default async function OperatorHomePage() {
       <section>
         <h2 className="text-sm font-semibold text-neutral-700">Needs attention</h2>
         {overview.attention.length === 0 ? (
-          <p className="mt-2 text-sm text-neutral-500">No orders require attention.</p>
+          <p className="mt-2 text-sm text-(--foreground-muted)">No orders require attention.</p>
         ) : (
           <ul className="mt-2 space-y-2">
             {overview.attention.map((item) => (
@@ -60,10 +60,10 @@ export default async function OperatorHomePage() {
                   >
                     {item.id}
                   </Link>
-                  <span className="font-mono text-xs text-neutral-500">{statusLabel(item.status)}</span>
+                  <span className="font-mono text-xs text-(--foreground-muted)">{statusLabel(item.status)}</span>
                 </div>
                 <p className="mt-1 text-sm text-neutral-800">{describeAttentionReasons(item.attention)}</p>
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1 text-xs text-(--foreground-muted)">
                   {item.pickupAddress} → {item.dropoffAddress} · updated {formatTimestamp(item.updatedAt)}
                 </p>
               </li>
@@ -77,7 +77,7 @@ export default async function OperatorHomePage() {
         <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {metrics.map((metric) => (
             <div key={metric.label} className="rounded-xl border border-neutral-200 bg-white p-3">
-              <dt className="text-xs text-neutral-500">{metric.label}</dt>
+              <dt className="text-xs text-(--foreground-muted)">{metric.label}</dt>
               <dd className="mt-1 text-lg font-semibold tabular-nums">{metric.value}</dd>
             </div>
           ))}

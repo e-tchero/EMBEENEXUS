@@ -50,7 +50,7 @@ function CoordinateFields(props: {
   return (
     <div className="mt-2 grid grid-cols-2 gap-2">
       <div>
-        <label className="block text-xs font-medium text-neutral-600">
+        <label className="block text-xs font-medium text-(--foreground-muted)">
           Latitude (e.g. 9.0578)
         </label>
         <input
@@ -58,12 +58,12 @@ function CoordinateFields(props: {
           inputMode="decimal"
           value={props.latValue}
           onChange={(event) => props.onLatChange(event.target.value)}
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-(--ring) focus:outline-none"
           placeholder="9.0578"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-neutral-600">
+        <label className="block text-xs font-medium text-(--foreground-muted)">
           Longitude (e.g. 7.4951)
         </label>
         <input
@@ -71,7 +71,7 @@ function CoordinateFields(props: {
           inputMode="decimal"
           value={props.lngValue}
           onChange={(event) => props.onLngChange(event.target.value)}
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-(--ring) focus:outline-none"
           placeholder="7.4951"
         />
       </div>
@@ -102,18 +102,18 @@ function LocationField(props: {
       <label htmlFor={`location-${props.label}`} className="block text-sm font-medium">
         {props.label}
       </label>
-      <p className="text-xs text-neutral-600">{props.hint}</p>
+      <p className="text-xs text-(--foreground-muted)">{props.hint}</p>
       <input
         id={`location-${props.label}`}
         type="text"
         autoComplete="off"
         value={props.value}
         onChange={(event) => props.onChange(event.target.value)}
-        className="w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-neutral-900 focus:outline-none"
+        className="w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-(--ring) focus:outline-none"
         placeholder="Type an address"
       />
       {props.searching ? (
-        <p className="text-xs text-neutral-600">Searching addresses…</p>
+        <p className="text-xs text-(--foreground-muted)">Searching addresses…</p>
       ) : null}
       {hasSuggestions ? (
         <ul className="divide-y rounded-lg border border-neutral-200 bg-white">
@@ -142,7 +142,7 @@ function LocationField(props: {
       <button
         type="button"
         onClick={props.onToggleManual}
-        className="text-xs font-medium text-neutral-600 underline underline-offset-4"
+        className="text-xs font-medium text-(--foreground-muted) underline underline-offset-4"
       >
         {props.showManual ? 'Hide manual coordinates' : 'Enter coordinates manually'}
       </button>
@@ -283,7 +283,7 @@ export function LocationsForm({ onBack, onContinue }: LocationsFormProps) {
         <button
           type="button"
           onClick={handleContinue}
-          className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+          className="min-h-11 flex-1 rounded-lg bg-(--action-ink) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--action-ink-hover)"
         >
           Continue to parcels
         </button>

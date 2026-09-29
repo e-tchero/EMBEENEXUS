@@ -147,22 +147,22 @@ export function QuoteForm(props: QuoteFormProps) {
   return (
     <div className="space-y-6">
       <section className="space-y-2 rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">Trip</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-(--foreground-muted)">Trip</p>
         <div>
-          <p className="text-xs text-neutral-600">Pickup</p>
+          <p className="text-xs text-(--foreground-muted)">Pickup</p>
           <p className="text-sm font-medium">{props.pickup.address}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-600">Destination</p>
+          <p className="text-xs text-(--foreground-muted)">Destination</p>
           <p className="text-sm font-medium">{props.dropoff.address}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-600">Parcel</p>
+          <p className="text-xs text-(--foreground-muted)">Parcel</p>
           <p className="text-sm font-medium">{parcelSummary(props.parcels)}</p>
         </div>
         {quote ? (
           <div>
-            <p className="text-xs text-neutral-600">Distance</p>
+            <p className="text-xs text-(--foreground-muted)">Distance</p>
             <p className="text-sm font-medium">{formatDistance(quote.roadDistanceMetres)}</p>
           </div>
         ) : null}
@@ -170,7 +170,7 @@ export function QuoteForm(props: QuoteFormProps) {
 
       {loading ? (
         <div className="space-y-2 text-center">
-          <p className="text-sm text-neutral-600">Measuring the trip and preparing your price…</p>
+          <p className="text-sm text-(--foreground-muted)">Measuring the trip and preparing your price…</p>
           <div className="h-1 w-full overflow-hidden rounded bg-neutral-200">
             <div className="h-full w-1/3 animate-pulse rounded bg-neutral-400" />
           </div>
@@ -199,7 +199,7 @@ export function QuoteForm(props: QuoteFormProps) {
               expiringSoon ? 'border-amber-300 bg-amber-50' : 'border-neutral-200'
             }`}
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">
+            <p className="text-xs font-medium uppercase tracking-wide text-(--foreground-muted)">
               Delivery price
             </p>
             <p className="mt-1 text-4xl font-semibold tracking-tight">
@@ -207,7 +207,7 @@ export function QuoteForm(props: QuoteFormProps) {
             </p>
             <p
               className={`mt-2 text-xs ${
-                expiringSoon ? 'font-medium text-amber-700' : 'text-neutral-600'
+                expiringSoon ? 'font-medium text-amber-700' : 'text-(--foreground-muted)'
               }`}
             >
               {expiringSoon
@@ -226,7 +226,7 @@ export function QuoteForm(props: QuoteFormProps) {
             <button
               type="button"
               onClick={() => props.onQuoteAccepted(quote)}
-              className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+              className="min-h-11 flex-1 rounded-lg bg-(--action-ink) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--action-ink-hover)"
             >
               Continue to payment
             </button>
@@ -254,7 +254,7 @@ export function QuoteForm(props: QuoteFormProps) {
             <button
               type="button"
               onClick={requestFreshQuote}
-              className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+              className="min-h-11 flex-1 rounded-lg bg-(--action-ink) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--action-ink-hover)"
             >
               Get a fresh quote
             </button>

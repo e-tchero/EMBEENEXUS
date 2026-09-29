@@ -51,7 +51,7 @@ export function NewOrderWizard() {
             <li
               key={label}
               className={`h-1.5 flex-1 rounded-full ${
-                index <= stepIndex ? 'bg-neutral-900' : 'bg-neutral-200'
+                index <= stepIndex ? 'bg-(--action-ink)' : 'bg-neutral-200'
               }`}
               aria-current={index === stepIndex ? 'step' : undefined}
               title={STEP_LABELS[label]}

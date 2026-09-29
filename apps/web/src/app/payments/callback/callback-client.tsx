@@ -104,7 +104,7 @@ export function PaymentCallbackClient() {
   if (phase === 'resolving') {
     return (
       <>
-        <p className="text-sm text-neutral-600">Checking payment…</p>
+        <p className="text-sm text-(--foreground-muted)">Checking payment…</p>
         <div className="h-1 w-full overflow-hidden rounded bg-neutral-200">
           <div className="h-full w-1/3 animate-pulse rounded bg-neutral-400" />
         </div>
@@ -116,7 +116,7 @@ export function PaymentCallbackClient() {
     return (
       <>
         <h1 className="text-xl font-semibold">Still checking…</h1>
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-(--foreground-muted)">
           We could not confirm your payment just yet. If you were debited, your order will update
           automatically. Check again shortly.
         </p>
@@ -136,13 +136,13 @@ export function PaymentCallbackClient() {
   return (
     <>
       <h1 className="text-xl font-semibold">{copy.title}</h1>
-      <p className="text-sm text-neutral-600">{copy.body}</p>
+      <p className="text-sm text-(--foreground-muted)">{copy.body}</p>
       {orderId ? (
         <Link
           href={`/orders/${orderId}`}
           className={`inline-block rounded-lg px-4 py-2.5 text-sm font-medium ${
             phase === 'successful'
-              ? 'bg-neutral-900 text-white hover:bg-neutral-700'
+              ? 'bg-(--action-ink) text-white hover:bg-(--action-ink-hover)'
               : 'border border-neutral-300 hover:bg-neutral-100'
           }`}
         >

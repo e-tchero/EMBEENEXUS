@@ -25,12 +25,12 @@ export default async function OperatorLayout({ children }: { children: ReactNode
           <span className="text-sm font-semibold tracking-tight">Embee Operations</span>
           <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="text-neutral-600 hover:text-neutral-900">
+              <Link key={link.href} href={link.href} className="text-(--foreground-muted) hover:text-neutral-900">
                 {link.label}
               </Link>
             ))}
           </nav>
-          <Link href="/dashboard" className="ml-auto text-xs text-neutral-400 hover:text-neutral-600">
+          <Link href="/dashboard" className="ml-auto text-xs text-neutral-400 hover:text-(--foreground-muted)">
             Exit console
           </Link>
         </div>
