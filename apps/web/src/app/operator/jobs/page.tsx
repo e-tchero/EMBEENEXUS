@@ -54,7 +54,7 @@ export default async function OperatorJobsPage() {
                   ))}
                 </dl>
                 <p className="mt-2 text-xs text-neutral-500">
-                  Booleans only — never configuration values or secrets.
+                  Booleans only, never configuration values or secrets.
                 </p>
               </>
             ) : (

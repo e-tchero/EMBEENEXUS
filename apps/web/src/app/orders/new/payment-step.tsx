@@ -95,26 +95,26 @@ export function PaymentStep(props: OrderConfirmationStepProps) {
   return (
     <div className="space-y-6">
       <section className="space-y-2 rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">
           Delivery summary
         </p>
         <div>
-          <p className="text-xs text-neutral-500">Pickup</p>
+          <p className="text-xs text-neutral-600">Pickup</p>
           <p className="text-sm font-medium">{props.pickupAddress}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Destination</p>
+          <p className="text-xs text-neutral-600">Destination</p>
           <p className="text-sm font-medium">{props.dropoffAddress}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Amount</p>
+          <p className="text-xs text-neutral-600">Amount</p>
           <p className="text-lg font-semibold">{formatNairaFromKobo(BigInt(props.priceKobo))}</p>
         </div>
       </section>
 
       {starting && !error ? (
         <div className="space-y-2 text-center">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-neutral-600">
             Preparing your order and secure payment…
           </p>
           <div className="h-1 w-full overflow-hidden rounded bg-neutral-200">
@@ -124,7 +124,7 @@ export function PaymentStep(props: OrderConfirmationStepProps) {
       ) : null}
 
       {redirecting ? (
-        <p className="text-center text-sm text-neutral-500">
+        <p className="text-center text-sm text-neutral-600">
           Taking you to secure payment…
         </p>
       ) : null}
@@ -138,7 +138,7 @@ export function PaymentStep(props: OrderConfirmationStepProps) {
             <button
               type="button"
               onClick={props.onQuoteExpired}
-              className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+              className="min-h-11 w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
             >
               Get a fresh quote
             </button>
@@ -147,14 +147,14 @@ export function PaymentStep(props: OrderConfirmationStepProps) {
               <button
                 type="button"
                 onClick={props.onBack}
-                className="flex-1 rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+                className="min-h-11 flex-1 rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={() => void start()}
-                className="flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+                className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
               >
                 Try again
               </button>

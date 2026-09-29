@@ -72,7 +72,7 @@ export function RiderOfferCard(props: {
       }
       props.onResolved();
     } catch {
-      setError('Network problem — try again.');
+      setError('Network problem, try again.');
       setBusy(null);
     }
   }

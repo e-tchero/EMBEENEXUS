@@ -41,7 +41,7 @@ export default async function OperatorHomePage() {
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Operations overview</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Closed Abuja pilot — live operational state, no vanity analytics.
+          Closed Abuja pilot: live operational state, no vanity analytics.
         </p>
       </header>
 

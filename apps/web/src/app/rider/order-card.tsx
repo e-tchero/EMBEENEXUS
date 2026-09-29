@@ -66,7 +66,7 @@ export function RiderOrderCard(props: {
       }
       props.onChanged();
     } catch {
-      setError('Network problem — try again.');
+      setError('Network problem, try again.');
     } finally {
       setBusy(null);
     }
@@ -98,7 +98,7 @@ export function RiderOrderCard(props: {
       setOtp('');
       props.onChanged();
     } catch {
-      setOtpError('Network problem — try again.');
+      setOtpError('Network problem, try again.');
     } finally {
       setBusy(null);
     }
@@ -147,7 +147,7 @@ export function RiderOrderCard(props: {
       setNotice('Photo uploaded.');
       props.onChanged();
     } catch {
-      setError('Upload failed — check your connection and try again.');
+      setError('Upload failed, check your connection and try again.');
     } finally {
       setBusy(null);
     }
@@ -171,7 +171,7 @@ export function RiderOrderCard(props: {
       }
       props.onChanged();
     } catch {
-      setError('Network problem — try again.');
+      setError('Network problem, try again.');
     } finally {
       setBusy(null);
     }
@@ -197,15 +197,15 @@ export function RiderOrderCard(props: {
   return (
     <section className="space-y-4 rounded-xl border-2 border-neutral-900 p-4">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-600">
           Current delivery
         </p>
-        <p className="mt-0.5 font-mono text-xs text-neutral-400">{order.orderId}</p>
+        <p className="mt-0.5 font-mono text-xs text-neutral-600">{order.orderId}</p>
       </header>
 
       <div className="space-y-1.5">
-        <p className="text-sm"><span className="text-neutral-500">Pickup:</span> {order.pickupAddress}</p>
-        <p className="text-sm"><span className="text-neutral-500">Drop-off:</span> {order.dropoffAddress}</p>
+        <p className="text-sm"><span className="text-neutral-600">Pickup:</span> {order.pickupAddress}</p>
+        <p className="text-sm"><span className="text-neutral-600">Drop-off:</span> {order.dropoffAddress}</p>
       </div>
 
       {props.waiting ? (
@@ -293,7 +293,7 @@ export function RiderOrderCard(props: {
             back to the pickup customer, then confirm the return below.
           </p>
           <ActionButton busy={busy} label="return" onClick={() => void completeReturn()}>
-            Parcel returned — confirm
+            Parcel returned, confirm
           </ActionButton>
         </div>
       ) : null}
@@ -348,7 +348,7 @@ function OtpEntry(props: {
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor="rider-otp" className="block text-xs font-medium text-neutral-500">
+      <label htmlFor="rider-otp" className="block text-xs font-medium text-neutral-600">
         {props.hint}
       </label>
       <input
@@ -388,7 +388,7 @@ function EvidenceUpload(props: {
   const label = props.kind === 'rider_pickup' ? 'Pickup evidence photo' : 'Delivery evidence photo';
   return (
     <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
-      <p className="text-xs font-medium text-neutral-500">{label} (required before the code step)</p>
+      <p className="text-xs font-medium text-neutral-600">{label} (required before the code step)</p>
       <input
         ref={props.inputRef}
         type="file"

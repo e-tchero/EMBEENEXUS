@@ -1,19 +1,78 @@
 @import 'tailwindcss';
 
+/*
+ * EMBEE NEXUS V2 design tokens (v0.1), see DESIGN.md for the contract.
+ *
+ * Neutral grayscale foundation, functional semantic colors only. Light values
+ * are Tailwind neutral steps; dark values are centrally chosen so text on the
+ * dark page surface meets WCAG AA (normal text 4.5:1). Semantic status colors
+ * are provided for new work; existing fixed-light status panels
+ * (bg-red-50/text-red-700 and siblings) already pass contrast in both schemes
+ * and are updated separately if ever moved onto flipping surfaces.
+ *
+ * OWNER_DECISION (not tokenized, unresolved): brand accent, logo/brand mark,
+ * custom typeface, imagery. Do not introduce them here.
+ */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-line: var(--line);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-foreground: var(--action-foreground);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-error);
+  --color-status-info: var(--status-info);
+
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+
+  --spacing-touch: 2.75rem;
+}
+
 :root {
-  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f5f5f5;
   --foreground: #171717;
+  /* #525252: 7.81:1 on light surface, 7.15:1 on dark surface. */
+  --foreground-muted: #525252;
+  /* #737373: 4.74:1 on light; fails on dark, so dark maps to #a3a3a3 (7.85:1). */
+  --foreground-subtle: #737373;
+  --line: #d4d4d4;
+  --action: #171717;
+  --action-hover: #404040;
+  /* 17.93:1 on both action values. */
+  --action-foreground: #ffffff;
+  --status-success: #15803d;
+  --status-warning: #b45309;
+  --status-error: #b91c1c;
+  --status-info: #1d4ed8;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --surface: #0a0a0a;
+    --surface-muted: #171717;
     --foreground: #ededed;
+    --foreground-muted: #d4d4d4;
+    --foreground-subtle: #a3a3a3;
+    --line: #404040;
+    --action: #ededed;
+    --action-hover: #d4d4d4;
+    --action-foreground: #0a0a0a;
+    --status-success: #22c55e;
+    --status-warning: #fbbf24;
+    --status-error: #f87171;
+    --status-info: #93c5fd;
   }
 }
 
 body {
-  background: var(--background);
+  background: var(--surface);
   color: var(--foreground);
   font-family:
     ui-sans-serif,

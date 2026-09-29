@@ -137,7 +137,7 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
         <button
           type="button"
           onClick={() => void load()}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+          className="min-h-11 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
         >
           Try again
         </button>
@@ -146,7 +146,7 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
   }
 
   if (!order) {
-    return <p className="text-sm text-neutral-500">Loading your delivery…</p>;
+    return <p className="text-sm text-neutral-600">Loading your delivery…</p>;
   }
 
   const copy = ORDER_STATUS_COPY[order.status] ?? {
@@ -160,7 +160,7 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Status</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">Status</p>
         <p className="mt-1 text-xl font-semibold tracking-tight">{copy.label}</p>
         <p className="mt-1 text-sm text-neutral-600">{copy.body}</p>
         {copy.next !== '' ? (
@@ -171,21 +171,21 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
       </section>
 
       <section className="space-y-2 rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Details</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">Details</p>
         <div>
-          <p className="text-xs text-neutral-500">Order reference</p>
+          <p className="text-xs text-neutral-600">Order reference</p>
           <p className="font-mono text-xs">{order.id}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Pickup</p>
+          <p className="text-xs text-neutral-600">Pickup</p>
           <p className="text-sm font-medium">{order.pickupAddress}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Destination</p>
+          <p className="text-xs text-neutral-600">Destination</p>
           <p className="text-sm font-medium">{order.dropoffAddress}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Amount</p>
+          <p className="text-xs text-neutral-600">Amount</p>
           <p className="text-sm font-medium">
             ₦{(Number(order.customerPriceKobo) / 100).toLocaleString('en-NG')}
           </p>
@@ -212,7 +212,7 @@ export function OrderStatusClient({ orderId }: { orderId: string }) {
 
       {canConfirm ? (
         <section className="space-y-3">
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-neutral-600">
             Received and inspected the parcel? Confirm to complete the delivery.
           </p>
           <button

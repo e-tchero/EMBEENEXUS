@@ -147,22 +147,22 @@ export function QuoteForm(props: QuoteFormProps) {
   return (
     <div className="space-y-6">
       <section className="space-y-2 rounded-xl border border-neutral-200 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Trip</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">Trip</p>
         <div>
-          <p className="text-xs text-neutral-500">Pickup</p>
+          <p className="text-xs text-neutral-600">Pickup</p>
           <p className="text-sm font-medium">{props.pickup.address}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Destination</p>
+          <p className="text-xs text-neutral-600">Destination</p>
           <p className="text-sm font-medium">{props.dropoff.address}</p>
         </div>
         <div>
-          <p className="text-xs text-neutral-500">Parcel</p>
+          <p className="text-xs text-neutral-600">Parcel</p>
           <p className="text-sm font-medium">{parcelSummary(props.parcels)}</p>
         </div>
         {quote ? (
           <div>
-            <p className="text-xs text-neutral-500">Distance</p>
+            <p className="text-xs text-neutral-600">Distance</p>
             <p className="text-sm font-medium">{formatDistance(quote.roadDistanceMetres)}</p>
           </div>
         ) : null}
@@ -170,7 +170,7 @@ export function QuoteForm(props: QuoteFormProps) {
 
       {loading ? (
         <div className="space-y-2 text-center">
-          <p className="text-sm text-neutral-500">Measuring the trip and preparing your price…</p>
+          <p className="text-sm text-neutral-600">Measuring the trip and preparing your price…</p>
           <div className="h-1 w-full overflow-hidden rounded bg-neutral-200">
             <div className="h-full w-1/3 animate-pulse rounded bg-neutral-400" />
           </div>
@@ -185,7 +185,7 @@ export function QuoteForm(props: QuoteFormProps) {
           <button
             type="button"
             onClick={props.onBack}
-            className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+            className="min-h-11 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
           >
             Change addresses
           </button>
@@ -199,7 +199,7 @@ export function QuoteForm(props: QuoteFormProps) {
               expiringSoon ? 'border-amber-300 bg-amber-50' : 'border-neutral-200'
             }`}
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">
               Delivery price
             </p>
             <p className="mt-1 text-4xl font-semibold tracking-tight">
@@ -207,11 +207,11 @@ export function QuoteForm(props: QuoteFormProps) {
             </p>
             <p
               className={`mt-2 text-xs ${
-                expiringSoon ? 'font-medium text-amber-700' : 'text-neutral-500'
+                expiringSoon ? 'font-medium text-amber-700' : 'text-neutral-600'
               }`}
             >
               {expiringSoon
-                ? `Expires in ${formatRemaining(remainingMs ?? 0)} — pay before it expires`
+                ? `Expires in ${formatRemaining(remainingMs ?? 0)}, pay before it expires`
                 : `Guaranteed for ${formatRemaining(remainingMs ?? 0)}`}
             </p>
           </div>
@@ -219,14 +219,14 @@ export function QuoteForm(props: QuoteFormProps) {
             <button
               type="button"
               onClick={props.onBack}
-              className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+              className="min-h-11 rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
             >
               Back
             </button>
             <button
               type="button"
               onClick={() => props.onQuoteAccepted(quote)}
-              className="flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+              className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
             >
               Continue to payment
             </button>
@@ -239,7 +239,7 @@ export function QuoteForm(props: QuoteFormProps) {
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
             <p className="text-sm font-semibold text-red-700">Quote expired</p>
             <p className="mt-1 text-xs text-red-600">
-              Prices are guaranteed for 10 minutes. Get a fresh quote to continue — nothing has
+              Prices are guaranteed for 10 minutes. Get a fresh quote to continue, nothing has
               been charged.
             </p>
           </div>
@@ -247,14 +247,14 @@ export function QuoteForm(props: QuoteFormProps) {
             <button
               type="button"
               onClick={props.onBack}
-              className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+              className="min-h-11 rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
             >
               Change addresses
             </button>
             <button
               type="button"
               onClick={requestFreshQuote}
-              className="flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
+              className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700"
             >
               Get a fresh quote
             </button>

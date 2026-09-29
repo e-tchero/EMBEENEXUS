@@ -106,7 +106,7 @@ export function RiderHomeClient() {
         setAvailabilityError(message);
       }
     } catch {
-      setAvailabilityError('Network problem — try again.');
+      setAvailabilityError('Network problem, try again.');
     } finally {
       setAvailabilityBusy(false);
       await load();
@@ -122,7 +122,7 @@ export function RiderHomeClient() {
         <button
           type="button"
           onClick={() => void load()}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+          className="min-h-11 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
         >
           Try again
         </button>
@@ -131,7 +131,7 @@ export function RiderHomeClient() {
   }
 
   if (phase === 'loading' || !state) {
-    return <p className="text-sm text-neutral-500">Loading your rider console…</p>;
+    return <p className="text-sm text-neutral-600">Loading your rider console…</p>;
   }
 
   const { rider, offer, activeOrder } = state;
@@ -152,7 +152,7 @@ export function RiderHomeClient() {
       <section className="rounded-xl border border-neutral-200 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-600">
               Availability
             </p>
             <p className="mt-0.5 text-sm font-semibold">
@@ -173,8 +173,8 @@ export function RiderHomeClient() {
           </button>
         </div>
         {activeOrder !== null ? (
-          <p className="mt-2 text-xs text-neutral-500">
-            You are committed to a delivery — availability is controlled by the dispatch system
+          <p className="mt-2 text-xs text-neutral-600">
+            You are committed to a delivery, so availability is controlled by the dispatch system
             until it completes.
           </p>
         ) : null}
@@ -206,7 +206,7 @@ export function RiderHomeClient() {
           <p className="text-sm font-medium">
             {rider.isAvailable ? 'Waiting for the next delivery offer…' : 'You are unavailable.'}
           </p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-neutral-600">
             {rider.isAvailable
               ? 'Offers go to available riders in order of availability. Keep this screen open.'
               : 'Go available to start receiving delivery offers.'}
@@ -214,9 +214,9 @@ export function RiderHomeClient() {
         </section>
       ) : null}
 
-      <section className="rounded-lg bg-neutral-100 px-4 py-3 text-xs text-neutral-500">
+      <section className="rounded-lg bg-neutral-100 px-4 py-3 text-xs text-neutral-600">
         <p>
-          Earnings and payouts arrive in a later milestone — this screen shows only operational
+          Earnings and payouts arrive in a later milestone. This screen shows only operational
           state.
         </p>
         <p className="mt-1">
@@ -229,7 +229,7 @@ export function RiderHomeClient() {
       <form action={signOutAction}>
         <button
           type="submit"
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+          className="min-h-11 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
         >
           Sign out
         </button>
@@ -277,7 +277,7 @@ function VerificationGate({ status, notes }: { status: string; notes: string | n
       <form action={signOutAction}>
         <button
           type="submit"
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
+          className="min-h-11 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium hover:bg-neutral-100"
         >
           Sign out
         </button>

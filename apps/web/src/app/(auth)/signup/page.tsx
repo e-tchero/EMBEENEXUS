@@ -12,10 +12,10 @@ export default function SignupPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
-          <p className="text-sm text-neutral-500">Join Embee Nexus</p>
+          <p className="text-sm text-neutral-600">Join Embee Nexus</p>
         </div>
         <SignupForm />
-        <p className="text-center text-sm text-neutral-500">
+        <p className="text-center text-sm text-neutral-600">
           Already have an account?{' '}
           <a href="/login" className="font-medium underline underline-offset-4">
             Sign in

@@ -11,7 +11,7 @@ export function messageForOtpError(code: string | undefined): string {
     case 'otp_expired':
       return 'That code expired. Ask the customer to show the current one.';
     case 'otp_locked':
-      return 'Too many wrong attempts — this code is locked. Contact support.';
+      return 'Too many wrong attempts, this code is locked. Contact support.';
     case 'otp_already_used':
       return 'That code was already used.';
     case 'otp_not_issued':
@@ -35,7 +35,7 @@ export function messageForTransitionError(code: string | undefined): string {
     case 'prerequisite_missing':
       return 'A required step (code or photo) has not been completed yet.';
     case 'invalid_order_state':
-      return 'The order state changed — refresh and check the current step.';
+      return 'The order state changed. Refresh and check the current step.';
     case 'forbidden':
     case 'unauthenticated':
       return 'Your session expired. Sign in again.';

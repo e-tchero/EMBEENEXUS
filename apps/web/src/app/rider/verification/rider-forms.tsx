@@ -61,7 +61,7 @@ export function VerificationActions({ status }: { status: string }) {
           <button
             type="submit"
             disabled={withdrawPending}
-            className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100 disabled:opacity-50"
+            className="min-h-11 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100 disabled:opacity-50"
           >
             {withdrawPending ? 'Withdrawing…' : 'Withdraw'}
           </button>
@@ -73,7 +73,7 @@ export function VerificationActions({ status }: { status: string }) {
         <p className="text-sm text-green-700">Verification approved.</p>
       ) : null}
       {status === 'under_review' ? (
-        <p className="text-sm text-neutral-500">Your submission is under review.</p>
+        <p className="text-sm text-neutral-600">Your submission is under review.</p>
       ) : null}
     </div>
   );
