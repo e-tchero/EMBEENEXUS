@@ -28,6 +28,7 @@ interface OrderRow {
 export default async function DashboardPage() {
   const session = await requireUser();
   if (session.role === 'rider') redirect('/rider/home');
+  if (session.role === 'operator') redirect('/operator');
 
   const supabase = await createClient();
   const { data } = await supabase
