@@ -1,0 +1,23 @@
+{
+  "name": "@embeenexus/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./value-objects": "./src/value-objects/index.ts",
+    "./order": "./src/order/index.ts",
+    "./dispatch": "./src/dispatch/index.ts",
+    "./ports": "./src/ports/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

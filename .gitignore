@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-pnpm-store/
+.pnpm-store/
 
 # Build output
 dist/
@@ -9,6 +9,7 @@ build/
 out/
 coverage/
 *.tsbuildinfo
+.turbo/
 
 # Environment — never commit real values
 .env
