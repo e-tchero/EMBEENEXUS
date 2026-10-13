@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Environment — never commit real values
+.env
+.env.*
+!.env.example
+
+# Tooling / editor
+.freebuff/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Local DB / cache
+.supabase/.temp/
+*.local
